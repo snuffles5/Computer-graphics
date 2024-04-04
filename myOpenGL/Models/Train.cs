@@ -16,29 +16,46 @@ namespace Models
         private readonly float cabWidth;
         private readonly float cabHeight;
         private readonly float cabDepth;
+        private readonly float cabBottomBaseWidth;
+        private readonly float cabBottomBaseHeight;
+        private float cabAngleX = 0.0f;
+        private float cabAngleY = 0.0f;
+        private float cabAngleZ = 0.0f;
         private readonly float chimneyBaseRadius;
         private readonly float chimneyTopRadius;
         private readonly float chimneyHeight;
+
+        GLUquadric obj;
+
 
         private float wheelRotation = 0.0f;
         private uint cabList, wheelList, locomotiveList;
 
         public Locomotive()
         {
-            cabWidth = 3.0f;
-            cabHeight = 1.0f;
-            cabDepth = 3f;
+            cabWidth = 7.0f;
+            cabHeight = 1.5f;
+            cabDepth = 1.5f;
+            cabBottomBaseWidth = cabWidth * 1.1f;
+            cabBottomBaseHeight = 0.5f;
             wheelRadius = 0.4f;
             wheelThickness = 0.1f;
-            chimneyBaseRadius = 0.1f;
-            chimneyTopRadius = 0.1f;
-            chimneyHeight = 0.5f;
+            chimneyBaseRadius = 0.3f;
+            chimneyTopRadius = 0.8f;
+            chimneyHeight = 1.5f;
+            obj = GLU.gluNewQuadric();
 
 
             PrepareLists();
         }
 
-        private void PrepareLists()
+        ~Locomotive()
+        {
+            GLU.gluDeleteQuadric(obj);
+        }
+
+
+    private void PrepareLists()
         {
             // Generate a contiguous block of list identifiers
             locomotiveList = GL.glGenLists(3); // We request 3 lists at once
@@ -49,7 +66,7 @@ namespace Models
             // Define the cab
             GL.glNewList(cabList, GL.GL_COMPILE);
             DrawCabBase();
-            //DrawChimney();
+            DrawChimney();
             GL.glEndList();
 
             // Define the wheel
@@ -83,74 +100,97 @@ namespace Models
 
         public void Draw()
         {
-            // Set up the view
-            GL.glTranslatef(0.0f, 0.0f, -10.0f); // Move the entire scene back to be within view
-            //GL.glEnable(GL.GL_COLOR_MATERIAL);
-            //GL.glEnable(GL.GL_LIGHT0);
-            //GL.glEnable(GL.GL_LIGHTING);
+            // Example: Assuming you want to rotate the locomotive around its center
+            GL.glPushMatrix(); // Save the current state
+
+            //GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // This uses the wheelRotation, adjust as needed
+
+            // Now draw the locomotive
             GL.glCallList(locomotiveList);
+
+            GL.glPopMatrix(); // Restore the original state
         }
 
-        private void DrawCabBase() 
+        private void DrawCuboid(float width, float height, float depth, ColorName color)
+        {
+            GL.glPushMatrix(); // Save the current state
+
+            // Set the color for the cuboid
+            ColorUtil.SetColor(color);
+
+            // Front Face
+            GL.glBegin(GL.GL_QUADS);
+            GL.glVertex3f(-width, -height, depth);
+            GL.glVertex3f(width, -height, depth);
+            GL.glVertex3f(width, height, depth);
+            GL.glVertex3f(-width, height, depth);
+            GL.glEnd();
+
+            // Back Face
+            GL.glBegin(GL.GL_QUADS);
+            GL.glVertex3f(-width, -height, -depth);
+            GL.glVertex3f(width, -height, -depth);
+            GL.glVertex3f(width, height, -depth);
+            GL.glVertex3f(-width, height, -depth);
+            GL.glEnd();
+
+            // Top Face
+            GL.glBegin(GL.GL_QUADS);
+            GL.glVertex3f(-width, height, -depth);
+            GL.glVertex3f(width, height, -depth);
+            GL.glVertex3f(width, height, depth);
+            GL.glVertex3f(-width, height, depth);
+            GL.glEnd();
+
+            // Bottom Face
+            GL.glBegin(GL.GL_QUADS);
+            GL.glVertex3f(-width, -height, -depth);
+            GL.glVertex3f(width, -height, -depth);
+            GL.glVertex3f(width, -height, depth);
+            GL.glVertex3f(-width, -height, depth);
+            GL.glEnd();
+
+            // Right Face
+            GL.glBegin(GL.GL_QUADS);
+            GL.glVertex3f(width, -height, -depth);
+            GL.glVertex3f(width, height, -depth);
+            GL.glVertex3f(width, height, depth);
+            GL.glVertex3f(width, -height, depth);
+            GL.glEnd();
+
+            // Left Face
+            GL.glBegin(GL.GL_QUADS);
+            GL.glVertex3f(-width, -height, -depth);
+            GL.glVertex3f(-width, height, -depth);
+            GL.glVertex3f(-width, height, depth);
+            GL.glVertex3f(-width, -height, depth);
+            GL.glEnd();
+            
+            GL.glPopMatrix(); // Restore the original state
+        }
+
+        private void DrawCabBase()
         {
             // Assuming cabWidth, cabHeight, and cabDepth have been defined elsewhere
             float halfWidth = cabWidth / 2;
             float halfHeight = cabHeight / 2;
             float halfDepth = cabDepth / 2;
+            DrawCuboid(halfWidth, halfHeight, halfDepth, ColorName.Beige);
+            DrawCabBottomBase();
 
-            // Front Face
-            GL.glBegin(GL.GL_QUADS);
-            ColorUtil.SetColor(ColorName.Green);
-            GL.glVertex3f(-halfWidth, -halfHeight, halfDepth);
-            GL.glVertex3f(halfWidth, -halfHeight, halfDepth);
-            GL.glVertex3f(halfWidth, halfHeight, halfDepth);
-            GL.glVertex3f(-halfWidth, halfHeight, halfDepth);
-            GL.glEnd();
+        }
+            private void DrawCabBottomBase()
+        {
+            // Assuming cabWidth, cabHeight, and cabDepth have been defined elsewhere
+            float halfWidth = cabBottomBaseWidth / 2;
+            float halfHeight = cabBottomBaseHeight / 2;
+            float halfDepth = cabDepth / 2;
+            // Translate down to position the bottom base at the bottom of the cab
+            float translateY = -(cabHeight / 2 + cabBottomBaseHeight / 2);
+            GL.glTranslatef(0.0f, translateY, 0.0f); // No translation on X and Z axes
 
-            // Back Face
-            GL.glBegin(GL.GL_QUADS);
-            ColorUtil.SetColor(ColorName.Red);
-            GL.glVertex3f(-halfWidth, -halfHeight, -halfDepth);
-            GL.glVertex3f(halfWidth, -halfHeight, -halfDepth);
-            GL.glVertex3f(halfWidth, halfHeight, -halfDepth);
-            GL.glVertex3f(-halfWidth, halfHeight, -halfDepth);
-            GL.glEnd();
-
-            // Top Face
-            GL.glBegin(GL.GL_QUADS);
-            ColorUtil.SetColor(ColorName.Blue);
-            GL.glVertex3f(-halfWidth, halfHeight, -halfDepth);
-            GL.glVertex3f(halfWidth, halfHeight, -halfDepth);
-            GL.glVertex3f(halfWidth, halfHeight, halfDepth);
-            GL.glVertex3f(-halfWidth, halfHeight, halfDepth);
-            GL.glEnd();
-
-            // Bottom Face
-            GL.glBegin(GL.GL_QUADS);
-            ColorUtil.SetColor(ColorName.Purple);
-            GL.glVertex3f(-halfWidth, -halfHeight, -halfDepth);
-            GL.glVertex3f(halfWidth, -halfHeight, -halfDepth);
-            GL.glVertex3f(halfWidth, -halfHeight, halfDepth);
-            GL.glVertex3f(-halfWidth, -halfHeight, halfDepth);
-            GL.glEnd();
-
-            // Right Face
-            GL.glBegin(GL.GL_QUADS);
-            ColorUtil.SetColor(ColorName.Black);
-            GL.glVertex3f(halfWidth, -halfHeight, -halfDepth);
-            GL.glVertex3f(halfWidth, halfHeight, -halfDepth);
-            GL.glVertex3f(halfWidth, halfHeight, halfDepth);
-            GL.glVertex3f(halfWidth, -halfHeight, halfDepth);
-            GL.glEnd();
-
-            // Left Face
-            GL.glBegin(GL.GL_QUADS);
-            ColorUtil.SetColor(ColorName.Yellow);
-            GL.glVertex3f(-halfWidth, -halfHeight, -halfDepth);
-            GL.glVertex3f(-halfWidth, halfHeight, -halfDepth);
-            GL.glVertex3f(-halfWidth, halfHeight, halfDepth);
-            GL.glVertex3f(-halfWidth, -halfHeight, halfDepth);
-            GL.glEnd();
+    
+            DrawCuboid(halfWidth, halfHeight, halfDepth, ColorName.Bronze);
         }
 
 
@@ -159,12 +199,30 @@ namespace Models
             // Setup color and materials
             ColorUtil.SetColor(ColorName.Black);
 
-            // Draw chimney - replace with actual OpenGL drawing calls
-            // This could be a cylinder or a series of quads/triangles to make a custom shape
-            // ...
+            // Calculate the translation values before drawing the chimney
+            float translateX = cabWidth * 0.25f; // 75% to the right, starting from the center
+            float translateY = cabHeight / 1.1f; // On top of the cab
+            float translateZ = 0.0f; // Centered along the cab's depth
+
+
+            // Assuming you're using gluCylinder to draw the chimney
+            GL.glPushMatrix(); // Save the current transformation state
+            GL.glTranslatef(translateX, translateY, translateZ); // Apply the calculated translation
+            DrawCylinder(baseRadius: chimneyBaseRadius, topRadius: chimneyTopRadius, height: chimneyHeight);
+            GL.glPopMatrix(); // Restore the previous transformation state
 
             // Assume you have a function to draw a cylinder given base radius, top radius, and height
-            DrawCylinder(baseRadius: chimneyBaseRadius, topRadius: chimneyTopRadius, height: chimneyHeight);
+        }
+
+        private void DrawCylinder(float baseRadius, float topRadius, float height, bool isRotateUpwards = true)
+        {
+            if (isRotateUpwards)
+            {
+                // Rotate -90 degrees around the x-axis to make the chimney's top face upwards
+                GL.glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+            }
+
+            GLU.gluCylinder(obj, baseRadius, topRadius, height, 32, 32);
         }
 
         private void DrawWheels()
@@ -190,27 +248,6 @@ namespace Models
         {
             // Update the wheel rotation based on delta time
             wheelRotation += deltaTime * 20.0f; // Adjust the speed as necessary
-        }
-
-        // Placeholder methods to represent drawing primitives, which would use actual OpenGL calls
-        private void DrawBox(float width, float height, float depth)
-        {
-            GL.glBegin(GL.GL_QUADS);
-
-            // Front face
-            GL.glVertex3f(-width / 2, -height / 2, depth / 2);
-            GL.glVertex3f(width / 2, -height / 2, depth / 2);
-            GL.glVertex3f(width / 2, height / 2, depth / 2);
-            GL.glVertex3f(-width / 2, height / 2, depth / 2);
-
-            // Repeat for other faces...
-
-            GL.glEnd();
-        }
-
-        private void DrawCylinder(float baseRadius, float topRadius, float height)
-        {
-            // Replace with actual OpenGL code to draw a cylinder
         }
 
         private void DrawWheel(float radius, float thickness)

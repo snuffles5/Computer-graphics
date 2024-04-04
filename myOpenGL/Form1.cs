@@ -186,23 +186,28 @@ namespace myOpenGL
                 cGL.xAngle = 0.0f;
                 cGL.yAngle = 0.0f;
                 cGL.zAngle = 0.0f;
+                cGL.intOptionC = 0; // Reset transformations
             }
-            else if(isShiftPressed)
+            else if (isShiftPressed)
             {
                 // Handle rotation when Shift is held down
                 switch (e.KeyCode)
                 {
                     case Keys.Right:
                         cGL.yAngle += 5; // Rotate around Y-axis
+                        cGL.intOptionC = 2; // Indicating a rotation around Y
                         break;
                     case Keys.Left:
                         cGL.yAngle -= 5; // Rotate around Y-axis
+                        cGL.intOptionC = -2; // Indicating a rotation around Y in the opposite direction
                         break;
                     case Keys.Up:
                         cGL.xAngle += 5; // Rotate around X-axis
+                        cGL.intOptionC = 1; // Indicating a rotation around X
                         break;
                     case Keys.Down:
                         cGL.xAngle -= 5; // Rotate around X-axis
+                        cGL.intOptionC = -1; // Indicating a rotation around X in the opposite direction
                         break;
                 }
             }
@@ -213,22 +218,30 @@ namespace myOpenGL
                 {
                     case Keys.Right:
                         cGL.xShift += 0.1f;
+                        cGL.intOptionC = 4; // Indicating a shift along X
                         break;
                     case Keys.Left:
                         cGL.xShift -= 0.1f;
+                        cGL.intOptionC = -4; // Indicating a shift along X in the opposite direction
                         break;
                     case Keys.Up:
                         cGL.yShift += 0.1f;
+                        cGL.intOptionC = 5; // Indicating a shift along Y
                         break;
                     case Keys.Down:
                         cGL.yShift -= 0.1f;
+                        cGL.intOptionC = -5; // Indicating a shift along Y in the opposite direction
                         break;
                 }
             }
 
             cGL.Draw();
             e.Handled = true; // Mark the event as handled
+
+            // Reset intOptionC to default after applying transformation and redrawing
+            cGL.intOptionC = 0;
         }
+
 
 
         private void panel1_MouseWheel(object sender, MouseEventArgs e)
@@ -236,12 +249,15 @@ namespace myOpenGL
             if (e.Delta > 0)
             {
                 cGL.zShift += 0.5f; // Zoom in
+                cGL.intOptionC = 6; // Assuming positive intOptionC value for zoom in
             }
             else if (e.Delta < 0)
             {
                 cGL.zShift -= 0.5f; // Zoom out
+                cGL.intOptionC = -6; // Assuming negative intOptionC value for zoom out
             }
             cGL.Draw();
+            cGL.intOptionC = 0; // Reset to default after drawing
         }
 
         private void panel1_MouseEnter(object sender, EventArgs e)

@@ -23,7 +23,13 @@ namespace OpenGL
         public float yAngle = 0.0f;
         public float xAngle = 0.0f;
         public int intOptionC = 0;
-        double[] AccumulatedRotationsTraslations = new double[16];
+        // Initialization of AccumulatedRotationsTraslations to the identity matrix
+        double[] AccumulatedRotationsTraslations = new double[]{
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        };
         public Locomotive locomotive;
 
         public cOGL(Control pb)
@@ -110,43 +116,94 @@ namespace OpenGL
 
         public void Draw()
         {
-            // Check if the OpenGL rendering context is properly initialized
+            // Check if device contexts are initialized
             if (m_uint_DC == 0 || m_uint_RC == 0)
-                return; // Early return if the context is not available, to prevent errors
+                return;
 
-            // Clear the screen and depth buffer to prepare for a new frame
+            // Clear color and depth buffers
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
-            // Set the viewport to cover the entire window area
-            GL.glViewport(0, 0, Width, Height);
-
-            // Reset the current matrix to the identity matrix
+            // Load identity matrix
             GL.glLoadIdentity();
 
-            // Setup the camera using gluLookAt to control the viewpoint
-            // This sets where the camera is located, where it is looking, and which direction is up
-            GLU.gluLookAt(ScrollValue[0], ScrollValue[1], ScrollValue[2], // Camera position (eye)
-                          ScrollValue[3], ScrollValue[4], ScrollValue[5], // Look-at point (center)
-                          ScrollValue[6], ScrollValue[7], ScrollValue[8]); // Up vector
+            // Define arrays to store matrix values
+            double[] ModelVievMatrixBeforeSpecificTransforms = new double[16];
+            
 
-            // Apply translations based on user input for moving the scene
-            // These variables (xShift, yShift, zShift) are adjusted elsewhere in the program based on user interactions
-            GL.glTranslatef(xShift, yShift, zShift);
+            // Set up viewing transformation
+            GLU.gluLookAt(ScrollValue[0], ScrollValue[1], ScrollValue[2],
+                          ScrollValue[3], ScrollValue[4], ScrollValue[5],
+                          ScrollValue[6], ScrollValue[7], ScrollValue[8]);
+            GL.glTranslatef(0.0f, 0.0f, -10.0f);
 
-            // Apply rotations around each axis based on user input for rotating the scene
-            // xAngle, yAngle, and zAngle are adjusted elsewhere in the program based on user interactions
-            GL.glRotatef(xAngle, 1.0f, 0.0f, 0.0f); // Rotate around the X-axis by xAngle degrees
-            GL.glRotatef(yAngle, 0.0f, 1.0f, 0.0f); // Rotate around the Y-axis by yAngle degrees
-            GL.glRotatef(zAngle, 0.0f, 0.0f, 1.0f); // Rotate around the Z-axis by zAngle degrees
+            // Save current ModelView Matrix values before specific transformations
+            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, ModelVievMatrixBeforeSpecificTransforms);
+            // Reset ModelView Matrix to identity matrix
+            GL.glLoadIdentity();
+
+            // Apply transformation according to KeyCode
+            float delta;
+            if (intOptionC != 0)
+            {
+                delta = 5.0f * Math.Abs(intOptionC) / intOptionC; // signed 5
+
+                switch (Math.Abs(intOptionC))
+                {
+                    case 1:
+                        GL.glRotatef(delta, 1, 0, 0);
+                        break;
+                    case 2:
+                        GL.glRotatef(delta, 0, 1, 0);
+                        break;
+                    case 3:
+                        GL.glRotatef(delta, 0, 0, 1);
+                        break;
+                    case 4:
+                        GL.glTranslatef(delta / 20, 0, 0);
+                        break;
+                    case 5:
+                        GL.glTranslatef(0, delta / 20, 0);
+                        break;
+                    case 6:
+                        GL.glTranslatef(0, 0, delta / 20);
+                        break;
+                }
+            }
+            // The ModelView Matrix now represents only the KeyCode transform
+
+
+            ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
 
 
             locomotive.Draw();
 
-            // Complete any pending OpenGL commands and ensure they are executed
+            // Flush GL pipeline
             GL.glFlush();
 
-            // Swap the front and back buffers to display the newly rendered frame
+            // Swap buffers
             WGL.wglSwapBuffers(m_uint_DC);
+        }
+
+        public void ApplyAndAccumulateTransformations(double[] ModelVievMatrixBeforeSpecificTransforms)
+        {
+
+            double[] CurrentRotationTraslation = new double[16];
+            // Save current ModelView Matrix values after transformations
+            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, CurrentRotationTraslation);
+
+            // Replace the current matrix with the global matrix
+            GL.glLoadMatrixd(AccumulatedRotationsTraslations);
+
+            // Multiply the current matrix by the transformation matrix
+            GL.glMultMatrixd(CurrentRotationTraslation);
+
+            // Save the matrix product in AccumulatedRotationsTraslations
+            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, AccumulatedRotationsTraslations);
+
+            // Restore ModelView Matrix to the state before KeyCode transformations
+            GL.glLoadMatrixd(ModelVievMatrixBeforeSpecificTransforms);
+            // Multiply it by the accumulated transformations matrix
+            GL.glMultMatrixd(AccumulatedRotationsTraslations);
         }
 
 
