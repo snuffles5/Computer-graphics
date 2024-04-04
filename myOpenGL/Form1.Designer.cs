@@ -1,3 +1,6 @@
+using System;
+using System.Windows.Forms;
+
 namespace myOpenGL
 {
     partial class Form1
@@ -390,6 +393,11 @@ namespace myOpenGL
             this.Controls.Add(this.hScrollBar2);
             this.Controls.Add(this.hScrollBar1);
             this.Controls.Add(this.panel1);
+            this.KeyPreview = true; // Enable the form to capture key events before they reach any controls
+            this.panel1.MouseWheel += new MouseEventHandler(panel1_MouseWheel);
+            this.panel1.MouseEnter += new EventHandler(panel1_MouseEnter);
+            this.KeyDown += new KeyEventHandler(Form1_KeyDown);
+            this.KeyPreview = true;
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);

@@ -26,13 +26,13 @@ namespace myOpenGL
             cGL = new cOGL(panel1);
 
             //3D model b4
-            listBox1.Items.Add("Stop");
-            foreach (Animation anim in cGL.ch.Animations)
-                listBox1.Items.Add(anim.Name);
-            cGL.ch.Stop();
+            //listBox1.Items.Add("Stop");
+            //foreach (Animation anim in cGL.ch.Animations)
+                //listBox1.Items.Add(anim.Name);
+            //cGL.ch.Stop();
             //3D model e
 
-            //apply the bars values as cGL.ScrollValue[..] properties 
+            //apply the bars values as cGL.ScrollValue[..] properties
                                          //!!!
             hScrollBarScroll(hScrollBar1, null);
             hScrollBarScroll(hScrollBar2, null);
@@ -77,8 +77,8 @@ namespace myOpenGL
         {
             NumericUpDown nUD = (NumericUpDown)sender;
             int i = int.Parse(nUD.Name.Substring(nUD.Name.Length - 1));
-            int pos = (int)nUD.Value; 
-            switch(i)
+            int pos = (int)nUD.Value;
+            switch (i)
             {
                 case 1:
                     if (pos > oldPos[i - 1])
@@ -140,14 +140,14 @@ namespace myOpenGL
                         cGL.intOptionC = -2;
                     }
                     break;
-                case 6: 
-	                if (pos>oldPos[i-1]) 
-	                {
-		                cGL.zAngle+=5;
-		                cGL.intOptionC=3;
-	                }
-	                else
-	                {
+                case 6:
+                    if (pos > oldPos[i - 1])
+                    {
+                        cGL.zAngle += 5;
+                        cGL.intOptionC = 3;
+                    }
+                    else
+                    {
                         cGL.zAngle -= 5;
                         cGL.intOptionC = -3;
                     }
@@ -167,10 +167,87 @@ namespace myOpenGL
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             string curItem = listBox1.SelectedItem.ToString();
-            if (curItem == "Stop")
-                cGL.ch.Stop();
-            else
-                cGL.ch.PlayAnimation(curItem);
+            //if (curItem == "Stop")
+            //    cGL.ch.Stop();
+            //else
+            //    cGL.ch.PlayAnimation(curItem);
         }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            bool isShiftPressed = e.Shift; // Check if the Shift key is pressed
+
+            if (e.KeyCode == Keys.Back)
+            {
+                // Reset position and rotation to default values
+                cGL.xShift = 0.0f;
+                cGL.yShift = 0.0f;
+                cGL.zShift = 0.0f;
+                cGL.xAngle = 0.0f;
+                cGL.yAngle = 0.0f;
+                cGL.zAngle = 0.0f;
+            }
+            else if(isShiftPressed)
+            {
+                // Handle rotation when Shift is held down
+                switch (e.KeyCode)
+                {
+                    case Keys.Right:
+                        cGL.yAngle += 5; // Rotate around Y-axis
+                        break;
+                    case Keys.Left:
+                        cGL.yAngle -= 5; // Rotate around Y-axis
+                        break;
+                    case Keys.Up:
+                        cGL.xAngle += 5; // Rotate around X-axis
+                        break;
+                    case Keys.Down:
+                        cGL.xAngle -= 5; // Rotate around X-axis
+                        break;
+                }
+            }
+            else
+            {
+                // Handle translation when Shift is not held down
+                switch (e.KeyCode)
+                {
+                    case Keys.Right:
+                        cGL.xShift += 0.1f;
+                        break;
+                    case Keys.Left:
+                        cGL.xShift -= 0.1f;
+                        break;
+                    case Keys.Up:
+                        cGL.yShift += 0.1f;
+                        break;
+                    case Keys.Down:
+                        cGL.yShift -= 0.1f;
+                        break;
+                }
+            }
+
+            cGL.Draw();
+            e.Handled = true; // Mark the event as handled
+        }
+
+
+        private void panel1_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta > 0)
+            {
+                cGL.zShift += 0.5f; // Zoom in
+            }
+            else if (e.Delta < 0)
+            {
+                cGL.zShift -= 0.5f; // Zoom out
+            }
+            cGL.Draw();
+        }
+
+        private void panel1_MouseEnter(object sender, EventArgs e)
+        {
+            panel1.Focus();
+        }
+
     }
 }
