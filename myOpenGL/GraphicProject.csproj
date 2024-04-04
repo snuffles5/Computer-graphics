@@ -68,6 +68,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Train.cs" />
     <Compile Include="OpenGL\GLU.cs" />
     <Compile Include="OpenGL\GLUT.cs" />
     <Compile Include="MathEX\Matrix.cs" />
@@ -78,6 +79,8 @@
     <Compile Include="OpenGL\OpenGL.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\ColorUtil.cs" />
+    <Compile Include="Utils\Enums.cs" />
     <EmbeddedResource Include="Form1.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Form1.cs</DependentUpon>

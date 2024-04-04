@@ -1,6 +1,8 @@
+using Models;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Utils;
 
 namespace OpenGL
 {
@@ -24,6 +26,7 @@ namespace OpenGL
         double[] ModelVievMatrixBeforeSpecificTransforms = new double[16];
         double[] CurrentRotationTraslation = new double[16];
         double[] AccumulatedRotationsTraslations = new double[16];
+        public Locomotive locomotive = new Locomotive();
 
 
 
@@ -77,7 +80,7 @@ namespace OpenGL
                 MessageBox.Show("Unable to get rendering context");
                 return;
             }
-			if(WGL.wglMakeCurrent(m_uint_DC,m_uint_RC) == 0)
+            if (WGL.wglMakeCurrent(m_uint_DC, m_uint_RC) == 0)
             {
                 MessageBox.Show("Unable to make rendering context current");
                 return;
@@ -150,13 +153,11 @@ namespace OpenGL
             WGL.wglSwapBuffers(m_uint_DC);
         }
 
-
         void DrawSimpleTrain()
         {
             // Example: Draw a simple train using GLU quadrics
-            GL.glColor3f(0.5f, 0.0f, 0.0f); // Set the color to red
+            ColorUtil.SetColor(ColorName.Red);
             GLU.gluCylinder(obj, 0.5, 0.5, 2.0, 32, 32); // Draw the engine
-
         }
     }
 }
