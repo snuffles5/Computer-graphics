@@ -23,13 +23,8 @@ namespace OpenGL
         public float yAngle = 0.0f;
         public float xAngle = 0.0f;
         public int intOptionC = 0;
-        double[] ModelVievMatrixBeforeSpecificTransforms = new double[16];
-        double[] CurrentRotationTraslation = new double[16];
         double[] AccumulatedRotationsTraslations = new double[16];
-        public Locomotive locomotive = new Locomotive();
-
-
-
+        public Locomotive locomotive;
 
         public cOGL(Control pb)
         {
@@ -38,6 +33,7 @@ namespace OpenGL
             Height = p.Height;
             InitializeGL();
             obj = GLU.gluNewQuadric();
+            locomotive = new Locomotive();
         }
 
         ~cOGL()
@@ -144,7 +140,7 @@ namespace OpenGL
             GL.glRotatef(zAngle, 0.0f, 0.0f, 1.0f); // Rotate around the Z-axis by zAngle degrees
 
 
-            DrawSimpleTrain();
+            locomotive.Draw();
 
             // Complete any pending OpenGL commands and ensure they are executed
             GL.glFlush();
@@ -153,11 +149,6 @@ namespace OpenGL
             WGL.wglSwapBuffers(m_uint_DC);
         }
 
-        void DrawSimpleTrain()
-        {
-            // Example: Draw a simple train using GLU quadrics
-            ColorUtil.SetColor(ColorName.Red);
-            GLU.gluCylinder(obj, 0.5, 0.5, 2.0, 32, 32); // Draw the engine
-        }
+
     }
 }
