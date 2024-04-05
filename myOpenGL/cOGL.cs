@@ -34,7 +34,7 @@ namespace OpenGL
             0, 0, 1, 0,
             0, 0, 0, 1
         };
-        public Locomotive locomotive;
+        public Train train;
 
         public cOGL(Control pb, TextBox debugTextBox)
         {
@@ -44,7 +44,7 @@ namespace OpenGL
             InitializeGL();
             obj = GLU.gluNewQuadric();
             this.debugTextBox = debugTextBox;
-            locomotive = new Locomotive(debugTextBox);
+            train = new Train(debugTextBox, 1);
             debugTextBox.Text = Width + "w, " + Height + "h\n";
 
         }
@@ -191,7 +191,7 @@ namespace OpenGL
             ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
 
 
-            locomotive.Draw();
+            train.Draw();
 
             // Flush GL pipeline
             GL.glFlush();
