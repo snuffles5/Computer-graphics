@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Utils;
 
 namespace Models
@@ -18,9 +19,12 @@ namespace Models
         private readonly float cabDepth;
         private readonly float cabBottomBaseWidth;
         private readonly float cabBottomBaseHeight;
-        private float cabAngleX = 0.0f;
-        private float cabAngleY = 0.0f;
-        private float cabAngleZ = 0.0f;
+        private readonly float cabBottomCouplerWidth;
+        private readonly float cabBottomCouplerHeight;
+        private readonly float cabBottomCouplerDepth;
+        private readonly float cabinWidth;
+        private readonly float cabinHeight;
+        private readonly float cabinDepth;
         private readonly float chimneyBaseRadius;
         private readonly float chimneyTopRadius;
         private readonly float chimneyHeight;
@@ -30,21 +34,29 @@ namespace Models
 
         private float wheelRotation = 0.0f;
         private uint cabList, wheelList, locomotiveList;
+        TextBox debugTextBox;
 
-        public Locomotive()
+        public Locomotive(TextBox debugTextBox)
         {
             cabWidth = 7.0f;
             cabHeight = 1.5f;
             cabDepth = 1.5f;
-            cabBottomBaseWidth = cabWidth * 1.1f;
+            cabinWidth = 1.5f;
+            cabinHeight = cabHeight * 2f; 
+            cabinDepth = cabDepth;
+            cabBottomBaseWidth = cabWidth * 1.2f + cabinWidth;
             cabBottomBaseHeight = 0.5f;
-            wheelRadius = 0.4f;
-            wheelThickness = 0.1f;
+            cabBottomCouplerWidth = 1.5f;
+            cabBottomCouplerHeight = 0.2f;
+            cabBottomCouplerDepth = 0.5f;
+
+            wheelRadius = 0.8f;
+            wheelThickness = 0.5f;
             chimneyBaseRadius = 0.3f;
             chimneyTopRadius = 0.8f;
             chimneyHeight = 1.5f;
             obj = GLU.gluNewQuadric();
-
+            this.debugTextBox = debugTextBox;
 
             PrepareLists();
         }
@@ -71,7 +83,7 @@ namespace Models
 
             // Define the wheel
             GL.glNewList(wheelList, GL.GL_COMPILE);
-            //DrawWheel(wheelRadius, wheelThickness);
+            DrawWheel(wheelRadius, wheelThickness, ColorName.Black);
             GL.glEndList();
 
             // Combine into the locomotive
@@ -87,21 +99,16 @@ namespace Models
             GL.glCallList(cabList);
             GL.glPopMatrix();
 
-            // Place the wheels relative to the cab
-            for (int i = 0; i < 4; i++)
-            {
-                GL.glPushMatrix();
-                // Transform to position each wheel
-                //GL.glTranslatef( /* ... */ );
-                GL.glCallList(wheelList);
-                GL.glPopMatrix();
-            }
+            DrawWheels();
         }
 
         public void Draw()
         {
-            // Example: Assuming you want to rotate the locomotive around its center
             GL.glPushMatrix(); // Save the current state
+
+            // Translate to set the new center
+            float centerTranslationX = cabinWidth / 2;
+            GL.glTranslatef(centerTranslationX, 0.0f, 0.0f); // Shift everything to the left
 
             //GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // This uses the wheelRotation, adjust as needed
 
@@ -113,8 +120,6 @@ namespace Models
 
         private void DrawCuboid(float width, float height, float depth, ColorName color)
         {
-            GL.glPushMatrix(); // Save the current state
-
             // Set the color for the cuboid
             ColorUtil.SetColor(color);
 
@@ -165,48 +170,95 @@ namespace Models
             GL.glVertex3f(-width, height, depth);
             GL.glVertex3f(-width, -height, depth);
             GL.glEnd();
-            
-            GL.glPopMatrix(); // Restore the original state
         }
 
         private void DrawCabBase()
         {
-            // Assuming cabWidth, cabHeight, and cabDepth have been defined elsewhere
-            float halfWidth = cabWidth / 2;
-            float halfHeight = cabHeight / 2;
-            float halfDepth = cabDepth / 2;
-            DrawCuboid(halfWidth, halfHeight, halfDepth, ColorName.Beige);
-            DrawCabBottomBase();
+            GL.glPushMatrix(); // Save the current state
+            // Draw the base of the cab
+            float halfCabWidth = cabWidth / 2;
+            float halfCabHeight = cabHeight / 2;
+            float halfCabDepth = cabDepth / 2;
+            DrawCuboid(halfCabWidth, halfCabHeight, halfCabDepth, ColorName.Beige);
+            GL.glPopMatrix(); // Restore the original state
 
+            // Draw the cabin of the cab
+            DrawCabin();
+
+            // Draw the bottom base of the cab
+            DrawCabBottomBase();
+            GL.glPopMatrix(); // Restore the original state
+
+            // Draw the bottom coupler of the cab
+            DrawCabBottomCoupler();
+            GL.glPopMatrix(); // Restore the original state
         }
-            private void DrawCabBottomBase()
+        private void DrawCabBottomCoupler()
         {
+            GL.glPushMatrix(); // Save the current state
+
+            // Assuming cabWidth, cabHeight, and cabDepth have been defined elsewhere
+            float halfBottomBaseWidth = cabBottomBaseWidth / 2;
+            float halfWidth = cabBottomCouplerWidth / 2;
+            float halfHeight = cabBottomCouplerHeight / 2;
+            float halfDepth = cabBottomCouplerDepth / 2;
+            // Translate down to position the bottom base at the bottom of the cab
+            float translateY = -(cabHeight / 2 + cabBottomBaseHeight / 2);
+            float translateX = - halfBottomBaseWidth * 1.1f;
+            GL.glTranslatef(translateX, translateY, 0.0f); // No translation on X and Z axes
+            
+            DrawCuboid(halfWidth, halfHeight, halfDepth, ColorName.Bronze);
+            
+            GL.glPopMatrix(); // Restore the original state
+        }
+        private void DrawCabBottomBase()
+        {
+            GL.glPushMatrix(); // Save the current state
+          
             // Assuming cabWidth, cabHeight, and cabDepth have been defined elsewhere
             float halfWidth = cabBottomBaseWidth / 2;
             float halfHeight = cabBottomBaseHeight / 2;
             float halfDepth = cabDepth / 2;
             // Translate down to position the bottom base at the bottom of the cab
             float translateY = -(cabHeight / 2 + cabBottomBaseHeight / 2);
-            GL.glTranslatef(0.0f, translateY, 0.0f); // No translation on X and Z axes
-
-    
+            float translateX = -cabinWidth / 2;
+            GL.glTranslatef(translateX, translateY, 0.0f); // No translation on X and Z axes
+            
             DrawCuboid(halfWidth, halfHeight, halfDepth, ColorName.Bronze);
+            
+            GL.glPopMatrix(); // Restore the original state
+        }
+
+        private void DrawCabin()
+        {
+            GL.glPushMatrix(); // Save the current state for cabin drawing
+            
+            // Translate for the cabin drawing
+            float cabinTranslateX = -(cabWidth / 2 + cabinWidth / 2); // Move it to the left of the cab base
+            float cabinTranslateY = cabBottomBaseHeight/1.4f; // Align the bottom of the cabin with the top of the cab bottom base
+            GL.glTranslatef(cabinTranslateX, cabinTranslateY, 0.0f);
+            
+            DrawCuboid(cabinWidth / 2, cabinHeight / 2, cabinDepth / 2, ColorName.Blue); // Drawing the cabin
+            
+            GL.glPopMatrix(); // Restore the original state after drawing the cabin
         }
 
 
         private void DrawChimney()
         {
+            // Assuming you're using gluCylinder to draw the chimney
+            GL.glPushMatrix(); // Save the current transformation state
+            
             // Setup color and materials
             ColorUtil.SetColor(ColorName.Black);
 
             // Calculate the translation values before drawing the chimney
             float translateX = cabWidth * 0.25f; // 75% to the right, starting from the center
-            float translateY = cabHeight / 1.1f; // On top of the cab
+            float translateY = (cabHeight / 2); // Align the base of the chimney with the top of the cab
+            //float translateY = cabHeight / 1.1f; // On top of the cab
             float translateZ = 0.0f; // Centered along the cab's depth
 
 
-            // Assuming you're using gluCylinder to draw the chimney
-            GL.glPushMatrix(); // Save the current transformation state
             GL.glTranslatef(translateX, translateY, translateZ); // Apply the calculated translation
             DrawCylinder(baseRadius: chimneyBaseRadius, topRadius: chimneyTopRadius, height: chimneyHeight);
             GL.glPopMatrix(); // Restore the previous transformation state
@@ -225,23 +277,73 @@ namespace Models
             GLU.gluCylinder(obj, baseRadius, topRadius, height, 32, 32);
         }
 
-        private void DrawWheels()
+        private void DrawWheel(float radius, float thickness, ColorName color)
         {
-            // Setup color and materials
-            ColorUtil.SetColor(ColorName.Grey);
+            ColorUtil.SetColor(color);
+            // Parameters
+            int numSides = 50; // Number of sides for the cylinder to make it appear circular
 
-            for (int i = -1; i <= 1; i += 2) // Two wheels on each side
+            // Wheel Hub
+            GL.glPushMatrix();
+            GL.glTranslatef(0.0f, 0.0f, -thickness / 2);
+            GLU.gluCylinder(obj, radius * 0.75, radius * 0.75, thickness, numSides, 1);
+            GL.glPopMatrix();
+
+            // Tire sides (hubcap)
+            GL.glPushMatrix();
+            GL.glTranslatef(0.0f, 0.0f, -thickness / 2);
+            GLU.gluDisk(obj, 0, radius, numSides, 1); // Bottom hubcap
+            GL.glTranslatef(0.0f, 0.0f, thickness);
+            GLU.gluDisk(obj, 0, radius, numSides, 1); // Top hubcap
+            GL.glPopMatrix();
+
+            // Adding radial lines (spokes)
+            float angle = 2.0f * (float)Math.PI;
+            float cosAngle = (float)Math.Cos(angle);
+            float sinAngle = (float)Math.Sin(angle);
+
+            GL.glBegin(GL.GL_LINES);
+            // Inner point (near hub center)
+            GL.glVertex3f(cosAngle * radius * 0.25f, sinAngle * radius * 0.25f, -thickness / 2);
+            GL.glVertex3f(cosAngle * radius * 0.25f, sinAngle * radius * 0.25f, thickness / 2);
+            // Outer point (edge of hubcap)
+            GL.glVertex3f(cosAngle * radius, sinAngle * radius, -thickness / 2);
+            GL.glVertex3f(cosAngle * radius, sinAngle * radius, thickness / 2);
+            GL.glEnd();
+        }
+
+        private void DrawWheels()
+        {            
+            // Constants for wheel placement
+            float wheelOffsetX = cabBottomBaseWidth * 0.3f; // 20% of the bottom base width from the center to each side
+            float wheelOffsetY = -(wheelRadius + cabBottomBaseHeight); // Just below the bottom base
+            float wheelOffsetZFront = cabDepth * 0.5f; // 20% of the depth for front wheels
+            float wheelOffsetZBack = -cabDepth * 0.5f; // 20% of the depth for back wheels
+
+
+            // Place the wheels relative to the cab
+            for (int i = 0; i < 4; i++)
             {
                 GL.glPushMatrix();
-                GL.glTranslatef(i * 1.5f, -0.5f, -0.25f); // Position the wheel
-                DrawWheel(radius: wheelRadius, thickness: wheelThickness); // A simple wheel representation
-                GL.glPopMatrix();
-
-                GL.glPushMatrix();
-                GL.glTranslatef(i * 1.5f, -0.5f, 0.25f); // Position the wheel on the other side
-                DrawWheel(0.4f, 0.1f); // A simple wheel representation
+                // Determine the X and Z positions based on the loop index
+                float posX = (i % 2 == 0) ? -wheelOffsetX : wheelOffsetX; // Alternate sides
+                float posZ = (i < 2) ? wheelOffsetZFront : wheelOffsetZBack; // Alternate front/back
+                // Apply the transformation for wheel position
+                GL.glTranslatef(posX, wheelOffsetY, posZ);
+                GL.glCallList(wheelList);
                 GL.glPopMatrix();
             }
+}
+
+        private void DrawCenterMarker(float radius)
+        {
+            GL.glBegin(GL.GL_LINE_LOOP); // Use GL_LINE_LOOP for an outline
+            for (int i = 0; i <= 360; i++) // Full circle
+            {
+                float degInRad = (float)(i * Math.PI / 180.0f);
+                GL.glVertex2f((float)(Math.Cos(degInRad) * radius), (float)(Math.Sin(degInRad) * radius));
+            }
+            GL.glEnd();
         }
 
         public void Update(float deltaTime)
@@ -250,21 +352,6 @@ namespace Models
             wheelRotation += deltaTime * 20.0f; // Adjust the speed as necessary
         }
 
-        private void DrawWheel(float radius, float thickness)
-        {
-            // Create a flat disc to represent a wheel, for simplicity
-            GL.glBegin(GL.GL_TRIANGLE_FAN);
-
-            GL.glVertex3f(0.0f, 0.0f, -thickness / 2); // Center of the wheel
-
-            for (int angle = 0; angle <= 360; angle++) // Full circle
-            {
-                float rad = (float)(angle * Math.PI / 180.0f); // Convert degrees to radians
-                GL.glVertex3f((float)Math.Cos(rad) * radius, (float)Math.Sin(rad) * radius, -thickness / 2);
-            }
-
-            GL.glEnd();
-        }
     }
 
 }

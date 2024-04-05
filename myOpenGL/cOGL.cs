@@ -3,12 +3,15 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Utils;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using TextBox = System.Windows.Forms.TextBox;
 
 namespace OpenGL
 {
     class cOGL
     {
         Control p;
+        TextBox debugTextBox;
         int Width;
         int Height;
         uint m_uint_HWND = 0;
@@ -23,6 +26,7 @@ namespace OpenGL
         public float yAngle = 0.0f;
         public float xAngle = 0.0f;
         public int intOptionC = 0;
+
         // Initialization of AccumulatedRotationsTraslations to the identity matrix
         double[] AccumulatedRotationsTraslations = new double[]{
             1, 0, 0, 0,
@@ -32,14 +36,17 @@ namespace OpenGL
         };
         public Locomotive locomotive;
 
-        public cOGL(Control pb)
+        public cOGL(Control pb, TextBox debugTextBox)
         {
             p = pb;
             Width = p.Width;
             Height = p.Height;
             InitializeGL();
             obj = GLU.gluNewQuadric();
-            locomotive = new Locomotive();
+            this.debugTextBox = debugTextBox;
+            locomotive = new Locomotive(debugTextBox);
+            debugTextBox.Text = Width + "w, " + Height + "h\n";
+
         }
 
         ~cOGL()
@@ -93,9 +100,18 @@ namespace OpenGL
 
         public void OnResize()
         {
-            Width = p.Width;
-            Height = p.Height;
-            GL.glViewport(0, 0, Width, Height);
+            //Width = p.Width;
+            //Height = p.Height;
+            //GL.glViewport(0, 0, Width, Height);
+            GL.glViewport(0, 0, p.Width, p.Height);
+
+            GL.glMatrixMode(GL.GL_PROJECTION);
+            GL.glLoadIdentity();
+            // Setting up an orthographic projection where the origin (0,0) is the center of the panel
+            GLU.gluOrtho2D(-p.Width / 2, p.Width / 2, -p.Height / 2, p.Height / 2);
+
+            GL.glMatrixMode(GL.GL_MODELVIEW);
+            GL.glLoadIdentity();
         }
 
         protected virtual void initRenderingGL()
@@ -171,7 +187,7 @@ namespace OpenGL
             }
             // The ModelView Matrix now represents only the KeyCode transform
 
-
+            
             ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
 
 

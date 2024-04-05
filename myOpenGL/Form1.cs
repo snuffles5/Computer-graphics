@@ -9,6 +9,7 @@ using OpenGL;
 using System.Runtime.InteropServices;
 //3D model b1
 using Milkshape;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 //3D model e
 
 namespace myOpenGL
@@ -23,17 +24,18 @@ namespace myOpenGL
 
             InitializeComponent();
 
-            cGL = new cOGL(panel1);
+            cGL = new cOGL(panel1, textBox1);
+
 
             //3D model b4
             //listBox1.Items.Add("Stop");
             //foreach (Animation anim in cGL.ch.Animations)
-                //listBox1.Items.Add(anim.Name);
+            //listBox1.Items.Add(anim.Name);
             //cGL.ch.Stop();
             //3D model e
 
             //apply the bars values as cGL.ScrollValue[..] properties
-                                         //!!!
+            //!!!
             hScrollBarScroll(hScrollBar1, null);
             hScrollBarScroll(hScrollBar2, null);
             hScrollBarScroll(hScrollBar3, null);
@@ -263,6 +265,12 @@ namespace myOpenGL
         private void panel1_MouseEnter(object sender, EventArgs e)
         {
             panel1.Focus();
+        }
+
+        private void panel1_MouseMove(object sender, MouseEventArgs e)
+        {
+            // Update textBox1 with the mouse coordinates
+            textBox1.Text = $"X: {e.X}, Y: {e.Y}";
         }
 
     }
