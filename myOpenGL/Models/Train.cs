@@ -417,18 +417,15 @@ namespace Models
         public Coach(TextBox debugTextBox)
         {
             cabWidth = 14.0f;
-            cabHeight = 1.5f;
+            cabHeight = 2.0f;
             cabDepth = 1.5f;
-            cabinWidth = 1.5f;
-            cabinHeight = cabHeight * 2f;
-            cabinDepth = cabDepth;
-            cabBottomBaseWidth = cabWidth * 1.2f + cabinWidth;
+            cabBottomBaseWidth = cabWidth * 1.1f;
             cabBottomBaseHeight = 0.5f;
             cabBottomCouplerWidth = 1.5f;
             cabBottomCouplerHeight = 0.2f;
             cabBottomCouplerDepth = 0.5f;
 
-            numOfWheels = 4;
+            numOfWheels = 8;
             wheelRadius = 0.8f;
             wheelThickness = 0.5f;
             obj = GLU.gluNewQuadric();
@@ -558,7 +555,6 @@ namespace Models
             GL.glPopMatrix(); // Restore the original state
 
             // Draw the cabin of the cab
-            DrawCabin();
 
             // Draw the bottom base of the cab
             DrawCabBottomBase();
@@ -596,8 +592,7 @@ namespace Models
             float halfDepth = cabDepth / 2;
             // Translate down to position the bottom base at the bottom of the cab
             float translateY = -(cabHeight / 2 + cabBottomBaseHeight / 2);
-            float translateX = -cabinWidth / 2;
-            GL.glTranslatef(translateX, translateY, 0.0f); // No translation on X and Z axes
+            GL.glTranslatef(0.0f, translateY, 0.0f); // No translation on X and Z axes
 
             DrawCuboid(halfWidth, halfHeight, halfDepth, ColorName.Bronze);
 
@@ -668,26 +663,39 @@ namespace Models
 
         private void DrawWheels()
         {
-            // Constants for wheel placement
-            float wheelOffsetX = cabBottomBaseWidth * 0.3f; // 20% of the bottom base width from the center to each side
-            float wheelOffsetY = -(wheelRadius + cabBottomBaseHeight); // Just below the bottom base
-            float wheelOffsetZFront = cabDepth * 0.5f; // 20% of the depth for front wheels
-            float wheelOffsetZBack = -cabDepth * 0.5f; // 20% of the depth for back wheels
+            // Calculate the number of wheels on one side since they come in pairs
+            int wheelsPerSide = numOfWheels / 2;
+
+            // Determine the spacing between wheels along the X-axis
+            float edgeMargin = cabBottomBaseWidth * 0.15f; // Let's use 15% for the margin
+            float usableWidth = cabBottomBaseWidth - 2 * edgeMargin; // Width available for placing wheels
+            float wheelSpacing = (wheelsPerSide > 1) ? usableWidth / (wheelsPerSide - 1) : 0; // Prevent division by zero
+
+            float wheelOffsetY = -(wheelRadius + cabBottomBaseHeight); // Position Y just below the bottom base
+            float wheelOffsetZFront = -cabDepth / 2 + cabDepth * 0.1f; // Front margin
+            float wheelOffsetZBack = cabDepth / 2 - cabDepth * 0.1f; // Back margin
 
 
-            // Place the wheels relative to the cab
-            for (int i = 0; i < numOfWheels; i++)
+            for (int i = 0; i < wheelsPerSide; i++)
             {
-                GL.glPushMatrix();
-                // Determine the X and Z positions based on the loop index
-                float posX = (i % 2 == 0) ? -wheelOffsetX : wheelOffsetX; // Alternate sides
+                // Calculate X-position for each wheel on one side
+                float posX = -cabBottomBaseWidth / 2 + edgeMargin + (i * wheelSpacing);
                 float posZ = (i < 2) ? wheelOffsetZFront : wheelOffsetZBack; // Alternate front/back
-                // Apply the transformation for wheel position
+
+                // Draw wheel on the left side
+                GL.glPushMatrix();
                 GL.glTranslatef(posX, wheelOffsetY, posZ);
+                GL.glCallList(wheelList);
+                GL.glPopMatrix();
+
+                // Draw wheel on the right side (mirror position along the X-axis)
+                GL.glPushMatrix();
+                GL.glTranslatef(-posX, wheelOffsetY, posZ); // Use -posX for mirroring
                 GL.glCallList(wheelList);
                 GL.glPopMatrix();
             }
         }
+
 
         private void DrawCenterMarker(float radius)
         {
