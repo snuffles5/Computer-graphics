@@ -9,16 +9,35 @@ using System.Threading.Tasks;
 namespace Utils
 {
 
-    public static class DefaultConfig 
+    public static class DefaultConfig
     {
-        public const float SHININESS = 128.0f;
-        public static readonly float[] MAT_AMBIENT = { 0.7f, 0.7f, 0.7f, 1.0f };
+        // Slightly lower ambient reflects the fact that not all surfaces receive direct sunlight
+        public static readonly float[] MAT_AMBIENT = { 0.3f, 0.3f, 0.3f, 1.0f };
+
+        // Diffuse component similar to ambient; surfaces in direct sunlight are well-lit
         public static readonly float[] MAT_DIFFUSE = { 0.8f, 0.8f, 0.8f, 1.0f };
+
+        // Higher specular for shiny materials, simulating bright sunlight reflections
+        //public static readonly float[] MAT_SPECULAR = { 0.5f, 0.5f, 0.5f, 1.0f };
+        // low specular fixing color issue to be fixed todo!
         public static readonly float[] MAT_SPECULAR = { 0.1f, 0.1f, 0.1f, 1.0f };
+
+        // High shininess value for sharp specular highlights typical of sunlight
+        public const float MAT_SHININESS = 100.0f;
+
+        // Ambient light in an outdoor setting is usually less intense than direct sunlight
         public static readonly float[] LIGHT_AMBIENT = { 0.2f, 0.2f, 0.2f, 1.0f };
-        public static readonly float[] LIGHT_DIFFUSE = { 0.8f, 0.8f, 0.8f, 1.0f };
-        public static readonly float[] LIGHT_SPECULAR = { 1.0f, 1.0f, 1.0f, 1.0f };
-        public static readonly float[] LIGHT_POSITION = { 1.0f, 1.0f, 5.0f, 0.0f };
+
+        // Bright diffuse light, with a slight yellow tint to simulate sunlight
+        public static readonly float[] LIGHT_DIFFUSE = { 1.0f, 0.95f, 0.8f, 1.0f };
+
+        // Strong specular component for bright highlights, slightly tinted yellow
+        public static readonly float[] LIGHT_SPECULAR = { 1.0f, 0.95f, 0.8f, 1.0f };
+
+        // Directional light to simulate the sun, positioned to come from above and slightly to the left
+        // This might need adjustment based on your scene's orientation
+        public static readonly float[] LIGHT_POSITION = { -0.5f, 1.0f, 0.5f, 0.0f };
+
     }
 
     public enum ColorName
@@ -214,7 +233,7 @@ namespace Utils
         public float[] MatAmbient { get; set; } = DefaultConfig.MAT_AMBIENT;
         public float[] MatDiffuse { get; set; } = DefaultConfig.MAT_DIFFUSE;
         public float[] MatSpecular { get; set; } = DefaultConfig.MAT_SPECULAR;
-        public float Shininess { get; set; } = DefaultConfig.SHININESS;
+        public float Shininess { get; set; } = DefaultConfig.MAT_SHININESS;
 
         public MaterialProperty? GetMaterialByString(string materialPropertyString)
         {
@@ -286,8 +305,8 @@ namespace Utils
 
         public float[] Ambient = DefaultConfig.LIGHT_AMBIENT;
         public float[] Diffuse = DefaultConfig.LIGHT_DIFFUSE;
-        public float[] Specular= DefaultConfig.LIGHT_SPECULAR;
-        public float[] Position= DefaultConfig.LIGHT_POSITION;
+        public float[] Specular = DefaultConfig.LIGHT_SPECULAR;
+        public float[] Position = DefaultConfig.LIGHT_POSITION;
 
         public LightProperty? GetLightByString(string lightPropertyString)
         {
@@ -348,7 +367,22 @@ namespace Utils
     public class LightPropertyUpdateKeyAndValue
     {
         public LightProperty? Key { get; set; }
-        public float NewValue { get; set; }
         public float[] NewValues { get; set; }
     }
+
+    public class Vector3
+    {
+        public float X { get; set; }
+        public float Y { get; set; }
+        public float Z { get; set; }
+    
+        public Vector3(float X = 0, float Y = 0, float Z = 0)
+        {
+            this.X = X;
+            this.Y = Y;
+            this.Z = Z;
+        }
+    }
+
+
 }

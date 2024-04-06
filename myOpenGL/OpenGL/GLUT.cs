@@ -99,7 +99,7 @@ namespace OpenGL {
 	public abstract class GLUT : GLU {
 		// --- Fields ---
 		#region Private Fields
-		private static GLUquadric quadObj;
+		private static gluNewQuadric quadObj;
 
 		// Box Data:
 		private static float[/*6*/, /*3*/] n = {

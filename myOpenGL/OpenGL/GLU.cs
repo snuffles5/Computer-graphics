@@ -20,7 +20,7 @@ namespace OpenGL
 	/// </summary>
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct GLUquadric { public IntPtr data;} 
+    public struct gluNewQuadric { public IntPtr data;} 
    
     public class GLU
 	{
@@ -232,27 +232,27 @@ namespace OpenGL
 		[DllImport(GLU_DLL, EntryPoint ="gluBuild2DMipmaps")]
 		public static extern int  gluBuild2DMipmaps  ( uint target, int components, int width, int height, uint format, uint type, object[] data );
 		[DllImport(GLU_DLL, EntryPoint ="gluNewQuadric")]
-        public static extern GLUquadric gluNewQuadric();
+        public static extern gluNewQuadric gluNewQuadric();
 		[DllImport(GLU_DLL, EntryPoint ="gluDeleteQuadric")]
-        public static extern void gluDeleteQuadric(GLUquadric state);
+        public static extern void gluDeleteQuadric(gluNewQuadric state);
 		[DllImport(GLU_DLL, EntryPoint ="gluQuadricNormals")]
-        public static extern void gluQuadricNormals(GLUquadric quadObject, uint normals);
+        public static extern void gluQuadricNormals(gluNewQuadric quadObject, uint normals);
 		[DllImport(GLU_DLL, EntryPoint ="gluQuadricTexture")]
-        public static extern void gluQuadricTexture(GLUquadric quadObject, byte textureCoords);
+        public static extern void gluQuadricTexture(gluNewQuadric quadObject, byte textureCoords);
 		[DllImport(GLU_DLL, EntryPoint ="gluQuadricOrientation")]
-        public static extern void gluQuadricOrientation(GLUquadric quadObject, uint orientation);
+        public static extern void gluQuadricOrientation(gluNewQuadric quadObject, uint orientation);
 		[DllImport(GLU_DLL, EntryPoint ="gluQuadricDrawStyle")]
-        public static extern void gluQuadricDrawStyle(GLUquadric quadObject, uint drawStyle);
+        public static extern void gluQuadricDrawStyle(gluNewQuadric quadObject, uint drawStyle);
 		[DllImport(GLU_DLL, EntryPoint ="gluCylinder")]
-        public static extern void gluCylinder(GLUquadric qobj, double baseRadius, double topRadius, double height, int slices, int stacks);
+        public static extern void gluCylinder(gluNewQuadric qobj, double baseRadius, double topRadius, double height, int slices, int stacks);
 		[DllImport(GLU_DLL, EntryPoint ="gluDisk")]
-        public static extern void gluDisk(GLUquadric qobj, double innerRadius, double outerRadius, int slices, int loops);
+        public static extern void gluDisk(gluNewQuadric qobj, double innerRadius, double outerRadius, int slices, int loops);
 		[DllImport(GLU_DLL, EntryPoint ="gluPartialDisk")]
-        public static extern void gluPartialDisk(GLUquadric qobj, double innerRadius, double outerRadius, int slices, int loops, double startAngle, double sweepAngle);
+        public static extern void gluPartialDisk(gluNewQuadric qobj, double innerRadius, double outerRadius, int slices, int loops, double startAngle, double sweepAngle);
 		[DllImport(GLU_DLL, EntryPoint ="gluSphere")]
-        public static extern void gluSphere(GLUquadric qobj, double radius, int slices, int stacks);
+        public static extern void gluSphere(gluNewQuadric qobj, double radius, int slices, int stacks);
 		[DllImport(GLU_DLL, EntryPoint ="gluQuadricCallback")]
-        public static extern void gluQuadricCallback(GLUquadric qobj, uint which, IntPtr fn);
+        public static extern void gluQuadricCallback(gluNewQuadric qobj, uint which, IntPtr fn);
 		[DllImport(GLU_DLL, EntryPoint ="gluNewTess")]
 		public static extern IntPtr gluNewTess( );
 		[DllImport(GLU_DLL, EntryPoint ="gluDeleteTess")]

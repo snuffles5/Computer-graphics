@@ -75,13 +75,13 @@ namespace Models
         private readonly float chimneyTopRadius;
         private readonly float chimneyHeight;
 
-        GLUquadric obj;
+        gluNewQuadric obj;
 
         private float wheelRotation = 0.0f;
         private uint cabList, wheelList, locomotiveList;
         TextBox debugTextBox;
 
-        public Locomotive(TextBox debugTextBox, float shininess = DefaultConfig.SHININESS)
+        public Locomotive(TextBox debugTextBox, float shininess = DefaultConfig.MAT_SHININESS)
         {
             cabWidth = 3.5f;
             cabHeight = 0.7f;
@@ -151,6 +151,7 @@ namespace Models
         {
             GL.glPushMatrix(); // Save the current state
             SetMaterial();
+            SetLighting();
             // Translate to set the new center
             //float centerTranslationX = cabinWidth / 2;
             //GL.glTranslatef(centerTranslationX, 0.0f, 0.0f); // Shift everything to the left
@@ -224,12 +225,30 @@ namespace Models
 
         }
 
+        private void SetLighting()
+        {
+            //Console.WriteLine($" Ambient = {LightConfig.Instance.Ambient[0]} Diffuse = {LightConfig.Instance.Diffuse[0]} Specular = {LightConfig.Instance.Specular[0]} Position = { LightConfig.Instance.Position}");
+            Console.WriteLine($" Ambient = {LightConfig.Instance.Ambient[0]}, {LightConfig.Instance.Ambient[1]}, {LightConfig.Instance.Ambient[2]}, {LightConfig.Instance.Ambient[3]} " +
+            $"Diffuse = {LightConfig.Instance.Diffuse[0]}, {LightConfig.Instance.Diffuse[1]}, {LightConfig.Instance.Diffuse[2]}, {LightConfig.Instance.Diffuse[3]} " +
+            $"Specular = {LightConfig.Instance.Specular[0]}, {LightConfig.Instance.Specular[1]}, {LightConfig.Instance.Specular[2]}, {LightConfig.Instance.Specular[3]} " +
+            $"Position = {LightConfig.Instance.Position[0]}, {LightConfig.Instance.Position[1]}, {LightConfig.Instance.Position[2]}, {LightConfig.Instance.Position[3]} ");
+            GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, LightConfig.Instance.Ambient);
+            GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, LightConfig.Instance.Diffuse);
+            GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, LightConfig.Instance.Specular);
+            GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, LightConfig.Instance.Position);
+
+        }
+
         private void SetMaterial()
         {
+            Console.WriteLine($" MatAmbient = {MaterialConfig.Instance.MatAmbient[0]}, {MaterialConfig.Instance.MatAmbient[1]}, {MaterialConfig.Instance.MatAmbient[2]}, {MaterialConfig.Instance.MatAmbient[3]} " +
+                $"MatDiffuse = {MaterialConfig.Instance.MatDiffuse[0]}, {MaterialConfig.Instance.MatDiffuse[1]}, {MaterialConfig.Instance.MatDiffuse[2]}, {MaterialConfig.Instance.MatDiffuse[3]} " +
+                $"MatSpecular = {MaterialConfig.Instance.MatSpecular[0]}, {MaterialConfig.Instance.MatSpecular[1]}, {MaterialConfig.Instance.MatSpecular[2]}, {MaterialConfig.Instance.MatSpecular[3]} " +
+                $"Shininess = { MaterialConfig.Instance.Shininess}");
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT, MaterialConfig.Instance.MatAmbient);
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, MaterialConfig.Instance.MatDiffuse);
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_SPECULAR, MaterialConfig.Instance.MatSpecular);
-            //GL.glMaterialf(GL.GL_FRONT_AND_BACK, GL.GL_SHININESS, MaterialConfig.Instance.Shininess);
+            GL.glMaterialf(GL.GL_FRONT_AND_BACK, GL.GL_SHININESS, MaterialConfig.Instance.Shininess);
         }
 
         private void DrawCabBase()
@@ -406,7 +425,7 @@ namespace Models
     public class Coach
     {
         public float shininess;
-        public Coach(TextBox debugTextBox, float shininess = DefaultConfig.SHININESS)
+        public Coach(TextBox debugTextBox, float shininess = DefaultConfig.MAT_SHININESS)
         {
 
         }

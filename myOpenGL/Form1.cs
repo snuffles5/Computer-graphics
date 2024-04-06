@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using Milkshape;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Utils;
+using Models;
 //3D model e
 
 namespace myOpenGL
@@ -19,6 +20,7 @@ namespace myOpenGL
     {
 
         cOGL cGL;
+        object selectedLightingMaterialRadio;
 
         public Form1()
         {
@@ -68,32 +70,80 @@ namespace myOpenGL
         {
             cGL.intOptionC = 0;
             HScrollBar hb = (HScrollBar)sender;
+            var parentGroupBox = hb.Parent as GroupBox;
             string scrollBarText = hb.Name;
+
             if (scrollBarText.Contains("hScrollBar"))
             {
                 int n = int.Parse(hb.Name.Substring(hb.Name.Length - 1));
                 cGL.ScrollValue[n - 1] = (hb.Value - 100) / 10.0f;
             } 
-            else if (scrollBarText.Contains("property_mat"))
+            else if (parentGroupBox != null && parentGroupBox.Text == "Lighting and Material")
             {
-                MaterialProperty? materialProperty = MaterialConfig.Instance.GetMaterialByString(scrollBarText.Replace("property_mat_", ""));
-                if (materialProperty != null)
+                if (selectedLightingMaterialRadio is LightProperty lightProperty)
                 {
-                    switch (materialProperty)
+                    switch (lightProperty)
                     {
-                        case MaterialProperty.AMBIENT:
-                        case MaterialProperty.DIFFUSE:
-                        case MaterialProperty.SPECULAR:
-                            float normalizedValue = hb.Value / 100.0f; 
-                            cGL.UpdateValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValues = new float[] { normalizedValue, normalizedValue, normalizedValue, 1.0f } };
+                        case LightProperty.AMBIENT:
+                        case LightProperty.DIFFUSE:
+                        case LightProperty.SPECULAR:
+                            float normalizedRValue = slider1.Value / 100.0f;
+                            float normalizedGValue = slider2.Value / 100.0f;
+                            float normalizedBValue = slider3.Value / 100.0f;
+                            float normalizedAValue = slider4.Value / 100.0f;
+                            cGL.LightPropertyUpdatedValue = new LightPropertyUpdateKeyAndValue { Key = lightProperty, NewValues = new float[] { normalizedRValue, normalizedGValue, normalizedBValue, normalizedAValue } };
                             break;
-                        case MaterialProperty.SHININESS:
-                            cGL.UpdateValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValue = hb.Value };
+                        case LightProperty.POSITION:
+                            int w = slider4.Value > 50? 1 : 0;
+                            cGL.LightPropertyUpdatedValue = new LightPropertyUpdateKeyAndValue { Key = lightProperty, NewValues = new float[] {slider1.Value, slider2.Value, slider3.Value, w} };
+                            Sun sun = cGL.sun;
+                            sun.Coords = new Vector3(X: slider1.Value, Y: slider2.Value, Z: slider3.Value);
+                            float rotateAngle = slider4.Value > sun.Coords.Z ? sun.Angle + 15 : sun.Angle - 15;
+                            //sun.Angle = rotateAngle;
                             break;
                         default:
                             break;
                     }
                 }
+                else if (selectedLightingMaterialRadio is MaterialProperty materialProperty)
+                {
+                        switch (materialProperty)
+                        {
+                            case MaterialProperty.AMBIENT:
+                            case MaterialProperty.DIFFUSE:
+                            case MaterialProperty.SPECULAR:
+                                float normalizedRValue = slider1.Value / 100.0f; 
+                                float normalizedGValue = slider2.Value / 100.0f; 
+                                float normalizedBValue = slider3.Value / 100.0f; 
+                                float normalizedAValue = slider4.Value / 100.0f; 
+                                cGL.MaterialPropertyUpdatedValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValues = new float[] { normalizedRValue, normalizedGValue, normalizedBValue, normalizedAValue } };
+                                break;
+                            case MaterialProperty.SHININESS:
+                                cGL.MaterialPropertyUpdatedValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValue = slider1.Value };
+                                break;
+                            default:
+                                break;
+                        }
+                }
+
+                //MaterialProperty? materialProperty = MaterialConfig.Instance.GetMaterialByString(scrollBarText.Replace("property_mat_", ""));
+                //if (materialProperty != null)
+                //{
+                //    switch (materialProperty)
+                //    {
+                //        case MaterialProperty.AMBIENT:
+                //        case MaterialProperty.DIFFUSE:
+                //        case MaterialProperty.SPECULAR:
+                //            float normalizedValue = hb.Value / 100.0f; 
+                //            cGL.UpdateValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValues = new float[] { normalizedValue, normalizedValue, normalizedValue, 1.0f } };
+                //            break;
+                //        case MaterialProperty.SHININESS:
+                //            cGL.UpdateValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValue = hb.Value };
+                //            break;
+                //        default:
+                //            break;
+                //    }
+                //}
 
 
 
@@ -115,7 +165,7 @@ namespace myOpenGL
                 //            break;
                 //    }
                 //}
-                    //MaterialConfig.Instance.UpdateMaterialProperty(materialProperty.ToUpper(), newValue: hb.Value);
+                //MaterialConfig.Instance.UpdateMaterialProperty(materialProperty.ToUpper(), newValue: hb.Value);
                 //cGL.UpdateValue = new PropertyUpdateKeyAndValue { Key = "SHININESS",  NewValue = 120.0f };
 
 
@@ -326,5 +376,86 @@ namespace myOpenGL
             textBox1.Text = $"X: {e.X}, Y: {e.Y}";
         }
 
+        private void lightOrMaterialRaddioChange(object sender, EventArgs e)
+        {
+            cGL.intOptionC = 0;
+            RadioButton rb = (RadioButton)sender;
+            string radioButtonName = rb.Name;
+            bool isLighting = radioButtonName.Contains("Light");
+            slider1.Visible = true;
+            sliderLablel1.Visible = true;
+            slider2.Visible = true;
+            sliderLablel2.Visible = true;
+            slider3.Visible = true;
+            sliderLablel3.Visible = true;
+            sliderLablel4.Visible = true;
+            slider4.Visible = true;
+            slider4.SmallChange = 1;
+            slider4.LargeChange = 5;
+
+            if (radioButtonName.Contains("Position"))
+            {
+                sliderLablel1.Text = "X";
+                slider1.Minimum = -18;
+                slider1.Maximum= 18;
+                slider1.Value = (int)cGL.sun.Coords.X;
+                
+                sliderLablel2.Text = "Y";
+                slider2.Minimum = -2;
+                slider2.Maximum = 25;
+                slider2.Value = (int)cGL.sun.Coords.Y;
+                
+                sliderLablel3.Text = "Z";
+                slider3.Minimum = -50;
+                slider3.Maximum = 50;
+                slider3.Value = (int)cGL.sun.Coords.Z;
+                
+                sliderLablel4.Text = "W";
+                slider4.Minimum = 0;
+                slider4.Maximum = 100;
+                slider4.SmallChange = 51;
+                slider4.LargeChange = 51;
+            }
+            else if (radioButtonName.Contains("Shininess"))
+            {
+                sliderLablel1.Text = "";
+                slider1.Minimum = 0;
+                slider1.Maximum= 128;
+
+                slider2.Visible = false;
+                sliderLablel2.Visible = false;
+                slider3.Visible = false;
+                sliderLablel3.Visible = false;
+                sliderLablel4.Visible = false;
+                slider4.Visible = false;
+            }
+            else
+            {
+                sliderLablel1.Text = "R";
+                slider1.Minimum = 0;
+                slider1.Maximum = 100;
+
+                sliderLablel2.Text = "G";
+                slider2.Minimum = 0;
+                slider2.Maximum = 100;
+
+                sliderLablel3.Text = "B";
+                slider3.Minimum = 0;
+                slider3.Maximum = 100;
+
+                sliderLablel4.Text = "A";
+                slider4.Minimum = 0;
+                slider4.Maximum = 100;
+            }
+
+            if (isLighting)
+            {
+                selectedLightingMaterialRadio = LightConfig.Instance.GetLightByString(radioButtonName.ToLower().Replace("light", ""));
+            }
+            else
+            {
+                selectedLightingMaterialRadio = MaterialConfig.Instance.GetMaterialByString(radioButtonName.ToLower().Replace("mat", ""));
+            }
+        }
     }
 }

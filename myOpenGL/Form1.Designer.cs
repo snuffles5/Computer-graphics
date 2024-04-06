@@ -42,7 +42,7 @@ namespace myOpenGL
             this.hScrollBar9 = new System.Windows.Forms.HScrollBar();
             this.hScrollBar8 = new System.Windows.Forms.HScrollBar();
             this.hScrollBar7 = new System.Windows.Forms.HScrollBar();
-            this.property_mat_shininess = new System.Windows.Forms.HScrollBar();
+            this.slider1 = new System.Windows.Forms.HScrollBar();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -60,9 +60,22 @@ namespace myOpenGL
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.property_mat_ambient = new System.Windows.Forms.HScrollBar();
-            this.property_mat_specular = new System.Windows.Forms.HScrollBar();
-            this.property_mat_diffuse = new System.Windows.Forms.HScrollBar();
+            this.slider2 = new System.Windows.Forms.HScrollBar();
+            this.slider4 = new System.Windows.Forms.HScrollBar();
+            this.slider3 = new System.Windows.Forms.HScrollBar();
+            this.sliderLablel3 = new System.Windows.Forms.Label();
+            this.sliderLablel2 = new System.Windows.Forms.Label();
+            this.sliderLablel1 = new System.Windows.Forms.Label();
+            this.sliderLablel4 = new System.Windows.Forms.Label();
+            this.LightingMaterialChoises = new System.Windows.Forms.GroupBox();
+            this.LightPosition = new System.Windows.Forms.RadioButton();
+            this.LightSpecular = new System.Windows.Forms.RadioButton();
+            this.LightDiffuse = new System.Windows.Forms.RadioButton();
+            this.LightAmbient = new System.Windows.Forms.RadioButton();
+            this.MatShininess = new System.Windows.Forms.RadioButton();
+            this.MatSpecular = new System.Windows.Forms.RadioButton();
+            this.MatDiffuse = new System.Windows.Forms.RadioButton();
+            this.MatAmbient = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -71,6 +84,7 @@ namespace myOpenGL
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).BeginInit();
+            this.LightingMaterialChoises.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -176,15 +190,14 @@ namespace myOpenGL
             this.hScrollBar7.Value = 100;
             this.hScrollBar7.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
-            // property_mat_shininess
+            // slider1
             // 
-            this.property_mat_shininess.Location = new System.Drawing.Point(557, 104);
-            this.property_mat_shininess.Maximum = 128;
-            this.property_mat_shininess.Name = "property_mat_shininess";
-            this.property_mat_shininess.Size = new System.Drawing.Size(119, 17);
-            this.property_mat_shininess.TabIndex = 19;
-            this.property_mat_shininess.Value = 128;
-            this.property_mat_shininess.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
+            this.slider1.Location = new System.Drawing.Point(21, 212);
+            this.slider1.Name = "slider1";
+            this.slider1.Size = new System.Drawing.Size(100, 18);
+            this.slider1.TabIndex = 19;
+            this.slider1.Value = 50;
+            this.slider1.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // groupBox1
             // 
@@ -395,49 +408,196 @@ namespace myOpenGL
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(542, 399);
+            this.textBox1.Location = new System.Drawing.Point(738, 399);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(124, 117);
             this.textBox1.TabIndex = 18;
             // 
-            // property_mat_ambient
+            // slider2
             // 
-            this.property_mat_ambient.Location = new System.Drawing.Point(559, 121);
-            this.property_mat_ambient.Name = "property_mat_ambient";
-            this.property_mat_ambient.Size = new System.Drawing.Size(119, 17);
-            this.property_mat_ambient.TabIndex = 20;
-            this.property_mat_ambient.Value = 50;
-            this.property_mat_ambient.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
+            this.slider2.Location = new System.Drawing.Point(21, 232);
+            this.slider2.Name = "slider2";
+            this.slider2.Size = new System.Drawing.Size(100, 18);
+            this.slider2.TabIndex = 20;
+            this.slider2.Value = 50;
+            this.slider2.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
-            // property_mat_specular
+            // slider4
             // 
-            this.property_mat_specular.Location = new System.Drawing.Point(557, 155);
-            this.property_mat_specular.Name = "property_mat_specular";
-            this.property_mat_specular.Size = new System.Drawing.Size(119, 17);
-            this.property_mat_specular.TabIndex = 21;
-            this.property_mat_specular.Value = 50;
-            this.property_mat_specular.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
+            this.slider4.Location = new System.Drawing.Point(21, 272);
+            this.slider4.Name = "slider4";
+            this.slider4.Size = new System.Drawing.Size(100, 18);
+            this.slider4.TabIndex = 21;
+            this.slider4.Value = 50;
+            this.slider4.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
-            // property_mat_diffuse
+            // slider3
             // 
-            this.property_mat_diffuse.Location = new System.Drawing.Point(557, 138);
-            this.property_mat_diffuse.Name = "property_mat_diffuse";
-            this.property_mat_diffuse.Size = new System.Drawing.Size(119, 17);
-            this.property_mat_diffuse.TabIndex = 22;
-            this.property_mat_diffuse.Value = 50;
-            this.property_mat_diffuse.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
-
+            this.slider3.Location = new System.Drawing.Point(21, 252);
+            this.slider3.Name = "slider3";
+            this.slider3.Size = new System.Drawing.Size(100, 18);
+            this.slider3.TabIndex = 22;
+            this.slider3.Value = 50;
+            this.slider3.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
+            // 
+            // sliderLablel3
+            // 
+            this.sliderLablel3.AutoSize = true;
+            this.sliderLablel3.Location = new System.Drawing.Point(1, 250);
+            this.sliderLablel3.Name = "sliderLablel3";
+            this.sliderLablel3.Size = new System.Drawing.Size(13, 13);
+            this.sliderLablel3.TabIndex = 8;
+            this.sliderLablel3.Text = "b";
+            // 
+            // sliderLablel2
+            // 
+            this.sliderLablel2.AutoSize = true;
+            this.sliderLablel2.Location = new System.Drawing.Point(1, 235);
+            this.sliderLablel2.Name = "sliderLablel2";
+            this.sliderLablel2.Size = new System.Drawing.Size(13, 13);
+            this.sliderLablel2.TabIndex = 7;
+            this.sliderLablel2.Text = "g";
+            // 
+            // sliderLablel1
+            // 
+            this.sliderLablel1.AutoSize = true;
+            this.sliderLablel1.Location = new System.Drawing.Point(1, 217);
+            this.sliderLablel1.Name = "sliderLablel1";
+            this.sliderLablel1.Size = new System.Drawing.Size(10, 13);
+            this.sliderLablel1.TabIndex = 6;
+            this.sliderLablel1.Text = "r";
+            // 
+            // sliderLablel4
+            // 
+            this.sliderLablel4.AutoSize = true;
+            this.sliderLablel4.Location = new System.Drawing.Point(1, 267);
+            this.sliderLablel4.Name = "sliderLablel4";
+            this.sliderLablel4.Size = new System.Drawing.Size(13, 13);
+            this.sliderLablel4.TabIndex = 23;
+            this.sliderLablel4.Text = "a";
+            // 
+            // LightingMaterialChoises
+            // 
+            this.LightingMaterialChoises.Controls.Add(this.LightPosition);
+            this.LightingMaterialChoises.Controls.Add(this.sliderLablel4);
+            this.LightingMaterialChoises.Controls.Add(this.LightSpecular);
+            this.LightingMaterialChoises.Controls.Add(this.sliderLablel3);
+            this.LightingMaterialChoises.Controls.Add(this.LightDiffuse);
+            this.LightingMaterialChoises.Controls.Add(this.slider3);
+            this.LightingMaterialChoises.Controls.Add(this.LightAmbient);
+            this.LightingMaterialChoises.Controls.Add(this.slider1);
+            this.LightingMaterialChoises.Controls.Add(this.MatShininess);
+            this.LightingMaterialChoises.Controls.Add(this.slider4);
+            this.LightingMaterialChoises.Controls.Add(this.MatSpecular);
+            this.LightingMaterialChoises.Controls.Add(this.sliderLablel2);
+            this.LightingMaterialChoises.Controls.Add(this.MatDiffuse);
+            this.LightingMaterialChoises.Controls.Add(this.slider2);
+            this.LightingMaterialChoises.Controls.Add(this.MatAmbient);
+            this.LightingMaterialChoises.Controls.Add(this.sliderLablel1);
+            this.LightingMaterialChoises.Location = new System.Drawing.Point(711, 16);
+            this.LightingMaterialChoises.Name = "LightingMaterialChoises";
+            this.LightingMaterialChoises.Size = new System.Drawing.Size(140, 322);
+            this.LightingMaterialChoises.TabIndex = 24;
+            this.LightingMaterialChoises.TabStop = false;
+            this.LightingMaterialChoises.Text = "Lighting and Material";
+            // 
+            // LightPosition
+            // 
+            this.LightPosition.AutoSize = true;
+            this.LightPosition.Location = new System.Drawing.Point(7, 181);
+            this.LightPosition.Name = "LightPosition";
+            this.LightPosition.Size = new System.Drawing.Size(85, 17);
+            this.LightPosition.TabIndex = 7;
+            this.LightPosition.Text = "LightPosition";
+            this.LightPosition.UseVisualStyleBackColor = true;
+            this.LightPosition.CheckedChanged += new System.EventHandler(this.lightOrMaterialRaddioChange);
+            // 
+            // LightSpecular
+            // 
+            this.LightSpecular.AutoSize = true;
+            this.LightSpecular.Location = new System.Drawing.Point(7, 158);
+            this.LightSpecular.Name = "LightSpecular";
+            this.LightSpecular.Size = new System.Drawing.Size(90, 17);
+            this.LightSpecular.TabIndex = 6;
+            this.LightSpecular.Text = "LightSpecular";
+            this.LightSpecular.UseVisualStyleBackColor = true;
+            this.LightSpecular.CheckedChanged += new System.EventHandler(this.lightOrMaterialRaddioChange);
+            // 
+            // LightDiffuse
+            // 
+            this.LightDiffuse.AutoSize = true;
+            this.LightDiffuse.Location = new System.Drawing.Point(7, 135);
+            this.LightDiffuse.Name = "LightDiffuse";
+            this.LightDiffuse.Size = new System.Drawing.Size(81, 17);
+            this.LightDiffuse.TabIndex = 5;
+            this.LightDiffuse.Text = "LightDiffuse";
+            this.LightDiffuse.UseVisualStyleBackColor = true;
+            this.LightDiffuse.CheckedChanged += new System.EventHandler(this.lightOrMaterialRaddioChange);
+            // 
+            // LightAmbient
+            // 
+            this.LightAmbient.AutoSize = true;
+            this.LightAmbient.Location = new System.Drawing.Point(7, 112);
+            this.LightAmbient.Name = "LightAmbient";
+            this.LightAmbient.Size = new System.Drawing.Size(86, 17);
+            this.LightAmbient.TabIndex = 4;
+            this.LightAmbient.Text = "LightAmbient";
+            this.LightAmbient.UseVisualStyleBackColor = true;
+            this.LightAmbient.CheckedChanged += new System.EventHandler(this.lightOrMaterialRaddioChange);
+            // 
+            // MatShininess
+            // 
+            this.MatShininess.AutoSize = true;
+            this.MatShininess.Location = new System.Drawing.Point(7, 89);
+            this.MatShininess.Name = "MatShininess";
+            this.MatShininess.Size = new System.Drawing.Size(88, 17);
+            this.MatShininess.TabIndex = 3;
+            this.MatShininess.Text = "MatShininess";
+            this.MatShininess.UseVisualStyleBackColor = true;
+            this.MatShininess.CheckedChanged += new System.EventHandler(this.lightOrMaterialRaddioChange);
+            // 
+            // MatSpecular
+            // 
+            this.MatSpecular.AutoSize = true;
+            this.MatSpecular.Location = new System.Drawing.Point(7, 66);
+            this.MatSpecular.Name = "MatSpecular";
+            this.MatSpecular.Size = new System.Drawing.Size(85, 17);
+            this.MatSpecular.TabIndex = 2;
+            this.MatSpecular.Text = "MatSpecular";
+            this.MatSpecular.UseVisualStyleBackColor = true;
+            this.MatSpecular.CheckedChanged += new System.EventHandler(this.lightOrMaterialRaddioChange);
+            // 
+            // MatDiffuse
+            // 
+            this.MatDiffuse.AutoSize = true;
+            this.MatDiffuse.Location = new System.Drawing.Point(7, 43);
+            this.MatDiffuse.Name = "MatDiffuse";
+            this.MatDiffuse.Size = new System.Drawing.Size(76, 17);
+            this.MatDiffuse.TabIndex = 1;
+            this.MatDiffuse.Text = "MatDiffuse";
+            this.MatDiffuse.UseVisualStyleBackColor = true;
+            this.MatDiffuse.CheckedChanged += new System.EventHandler(this.lightOrMaterialRaddioChange);
+            // 
+            // MatAmbient
+            // 
+            this.MatAmbient.AutoSize = true;
+            this.MatAmbient.Checked = true;
+            this.MatAmbient.Location = new System.Drawing.Point(7, 20);
+            this.MatAmbient.Name = "MatAmbient";
+            this.MatAmbient.Size = new System.Drawing.Size(81, 17);
+            this.MatAmbient.TabIndex = 0;
+            this.MatAmbient.TabStop = true;
+            this.MatAmbient.Text = "MatAmbient";
+            this.MatAmbient.UseVisualStyleBackColor = true;
+            this.MatAmbient.CheckedChanged += new System.EventHandler(this.lightOrMaterialRaddioChange);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(685, 528);
-            this.Controls.Add(this.property_mat_diffuse);
-            this.Controls.Add(this.property_mat_specular);
-            this.Controls.Add(this.property_mat_ambient);
-            this.Controls.Add(this.property_mat_shininess);
+            this.ClientSize = new System.Drawing.Size(863, 528);
+            this.Controls.Add(this.LightingMaterialChoises);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.groupBox2);
@@ -454,6 +614,7 @@ namespace myOpenGL
             this.Controls.Add(this.panel1);
             this.KeyPreview = true;
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
@@ -467,6 +628,8 @@ namespace myOpenGL
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).EndInit();
+            this.LightingMaterialChoises.ResumeLayout(false);
+            this.LightingMaterialChoises.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -484,7 +647,7 @@ namespace myOpenGL
         private System.Windows.Forms.HScrollBar hScrollBar9;
         private System.Windows.Forms.HScrollBar hScrollBar8;
         private System.Windows.Forms.HScrollBar hScrollBar7;
-        private System.Windows.Forms.HScrollBar property_mat_shininess;
+        private System.Windows.Forms.HScrollBar slider1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label label2;
@@ -502,9 +665,22 @@ namespace myOpenGL
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ListBox listBox1;
         private TextBox textBox1;
-        private HScrollBar property_mat_ambient;
-        private HScrollBar property_mat_specular;
-        private HScrollBar property_mat_diffuse;
+        private HScrollBar slider2;
+        private HScrollBar slider4;
+        private HScrollBar slider3;
+        private Label sliderLablel3;
+        private Label sliderLablel2;
+        private Label sliderLablel1;
+        private Label sliderLablel4;
+        private GroupBox LightingMaterialChoises;
+        private RadioButton MatAmbient;
+        private RadioButton LightPosition;
+        private RadioButton LightSpecular;
+        private RadioButton LightDiffuse;
+        private RadioButton LightAmbient;
+        private RadioButton MatShininess;
+        private RadioButton MatSpecular;
+        private RadioButton MatDiffuse;
     }
 }
 

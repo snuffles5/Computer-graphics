@@ -17,7 +17,7 @@ namespace OpenGL
         uint m_uint_HWND = 0;
         uint m_uint_DC = 0;
         uint m_uint_RC = 0;
-        GLUquadric obj;
+        gluNewQuadric obj;
         public float[] ScrollValue = new float[10];
         public float zShift = 0.0f;
         public float yShift = 0.0f;
@@ -26,6 +26,7 @@ namespace OpenGL
         public float yAngle = 0.0f;
         public float xAngle = 0.0f;
         public int intOptionC = 0;
+        public Vector3 sunCoords;
         public bool isLightingOn;
 
         // Initialization of AccumulatedRotationsTraslations to the identity matrix
@@ -36,8 +37,10 @@ namespace OpenGL
             0, 0, 0, 1
         };
         public Train train;
+        public Sun sun;
 
-        public MaterialPropertyUpdateKeyAndValue UpdateValue { get; internal set; }
+        public MaterialPropertyUpdateKeyAndValue MaterialPropertyUpdatedValue { get; internal set; }
+        public LightPropertyUpdateKeyAndValue LightPropertyUpdatedValue { get; internal set; }
 
         public cOGL(Control pb, TextBox debugTextBox)
         {
@@ -48,6 +51,8 @@ namespace OpenGL
             obj = GLU.gluNewQuadric();
             this.debugTextBox = debugTextBox;
             train = new Train(debugTextBox, 1);
+            sun = new Sun(debugTextBox);
+            sunCoords = new Vector3();
             debugTextBox.Text = Width + "w, " + Height + "h\n";
             isLightingOn = true;
         }
@@ -150,27 +155,19 @@ namespace OpenGL
                 
                 // Enable color material
                 GL.glEnable(GL.GL_COLOR_MATERIAL);
-                GL.glColorMaterial(GL.GL_FRONT, GL.GL_AMBIENT_AND_DIFFUSE);
-                if (UpdateValue != null)
+                GL.glColorMaterial(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE);
+                if (MaterialPropertyUpdatedValue != null)
                 {
-                    MaterialConfig.Instance.SetMaterialProperty(UpdateValue.Key, UpdateValue.NewValues, UpdateValue.NewValue);
-                    UpdateValue = null;
+                    MaterialConfig.Instance.SetMaterialProperty(MaterialPropertyUpdatedValue.Key, MaterialPropertyUpdatedValue.NewValues, MaterialPropertyUpdatedValue.NewValue);
+                    MaterialPropertyUpdatedValue = null;
                 }
-                //if (UpdateValue != null)
-                //{
-                //    if (UpdateValue.Key != MaterialProperty.SHININESS)
-                //    {
-
-                //    bool isDirectional = true;
-                //    if (!isDirectional)
-                //    {
-                //        UpdateValue.NewValues[3] = 0.0f;
-                //    }
-                //    GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, UpdateValue.NewValues);
-                //    UpdateValue = null;
-                //    }
-                //}
+                if (LightPropertyUpdatedValue != null)
+                {
+                    LightConfig.Instance.SetLightProperty(LightPropertyUpdatedValue.Key, LightPropertyUpdatedValue.NewValues);
+                    LightPropertyUpdatedValue = null;
+                }
             }
+
         }
 
         public void Draw()
@@ -239,7 +236,11 @@ namespace OpenGL
             
             ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
 
-
+            GL.glDisable(GL.GL_LIGHT0);
+            GL.glDisable(GL.GL_LIGHTING);
+            sun.Draw();
+            GL.glEnable(GL.GL_LIGHT0);
+            GL.glEnable(GL.GL_LIGHTING);
             train.Draw();
 
             // Flush GL pipeline
