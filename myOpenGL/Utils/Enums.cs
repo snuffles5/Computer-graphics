@@ -97,7 +97,8 @@ namespace Utils
         Turquoise,
         Violet,
         White,
-        Yellow
+        Yellow,
+        LightGrey
     }
 
     public static class ColorEnum
@@ -219,6 +220,8 @@ namespace Utils
                     return Color.FromArgb(255, 228, 181);
                 case ColorName.Crimson:
                     return Color.FromArgb(220, 20, 60);
+                case ColorName.LightGrey:
+                    return Color.FromArgb(211, 211, 211);
                 default:
                     return Color.Black;
             }

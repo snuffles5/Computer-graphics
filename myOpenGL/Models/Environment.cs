@@ -21,7 +21,7 @@ namespace Models
             this.debugTextBox = debugTextBox;
             if (vector == null)
             {
-                Coords = new Vector3(-5, 4, 40);
+                Coords = new Vector3(-5, 5, -5);
             }
             else
             {

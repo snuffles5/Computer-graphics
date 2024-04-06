@@ -194,7 +194,7 @@ namespace myOpenGL
             // 
             this.slider1.Location = new System.Drawing.Point(21, 212);
             this.slider1.Name = "slider1";
-            this.slider1.Size = new System.Drawing.Size(100, 18);
+            this.slider1.Size = new System.Drawing.Size(100, 20);
             this.slider1.TabIndex = 19;
             this.slider1.Value = 50;
             this.slider1.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
@@ -416,27 +416,27 @@ namespace myOpenGL
             // 
             // slider2
             // 
-            this.slider2.Location = new System.Drawing.Point(21, 232);
+            this.slider2.Location = new System.Drawing.Point(21, 235);
             this.slider2.Name = "slider2";
-            this.slider2.Size = new System.Drawing.Size(100, 18);
+            this.slider2.Size = new System.Drawing.Size(100, 20);
             this.slider2.TabIndex = 20;
             this.slider2.Value = 50;
             this.slider2.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // slider4
             // 
-            this.slider4.Location = new System.Drawing.Point(21, 272);
+            this.slider4.Location = new System.Drawing.Point(21, 275);
             this.slider4.Name = "slider4";
-            this.slider4.Size = new System.Drawing.Size(100, 18);
+            this.slider4.Size = new System.Drawing.Size(100, 20);
             this.slider4.TabIndex = 21;
             this.slider4.Value = 50;
             this.slider4.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // slider3
             // 
-            this.slider3.Location = new System.Drawing.Point(21, 252);
+            this.slider3.Location = new System.Drawing.Point(21, 255);
             this.slider3.Name = "slider3";
-            this.slider3.Size = new System.Drawing.Size(100, 18);
+            this.slider3.Size = new System.Drawing.Size(100, 20);
             this.slider3.TabIndex = 22;
             this.slider3.Value = 50;
             this.slider3.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
@@ -444,38 +444,38 @@ namespace myOpenGL
             // sliderLablel3
             // 
             this.sliderLablel3.AutoSize = true;
-            this.sliderLablel3.Location = new System.Drawing.Point(1, 250);
+            this.sliderLablel3.Location = new System.Drawing.Point(1, 257);
             this.sliderLablel3.Name = "sliderLablel3";
-            this.sliderLablel3.Size = new System.Drawing.Size(13, 13);
+            this.sliderLablel3.Size = new System.Drawing.Size(14, 13);
             this.sliderLablel3.TabIndex = 8;
-            this.sliderLablel3.Text = "b";
+            this.sliderLablel3.Text = "B";
             // 
             // sliderLablel2
             // 
             this.sliderLablel2.AutoSize = true;
-            this.sliderLablel2.Location = new System.Drawing.Point(1, 235);
+            this.sliderLablel2.Location = new System.Drawing.Point(1, 236);
             this.sliderLablel2.Name = "sliderLablel2";
-            this.sliderLablel2.Size = new System.Drawing.Size(13, 13);
+            this.sliderLablel2.Size = new System.Drawing.Size(15, 13);
             this.sliderLablel2.TabIndex = 7;
-            this.sliderLablel2.Text = "g";
+            this.sliderLablel2.Text = "G";
             // 
             // sliderLablel1
             // 
             this.sliderLablel1.AutoSize = true;
-            this.sliderLablel1.Location = new System.Drawing.Point(1, 217);
+            this.sliderLablel1.Location = new System.Drawing.Point(1, 216);
             this.sliderLablel1.Name = "sliderLablel1";
-            this.sliderLablel1.Size = new System.Drawing.Size(10, 13);
+            this.sliderLablel1.Size = new System.Drawing.Size(15, 13);
             this.sliderLablel1.TabIndex = 6;
-            this.sliderLablel1.Text = "r";
+            this.sliderLablel1.Text = "R";
             // 
             // sliderLablel4
             // 
             this.sliderLablel4.AutoSize = true;
-            this.sliderLablel4.Location = new System.Drawing.Point(1, 267);
+            this.sliderLablel4.Location = new System.Drawing.Point(1, 278);
             this.sliderLablel4.Name = "sliderLablel4";
-            this.sliderLablel4.Size = new System.Drawing.Size(13, 13);
+            this.sliderLablel4.Size = new System.Drawing.Size(14, 13);
             this.sliderLablel4.TabIndex = 23;
-            this.sliderLablel4.Text = "a";
+            this.sliderLablel4.Text = "A";
             // 
             // LightingMaterialChoises
             // 

@@ -10,7 +10,8 @@ namespace Models
     public class Train
     {
         public bool isLocomotive = true;
-        private Locomotive locomotive;
+        private Locomotive mainLocomotive;
+        private Locomotive shadowLocomotive;
         private Coach[] coaches;
         public TextBox debugTextBox;
 
@@ -23,20 +24,28 @@ namespace Models
                 // Initialize each coach instance here
                 this.coaches[i] = new Coach(debugTextBox);
             }
-            this.locomotive = new Locomotive(debugTextBox);
+            this.mainLocomotive = new Locomotive(debugTextBox, isShadowDrawing: false);
+            this.shadowLocomotive = new Locomotive(debugTextBox, isShadowDrawing: true);
         }
 
-        public void Draw()
+        public void Draw(bool isShadowDrawing)
         {
             GL.glPushMatrix(); // Save the current state
 
             if (isLocomotive)
             {
-                locomotive.Draw();
+                if (!isShadowDrawing)
+                {
+                    mainLocomotive.Draw();
+                }
+                else
+                {
+                    shadowLocomotive.Draw();
+                }
             }
             else
             {
-                DrawCoaches();
+                DrawCoaches(isShadowDrawing);
             }
 
             //locomotive.Draw();
@@ -45,11 +54,11 @@ namespace Models
             GL.glPopMatrix(); // Restore the original state
         }
 
-        public void DrawCoaches()
+        public void DrawCoaches(bool isShadowDrawing)
         {
             for (int i = 0; i < coaches.Length; i++)
             {
-                coaches[i].Draw();
+                coaches[i].Draw(isShadowDrawing);
             }
         }
     }
@@ -80,8 +89,11 @@ namespace Models
         private float wheelRotation = 0.0f;
         private uint cabList, wheelList, locomotiveList;
         TextBox debugTextBox;
+        private bool isShadowDrawing;
+        private readonly ColorName shadowColor = ColorName.LightGrey;
 
-        public Locomotive(TextBox debugTextBox, float shininess = DefaultConfig.MAT_SHININESS)
+        public Locomotive(TextBox debugTextBox,
+            float shininess = DefaultConfig.MAT_SHININESS, bool isShadowDrawing = false)
         {
             cabWidth = 3.5f;
             cabHeight = 0.7f;
@@ -101,6 +113,8 @@ namespace Models
             chimneyBaseRadius = 0.1f;
             chimneyTopRadius = 0.7f;
             chimneyHeight = 0.7f;
+
+            this.isShadowDrawing = isShadowDrawing;
             obj = GLU.gluNewQuadric();
             this.debugTextBox = debugTextBox;
             PrepareLists();
@@ -150,8 +164,12 @@ namespace Models
         public void Draw()
         {
             GL.glPushMatrix(); // Save the current state
-            SetMaterial();
-            SetLighting();
+            if (!isShadowDrawing)
+            {
+                SetMaterial();
+                SetLighting();
+            }
+
             // Translate to set the new center
             //float centerTranslationX = cabinWidth / 2;
             //GL.glTranslatef(centerTranslationX, 0.0f, 0.0f); // Shift everything to the left
@@ -167,6 +185,10 @@ namespace Models
         private void DrawCuboid(float width, float height, float depth, ColorName color)
         {
             // Set the color for the cuboid
+            if (isShadowDrawing)
+            {
+                color = shadowColor;
+            }
             ColorUtil.SetColor(color);
 
             // Front Face (pointing towards positive Z)
@@ -227,7 +249,6 @@ namespace Models
 
         private void SetLighting()
         {
-            //Console.WriteLine($" Ambient = {LightConfig.Instance.Ambient[0]} Diffuse = {LightConfig.Instance.Diffuse[0]} Specular = {LightConfig.Instance.Specular[0]} Position = { LightConfig.Instance.Position}");
             Console.WriteLine($" Ambient = {LightConfig.Instance.Ambient[0]}, {LightConfig.Instance.Ambient[1]}, {LightConfig.Instance.Ambient[2]}, {LightConfig.Instance.Ambient[3]} " +
             $"Diffuse = {LightConfig.Instance.Diffuse[0]}, {LightConfig.Instance.Diffuse[1]}, {LightConfig.Instance.Diffuse[2]}, {LightConfig.Instance.Diffuse[3]} " +
             $"Specular = {LightConfig.Instance.Specular[0]}, {LightConfig.Instance.Specular[1]}, {LightConfig.Instance.Specular[2]}, {LightConfig.Instance.Specular[3]} " +
@@ -332,8 +353,12 @@ namespace Models
 
         private void DrawCylinder(float baseRadius, float topRadius, float height, ColorName color, bool isRotateUpwards = true)
         {
-            ColorUtil.SetColor(color);
-            //SetMaterial(color);
+            if (isShadowDrawing)
+            {
+                color = shadowColor;
+            }
+             ColorUtil.SetColor(color);
+
             if (isRotateUpwards)
             {
                 // Rotate -90 degrees around the x-axis to make the chimney's top face upwards
@@ -345,8 +370,11 @@ namespace Models
 
         private void DrawWheel(float radius, float thickness, ColorName color)
         {
+            if (isShadowDrawing)
+            {
+                color = shadowColor;
+            }           
             ColorUtil.SetColor(color);
-            //SetMaterial(color);
 
             // Parameters
             int numSides = 50; // Number of sides for the cylinder to make it appear circular
@@ -431,7 +459,7 @@ namespace Models
         }
 
 
-        public void Draw()
+        public void Draw(bool isShadowDrawing)
         {
 
         }

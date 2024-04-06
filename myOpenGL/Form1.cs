@@ -188,72 +188,72 @@ namespace myOpenGL
                 case 1:
                     if (pos > oldPos[i - 1])
                     {
-                        cGL.xShift += 0.25f;
+                        //cGL.xShift += 0.25f;
                         cGL.intOptionC = 4;
                     }
                     else
                     {
-                        cGL.xShift -= 0.25f;
+                        //cGL.xShift -= 0.25f;
                         cGL.intOptionC = -4;
                     }
                     break;
                 case 2:
                     if (pos > oldPos[i - 1])
                     {
-                        cGL.yShift += 0.25f;
+                        //cGL.yShift += 0.25f;
                         cGL.intOptionC = 5;
                     }
                     else
                     {
-                        cGL.yShift -= 0.25f;
+                        //cGL.yShift -= 0.25f;
                         cGL.intOptionC = -5;
                     }
                     break;
                 case 3:
                     if (pos > oldPos[i - 1])
                     {
-                        cGL.zShift += 0.25f;
+                        //cGL.zShift += 0.25f;
                         cGL.intOptionC = 6;
                     }
                     else
                     {
-                        cGL.zShift -= 0.25f;
+                        //cGL.zShift -= 0.25f;
                         cGL.intOptionC = -6;
                     }
                     break;
                 case 4:
                     if (pos > oldPos[i - 1])
                     {
-                        cGL.xAngle += 5;
+                        //cGL.xAngle += 5;
                         cGL.intOptionC = 1;
                     }
                     else
                     {
-                        cGL.xAngle -= 5;
+                        //cGL.xAngle -= 5;
                         cGL.intOptionC = -1;
                     }
                     break;
                 case 5:
                     if (pos > oldPos[i - 1])
                     {
-                        cGL.yAngle += 5;
+                        //cGL.yAngle += 5;
                         cGL.intOptionC = 2;
                     }
                     else
                     {
-                        cGL.yAngle -= 5;
+                        //cGL.yAngle -= 5;
                         cGL.intOptionC = -2;
                     }
                     break;
                 case 6:
                     if (pos > oldPos[i - 1])
                     {
-                        cGL.zAngle += 5;
+                        //cGL.zAngle += 5;
                         cGL.intOptionC = 3;
                     }
                     else
                     {
-                        cGL.zAngle -= 5;
+                        //cGL.zAngle -= 5;
                         cGL.intOptionC = -3;
                     }
                     break;
@@ -285,12 +285,18 @@ namespace myOpenGL
             if (e.KeyCode == Keys.Back)
             {
                 // Reset position and rotation to default values
-                cGL.xShift = 0.0f;
-                cGL.yShift = 0.0f;
-                cGL.zShift = 0.0f;
-                cGL.xAngle = 0.0f;
-                cGL.yAngle = 0.0f;
-                cGL.zAngle = 0.0f;
+                //cGL.xShift = 0.0f;
+                //cGL.yShift = 0.0f;
+                //cGL.zShift = 0.0f;
+                //cGL.xAngle = 0.0f;
+                //cGL.yAngle = 0.0f;
+                //cGL.zAngle = 0.0f;
+                cGL.AccumulatedRotationsTraslations = new double[]{
+                    1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1
+                };
                 cGL.intOptionC = 0; // Reset transformations
             }
             else if (isShiftPressed)
@@ -299,19 +305,19 @@ namespace myOpenGL
                 switch (e.KeyCode)
                 {
                     case Keys.Right:
-                        cGL.yAngle += 5; // Rotate around Y-axis
+                        //cGL.yAngle += 5; // Rotate around Y-axis
                         cGL.intOptionC = 2; // Indicating a rotation around Y
                         break;
                     case Keys.Left:
-                        cGL.yAngle -= 5; // Rotate around Y-axis
+                        //cGL.yAngle -= 5; // Rotate around Y-axis
                         cGL.intOptionC = -2; // Indicating a rotation around Y in the opposite direction
                         break;
                     case Keys.Up:
-                        cGL.xAngle += 5; // Rotate around X-axis
+                        //cGL.xAngle += 5; // Rotate around X-axis
                         cGL.intOptionC = 1; // Indicating a rotation around X
                         break;
                     case Keys.Down:
-                        cGL.xAngle -= 5; // Rotate around X-axis
+                        //cGL.xAngle -= 5; // Rotate around X-axis
                         cGL.intOptionC = -1; // Indicating a rotation around X in the opposite direction
                         break;
                 }
@@ -322,19 +328,19 @@ namespace myOpenGL
                 switch (e.KeyCode)
                 {
                     case Keys.Right:
-                        cGL.xShift += 0.1f;
+                        //cGL.xShift += 0.1f;
                         cGL.intOptionC = 4; // Indicating a shift along X
                         break;
                     case Keys.Left:
-                        cGL.xShift -= 0.1f;
+                        //cGL.xShift -= 0.1f;
                         cGL.intOptionC = -4; // Indicating a shift along X in the opposite direction
                         break;
                     case Keys.Up:
-                        cGL.yShift += 0.1f;
+                        //cGL.yShift += 0.1f;
                         cGL.intOptionC = 5; // Indicating a shift along Y
                         break;
                     case Keys.Down:
-                        cGL.yShift -= 0.1f;
+                        //cGL.yShift -= 0.1f;
                         cGL.intOptionC = -5; // Indicating a shift along Y in the opposite direction
                         break;
                 }
@@ -353,12 +359,12 @@ namespace myOpenGL
         {
             if (e.Delta > 0)
             {
-                cGL.zShift += 0.5f; // Zoom in
+                //cGL.zShift += 0.5f; // Zoom in
                 cGL.intOptionC = 6; // Assuming positive intOptionC value for zoom in
             }
             else if (e.Delta < 0)
             {
-                cGL.zShift -= 0.5f; // Zoom out
+                //cGL.zShift -= 0.5f; // Zoom out
                 cGL.intOptionC = -6; // Assuming negative intOptionC value for zoom out
             }
             cGL.Draw();
