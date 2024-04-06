@@ -42,6 +42,7 @@ namespace myOpenGL
             this.hScrollBar9 = new System.Windows.Forms.HScrollBar();
             this.hScrollBar8 = new System.Windows.Forms.HScrollBar();
             this.hScrollBar7 = new System.Windows.Forms.HScrollBar();
+            this.property_mat_shininess = new System.Windows.Forms.HScrollBar();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -59,6 +60,9 @@ namespace myOpenGL
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.property_mat_ambient = new System.Windows.Forms.HScrollBar();
+            this.property_mat_specular = new System.Windows.Forms.HScrollBar();
+            this.property_mat_diffuse = new System.Windows.Forms.HScrollBar();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -78,99 +82,109 @@ namespace myOpenGL
             this.panel1.TabIndex = 6;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             this.panel1.MouseEnter += new System.EventHandler(this.panel1_MouseEnter);
+            this.panel1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseMove);
             this.panel1.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseWheel);
-            panel1.MouseMove += new MouseEventHandler(panel1_MouseMove);
             this.panel1.Resize += new System.EventHandler(this.panel1_Resize);
             // 
             // hScrollBar1
             // 
-            this.hScrollBar1.Location = new System.Drawing.Point(550, 16);
+            this.hScrollBar1.Location = new System.Drawing.Point(549, 16);
             this.hScrollBar1.Maximum = 200;
             this.hScrollBar1.Name = "hScrollBar1";
-            this.hScrollBar1.Size = new System.Drawing.Size(119, 17);
+            this.hScrollBar1.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar1.TabIndex = 7;
             this.hScrollBar1.Value = 100;
             this.hScrollBar1.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar2
             // 
-            this.hScrollBar2.Location = new System.Drawing.Point(550, 37);
+            this.hScrollBar2.Location = new System.Drawing.Point(549, 31);
             this.hScrollBar2.Maximum = 200;
             this.hScrollBar2.Name = "hScrollBar2";
-            this.hScrollBar2.Size = new System.Drawing.Size(119, 17);
+            this.hScrollBar2.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar2.TabIndex = 8;
             this.hScrollBar2.Value = 100;
             this.hScrollBar2.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar3
             // 
-            this.hScrollBar3.Location = new System.Drawing.Point(550, 58);
+            this.hScrollBar3.Location = new System.Drawing.Point(549, 46);
             this.hScrollBar3.Maximum = 200;
             this.hScrollBar3.Name = "hScrollBar3";
-            this.hScrollBar3.Size = new System.Drawing.Size(119, 17);
+            this.hScrollBar3.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar3.TabIndex = 9;
             this.hScrollBar3.Value = 200;
             this.hScrollBar3.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar4
             // 
-            this.hScrollBar4.Location = new System.Drawing.Point(550, 88);
+            this.hScrollBar4.Location = new System.Drawing.Point(549, 61);
             this.hScrollBar4.Maximum = 200;
             this.hScrollBar4.Name = "hScrollBar4";
-            this.hScrollBar4.Size = new System.Drawing.Size(119, 17);
+            this.hScrollBar4.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar4.TabIndex = 10;
             this.hScrollBar4.Value = 100;
             this.hScrollBar4.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar5
             // 
-            this.hScrollBar5.Location = new System.Drawing.Point(550, 110);
+            this.hScrollBar5.Location = new System.Drawing.Point(549, 76);
             this.hScrollBar5.Maximum = 200;
             this.hScrollBar5.Name = "hScrollBar5";
-            this.hScrollBar5.Size = new System.Drawing.Size(119, 17);
+            this.hScrollBar5.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar5.TabIndex = 8;
             this.hScrollBar5.Value = 100;
             this.hScrollBar5.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar6
             // 
-            this.hScrollBar6.Location = new System.Drawing.Point(550, 132);
+            this.hScrollBar6.Location = new System.Drawing.Point(609, 16);
             this.hScrollBar6.Maximum = 200;
             this.hScrollBar6.Name = "hScrollBar6";
-            this.hScrollBar6.Size = new System.Drawing.Size(119, 17);
+            this.hScrollBar6.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar6.TabIndex = 11;
             this.hScrollBar6.Value = 100;
             this.hScrollBar6.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar9
             // 
-            this.hScrollBar9.Location = new System.Drawing.Point(549, 208);
+            this.hScrollBar9.Location = new System.Drawing.Point(609, 61);
             this.hScrollBar9.Maximum = 200;
             this.hScrollBar9.Name = "hScrollBar9";
-            this.hScrollBar9.Size = new System.Drawing.Size(119, 17);
+            this.hScrollBar9.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar9.TabIndex = 14;
             this.hScrollBar9.Value = 100;
             this.hScrollBar9.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar8
             // 
-            this.hScrollBar8.Location = new System.Drawing.Point(550, 186);
+            this.hScrollBar8.Location = new System.Drawing.Point(609, 46);
             this.hScrollBar8.Maximum = 200;
             this.hScrollBar8.Name = "hScrollBar8";
-            this.hScrollBar8.Size = new System.Drawing.Size(119, 17);
+            this.hScrollBar8.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar8.TabIndex = 12;
             this.hScrollBar8.Value = 110;
             this.hScrollBar8.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar7
             // 
-            this.hScrollBar7.Location = new System.Drawing.Point(550, 164);
+            this.hScrollBar7.Location = new System.Drawing.Point(609, 31);
             this.hScrollBar7.Maximum = 200;
             this.hScrollBar7.Name = "hScrollBar7";
-            this.hScrollBar7.Size = new System.Drawing.Size(119, 17);
+            this.hScrollBar7.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar7.TabIndex = 13;
             this.hScrollBar7.Value = 100;
             this.hScrollBar7.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
+            // 
+            // property_mat_shininess
+            // 
+            this.property_mat_shininess.Location = new System.Drawing.Point(557, 104);
+            this.property_mat_shininess.Maximum = 128;
+            this.property_mat_shininess.Name = "property_mat_shininess";
+            this.property_mat_shininess.Size = new System.Drawing.Size(119, 17);
+            this.property_mat_shininess.TabIndex = 19;
+            this.property_mat_shininess.Value = 128;
+            this.property_mat_shininess.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // groupBox1
             // 
@@ -387,11 +401,43 @@ namespace myOpenGL
             this.textBox1.Size = new System.Drawing.Size(124, 117);
             this.textBox1.TabIndex = 18;
             // 
+            // property_mat_ambient
+            // 
+            this.property_mat_ambient.Location = new System.Drawing.Point(559, 121);
+            this.property_mat_ambient.Name = "property_mat_ambient";
+            this.property_mat_ambient.Size = new System.Drawing.Size(119, 17);
+            this.property_mat_ambient.TabIndex = 20;
+            this.property_mat_ambient.Value = 50;
+            this.property_mat_ambient.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
+            // 
+            // property_mat_specular
+            // 
+            this.property_mat_specular.Location = new System.Drawing.Point(557, 155);
+            this.property_mat_specular.Name = "property_mat_specular";
+            this.property_mat_specular.Size = new System.Drawing.Size(119, 17);
+            this.property_mat_specular.TabIndex = 21;
+            this.property_mat_specular.Value = 50;
+            this.property_mat_specular.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
+            // 
+            // property_mat_diffuse
+            // 
+            this.property_mat_diffuse.Location = new System.Drawing.Point(557, 138);
+            this.property_mat_diffuse.Name = "property_mat_diffuse";
+            this.property_mat_diffuse.Size = new System.Drawing.Size(119, 17);
+            this.property_mat_diffuse.TabIndex = 22;
+            this.property_mat_diffuse.Value = 50;
+            this.property_mat_diffuse.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
+
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(685, 528);
+            this.Controls.Add(this.property_mat_diffuse);
+            this.Controls.Add(this.property_mat_specular);
+            this.Controls.Add(this.property_mat_ambient);
+            this.Controls.Add(this.property_mat_shininess);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.groupBox2);
@@ -438,6 +484,7 @@ namespace myOpenGL
         private System.Windows.Forms.HScrollBar hScrollBar9;
         private System.Windows.Forms.HScrollBar hScrollBar8;
         private System.Windows.Forms.HScrollBar hScrollBar7;
+        private System.Windows.Forms.HScrollBar property_mat_shininess;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label label2;
@@ -455,6 +502,9 @@ namespace myOpenGL
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ListBox listBox1;
         private TextBox textBox1;
+        private HScrollBar property_mat_ambient;
+        private HScrollBar property_mat_specular;
+        private HScrollBar property_mat_diffuse;
     }
 }
 

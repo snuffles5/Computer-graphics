@@ -21,6 +21,34 @@ namespace Utils
             Color color = ColorEnum.GetColor(colorName);
             GL.glColor4f(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, alpha);
         }
+
+        public static float[] GetMaterialProperties(ColorName colorName, bool forSpecular = false)
+        {
+            Color color = ColorEnum.GetColor(colorName);
+            // Specular properties
+            if (forSpecular)
+            {
+                return new float[] 
+                {
+                    Math.Min(1.0f, color.R / 255.0f + 0.2f),
+                    Math.Min(1.0f, color.G / 255.0f + 0.2f),
+                    Math.Min(1.0f, color.B / 255.0f + 0.2f),
+                    color.A / 255.0f
+                };
+            }
+            else
+            {
+                // Ambient and Diffuse color
+                return new float[] 
+                {
+                    color.R / 255.0f,
+                    color.G / 255.0f,
+                    color.B / 255.0f,
+                    color.A / 255.0f
+                };
+            }
+        }
+
     }
 
 }

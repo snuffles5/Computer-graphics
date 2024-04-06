@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 //3D model b1
 using Milkshape;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Utils;
 //3D model e
 
 namespace myOpenGL
@@ -67,8 +68,60 @@ namespace myOpenGL
         {
             cGL.intOptionC = 0;
             HScrollBar hb = (HScrollBar)sender;
-            int n = int.Parse(hb.Name.Substring(hb.Name.Length - 1));
-            cGL.ScrollValue[n - 1] = (hb.Value - 100) / 10.0f;
+            string scrollBarText = hb.Name;
+            if (scrollBarText.Contains("hScrollBar"))
+            {
+                int n = int.Parse(hb.Name.Substring(hb.Name.Length - 1));
+                cGL.ScrollValue[n - 1] = (hb.Value - 100) / 10.0f;
+            } 
+            else if (scrollBarText.Contains("property_mat"))
+            {
+                MaterialProperty? materialProperty = MaterialConfig.Instance.GetMaterialByString(scrollBarText.Replace("property_mat_", ""));
+                if (materialProperty != null)
+                {
+                    switch (materialProperty)
+                    {
+                        case MaterialProperty.AMBIENT:
+                        case MaterialProperty.DIFFUSE:
+                        case MaterialProperty.SPECULAR:
+                            float normalizedValue = hb.Value / 100.0f; 
+                            cGL.UpdateValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValues = new float[] { normalizedValue, normalizedValue, normalizedValue, 1.0f } };
+                            break;
+                        case MaterialProperty.SHININESS:
+                            cGL.UpdateValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValue = hb.Value };
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+
+
+                //    if (Enum.TryParse<MaterialProperty>(materialProperty, ignoreCase: true, out var property))
+                //{
+                //    switch (property)
+                //    {
+                //        case MaterialProperty.MATAMBIENT:
+                //        case MaterialProperty.MATDIFFUSE:
+                //        case MaterialProperty.MATSPECULAR:
+                //        float normalizedValue = hb.Value / 100;
+                //            cGL.UpdateValue = new PropertyUpdateKeyAndValue { Key = materialProperty.ToUpper(), NewValues = new float[] { normalizedValue, normalizedValue, normalizedValue, 1.0f } };
+                //            break;
+                //        case MaterialProperty.SHININESS:
+                //            cGL.UpdateValue = new PropertyUpdateKeyAndValue { Key = materialProperty.ToUpper(), NewValue = hb.Value };
+                //            break;
+                //        default:
+                //            cGL.UpdateValue = new PropertyUpdateKeyAndValue { Key = materialProperty.ToUpper(), NewValue = hb.Value };
+                //            break;
+                //    }
+                //}
+                    //MaterialConfig.Instance.UpdateMaterialProperty(materialProperty.ToUpper(), newValue: hb.Value);
+                //cGL.UpdateValue = new PropertyUpdateKeyAndValue { Key = "SHININESS",  NewValue = 120.0f };
+
+
+                //cGL.ScrollValue[9] = hb.Value;
+            }
+
             if (e != null)
                 cGL.Draw();
         }
@@ -162,7 +215,7 @@ namespace myOpenGL
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            cGL.Draw();
+            //cGL.Draw();
         }
 
         //3D model b5

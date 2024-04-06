@@ -26,6 +26,7 @@ namespace OpenGL
         public float yAngle = 0.0f;
         public float xAngle = 0.0f;
         public int intOptionC = 0;
+        public bool isLightingOn;
 
         // Initialization of AccumulatedRotationsTraslations to the identity matrix
         double[] AccumulatedRotationsTraslations = new double[]{
@@ -35,6 +36,8 @@ namespace OpenGL
             0, 0, 0, 1
         };
         public Train train;
+
+        public MaterialPropertyUpdateKeyAndValue UpdateValue { get; internal set; }
 
         public cOGL(Control pb, TextBox debugTextBox)
         {
@@ -46,7 +49,7 @@ namespace OpenGL
             this.debugTextBox = debugTextBox;
             train = new Train(debugTextBox, 1);
             debugTextBox.Text = Width + "w, " + Height + "h\n";
-
+            isLightingOn = true;
         }
 
         ~cOGL()
@@ -100,9 +103,6 @@ namespace OpenGL
 
         public void OnResize()
         {
-            //Width = p.Width;
-            //Height = p.Height;
-            //GL.glViewport(0, 0, Width, Height);
             GL.glViewport(0, 0, p.Width, p.Height);
 
             GL.glMatrixMode(GL.GL_PROJECTION);
@@ -130,11 +130,55 @@ namespace OpenGL
             GL.glLoadIdentity();
         }
 
+        private void SetupLightingAndMaterial(bool isLightingOn = true)
+        {
+            if (isLightingOn)
+            {
+                GL.glShadeModel(GL.GL_SMOOTH);
+
+                // Lighting setup
+                GL.glEnable(GL.GL_LIGHT0);
+                GL.glEnable(GL.GL_LIGHTING);
+
+                // Set lighting parameters
+                //GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, LightConfig.Instance.Ambient);
+                //GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, LightConfig.Instance.Diffuse);
+                //GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, LightConfig.Instance.Specular);
+                //GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, LightConfig.Instance.Position);
+
+                GL.glEnable(GL.GL_NORMALIZE);
+                
+                // Enable color material
+                GL.glEnable(GL.GL_COLOR_MATERIAL);
+                GL.glColorMaterial(GL.GL_FRONT, GL.GL_AMBIENT_AND_DIFFUSE);
+                if (UpdateValue != null)
+                {
+                    MaterialConfig.Instance.SetMaterialProperty(UpdateValue.Key, UpdateValue.NewValues, UpdateValue.NewValue);
+                    UpdateValue = null;
+                }
+                //if (UpdateValue != null)
+                //{
+                //    if (UpdateValue.Key != MaterialProperty.SHININESS)
+                //    {
+
+                //    bool isDirectional = true;
+                //    if (!isDirectional)
+                //    {
+                //        UpdateValue.NewValues[3] = 0.0f;
+                //    }
+                //    GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, UpdateValue.NewValues);
+                //    UpdateValue = null;
+                //    }
+                //}
+            }
+        }
+
         public void Draw()
         {
             // Check if device contexts are initialized
             if (m_uint_DC == 0 || m_uint_RC == 0)
                 return;
+
 
             // Clear color and depth buffers
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -144,13 +188,18 @@ namespace OpenGL
 
             // Define arrays to store matrix values
             double[] ModelVievMatrixBeforeSpecificTransforms = new double[16];
-            
+
+
+            SetupLightingAndMaterial();
+
 
             // Set up viewing transformation
             GLU.gluLookAt(ScrollValue[0], ScrollValue[1], ScrollValue[2],
                           ScrollValue[3], ScrollValue[4], ScrollValue[5],
                           ScrollValue[6], ScrollValue[7], ScrollValue[8]);
             GL.glTranslatef(0.0f, 0.0f, -10.0f);
+
+            
 
             // Save current ModelView Matrix values before specific transformations
             GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, ModelVievMatrixBeforeSpecificTransforms);
