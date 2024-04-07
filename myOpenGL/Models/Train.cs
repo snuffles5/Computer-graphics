@@ -287,7 +287,7 @@ namespace Models
             //float halfCabWidth = cabWidth / 2;
             //float halfCabHeight = cabHeight / 2;
             //float halfCabDepth = cabDepth / 2;
-            DrawCuboid(carriageWidth, carriageHeight, carriageDepth, ColorName.Red);
+            DrawCuboid(carriageWidth, carriageHeight, carriageDepth, carriageColor);
             GL.glPopMatrix(); // Restore the original state
 
             // Draw the cabin of the cab
