@@ -69,20 +69,26 @@ namespace Models
         private readonly int numOfWheels;
         private readonly float wheelRadius;
         private readonly float wheelThickness;
-        private readonly float cabWidth;
-        private readonly float cabHeight;
-        private readonly float cabDepth;
+        private readonly float carriageWidth;
+        private readonly float carriageHeight;
+        private readonly float carriageDepth;
         private readonly float cabBottomBaseWidth;
         private readonly float cabBottomBaseHeight;
         private readonly float cabBottomCouplerWidth;
         private readonly float cabBottomCouplerHeight;
         private readonly float cabBottomCouplerDepth;
-        private readonly float cabinWidth;
-        private readonly float cabinHeight;
-        private readonly float cabinDepth;
+        private readonly float controlCabinWidth;
+        private readonly float controlCabinHeight;
+        private readonly float controlCabinDepth;
         private readonly float chimneyBaseRadius;
         private readonly float chimneyTopRadius;
         private readonly float chimneyHeight;
+        
+        private readonly ColorName chimneyColor = ColorName.Black;
+        private readonly ColorName controlCabinColor = ColorName.Bronze;
+        private readonly ColorName cabBottomColor = ColorName.Black;
+        private readonly ColorName carriageColor = ColorName.Bronze;
+        private readonly ColorName WheelsColor = ColorName.Black;
 
         gluNewQuadric obj;
 
@@ -95,13 +101,13 @@ namespace Models
         public Locomotive(TextBox debugTextBox,
             float shininess = DefaultConfig.MAT_SHININESS, bool isShadowDrawing = false)
         {
-            cabWidth = 3.5f;
-            cabHeight = 0.7f;
-            cabDepth = 0.7f;
-            cabinWidth = 0.7f;
-            cabinHeight = cabHeight * 1.2f;
-            cabinDepth = cabDepth;
-            cabBottomBaseWidth = cabWidth * 1.2f + cabinWidth;
+            carriageWidth = 3.5f;
+            carriageHeight = 0.7f;
+            carriageDepth = 0.7f;
+            controlCabinWidth = 0.7f;
+            controlCabinHeight = carriageHeight * 1.2f;
+            controlCabinDepth = carriageDepth;
+            cabBottomBaseWidth = carriageWidth * 1.2f + controlCabinWidth;
             cabBottomBaseHeight = 0.2f;
             cabBottomCouplerWidth = 0.7f;
             cabBottomCouplerHeight = 0.1f;
@@ -142,7 +148,7 @@ namespace Models
 
             // Define the wheel
             GL.glNewList(wheelList, GL.GL_COMPILE);
-            DrawWheel(wheelRadius, wheelThickness, ColorName.Black);
+            DrawWheel(wheelRadius, wheelThickness, WheelsColor);
             GL.glEndList();
 
             // Combine into the locomotive
@@ -161,7 +167,7 @@ namespace Models
             DrawWheels();
         }
 
-        public void Draw()
+        public void Draw(Vector3 translateVector = null)
         {
             GL.glPushMatrix(); // Save the current state
             if (!isShadowDrawing)
@@ -170,9 +176,11 @@ namespace Models
                 SetLighting();
             }
 
-            // Translate to set the new center
-            //float centerTranslationX = cabinWidth / 2;
-            //GL.glTranslatef(centerTranslationX, 0.0f, 0.0f); // Shift everything to the left
+            if (translateVector != null)
+            {
+                //Translate to set the new center
+                GL.glTranslatef(translateVector.X, translateVector.Y, translateVector.Z); // Shift everything to the left
+            }
 
             //GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // This uses the wheelRotation, adjust as needed
 
@@ -249,10 +257,10 @@ namespace Models
 
         private void SetLighting()
         {
-            Console.WriteLine($" Ambient = {LightConfig.Instance.Ambient[0]}, {LightConfig.Instance.Ambient[1]}, {LightConfig.Instance.Ambient[2]}, {LightConfig.Instance.Ambient[3]} " +
-            $"Diffuse = {LightConfig.Instance.Diffuse[0]}, {LightConfig.Instance.Diffuse[1]}, {LightConfig.Instance.Diffuse[2]}, {LightConfig.Instance.Diffuse[3]} " +
-            $"Specular = {LightConfig.Instance.Specular[0]}, {LightConfig.Instance.Specular[1]}, {LightConfig.Instance.Specular[2]}, {LightConfig.Instance.Specular[3]} " +
-            $"Position = {LightConfig.Instance.Position[0]}, {LightConfig.Instance.Position[1]}, {LightConfig.Instance.Position[2]}, {LightConfig.Instance.Position[3]} ");
+            //Console.WriteLine($" Ambient = {LightConfig.Instance.Ambient[0]}, {LightConfig.Instance.Ambient[1]}, {LightConfig.Instance.Ambient[2]}, {LightConfig.Instance.Ambient[3]} " +
+            //$"Diffuse = {LightConfig.Instance.Diffuse[0]}, {LightConfig.Instance.Diffuse[1]}, {LightConfig.Instance.Diffuse[2]}, {LightConfig.Instance.Diffuse[3]} " +
+            //$"Specular = {LightConfig.Instance.Specular[0]}, {LightConfig.Instance.Specular[1]}, {LightConfig.Instance.Specular[2]}, {LightConfig.Instance.Specular[3]} " +
+            //$"Position = {LightConfig.Instance.Position[0]}, {LightConfig.Instance.Position[1]}, {LightConfig.Instance.Position[2]}, {LightConfig.Instance.Position[3]} ");
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, LightConfig.Instance.Ambient);
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, LightConfig.Instance.Diffuse);
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, LightConfig.Instance.Specular);
@@ -262,10 +270,10 @@ namespace Models
 
         private void SetMaterial()
         {
-            Console.WriteLine($" MatAmbient = {MaterialConfig.Instance.MatAmbient[0]}, {MaterialConfig.Instance.MatAmbient[1]}, {MaterialConfig.Instance.MatAmbient[2]}, {MaterialConfig.Instance.MatAmbient[3]} " +
-                $"MatDiffuse = {MaterialConfig.Instance.MatDiffuse[0]}, {MaterialConfig.Instance.MatDiffuse[1]}, {MaterialConfig.Instance.MatDiffuse[2]}, {MaterialConfig.Instance.MatDiffuse[3]} " +
-                $"MatSpecular = {MaterialConfig.Instance.MatSpecular[0]}, {MaterialConfig.Instance.MatSpecular[1]}, {MaterialConfig.Instance.MatSpecular[2]}, {MaterialConfig.Instance.MatSpecular[3]} " +
-                $"Shininess = { MaterialConfig.Instance.Shininess}");
+            //Console.WriteLine($" MatAmbient = {MaterialConfig.Instance.MatAmbient[0]}, {MaterialConfig.Instance.MatAmbient[1]}, {MaterialConfig.Instance.MatAmbient[2]}, {MaterialConfig.Instance.MatAmbient[3]} " +
+            //    $"MatDiffuse = {MaterialConfig.Instance.MatDiffuse[0]}, {MaterialConfig.Instance.MatDiffuse[1]}, {MaterialConfig.Instance.MatDiffuse[2]}, {MaterialConfig.Instance.MatDiffuse[3]} " +
+            //    $"MatSpecular = {MaterialConfig.Instance.MatSpecular[0]}, {MaterialConfig.Instance.MatSpecular[1]}, {MaterialConfig.Instance.MatSpecular[2]}, {MaterialConfig.Instance.MatSpecular[3]} " +
+            //    $"Shininess = { MaterialConfig.Instance.Shininess}");
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT, MaterialConfig.Instance.MatAmbient);
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, MaterialConfig.Instance.MatDiffuse);
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_SPECULAR, MaterialConfig.Instance.MatSpecular);
@@ -279,12 +287,12 @@ namespace Models
             //float halfCabWidth = cabWidth / 2;
             //float halfCabHeight = cabHeight / 2;
             //float halfCabDepth = cabDepth / 2;
-            DrawCuboid(cabWidth, cabHeight, cabDepth, ColorName.Red);
+            DrawCuboid(carriageWidth, carriageHeight, carriageDepth, ColorName.Red);
             GL.glPopMatrix(); // Restore the original state
 
             // Draw the cabin of the cab
             GL.glPushMatrix(); // Save the current state
-            DrawCabin();
+            DrawControlCabin();
             GL.glPopMatrix(); // Restore the original state
 
             // Draw the bottom base of the cab
@@ -292,23 +300,25 @@ namespace Models
             DrawCabBottomBase();
             GL.glPopMatrix(); // Restore the original state
 
-            // Draw the bottom coupler of the cab
+            // Draw the bottom couplers of the cab
             GL.glPushMatrix(); // Save the current state
-            DrawCabBottomCoupler();
+            DrawCabBottomCouplers();
             GL.glPopMatrix(); // Restore the original state
         }
-        private void DrawCabBottomCoupler()
+        private void DrawCabBottomCouplers()
         {
-            // Assuming cabWidth, cabHeight, and cabDepth have been defined elsewhere
+            // Front Coupler
             float halfBottomBaseWidth = cabBottomBaseWidth / 2;
-            //float halfWidth = cabBottomCouplerWidth / 2;
-            //float halfHeight = cabBottomCouplerHeight / 2;
-            //float halfDepth = cabBottomCouplerDepth / 2;
-            // Translate down to position the bottom base at the bottom of the cab
-            float translateY = -(cabHeight / 2 + cabBottomBaseHeight / 2);
+            float translateY = -(carriageHeight / 2 + cabBottomBaseHeight / 2);
             float translateX = -halfBottomBaseWidth * 1.1f;
-            GL.glTranslatef(translateX, translateY, 0.0f); // No translation on X and Z axes
-            DrawCuboid(cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth, ColorName.Bronze);
+            GL.glTranslatef(translateX, translateY, 0.0f);
+            DrawCuboid(cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth, cabBottomColor);
+
+            // Back Coupler
+            translateX =+ halfBottomBaseWidth * 1.1f;
+            GL.glTranslatef(translateX, translateY, 0.0f);
+            DrawCuboid(cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth, cabBottomColor);
+
         }
         private void DrawCabBottomBase()
         {
@@ -317,20 +327,20 @@ namespace Models
             //float halfHeight = cabBottomBaseHeight / 2;
             //float halfDepth = cabDepth / 2;
             // Translate down to position the bottom base at the bottom of the cab
-            float translateY = -cabHeight; //- (cabHeight / 2 + cabBottomBaseHeight / 2);
-            float translateX = -cabinWidth / 2;
+            float translateY = -carriageHeight; //- (cabHeight / 2 + cabBottomBaseHeight / 2);
+            float translateX = -controlCabinWidth / 2;
             GL.glTranslatef(translateX, translateY, 0.0f); // No translation on X and Z axes
-            DrawCuboid(cabBottomBaseWidth, cabBottomBaseHeight, cabDepth, ColorName.DimGrey);
+            DrawCuboid(cabBottomBaseWidth, cabBottomBaseHeight, carriageDepth, cabBottomColor);
         }
 
-        private void DrawCabin()
+        private void DrawControlCabin()
         {
             // Translate for the cabin drawing
-            float cabinTranslateX = -(cabWidth + cabinWidth / 2); // Move it to the left of the cab base
+            float cabinTranslateX = -(carriageWidth + controlCabinWidth / 2); // Move it to the left of the cab base
             float cabinTranslateY = cabBottomBaseHeight; // Align the bottom of the cabin with the top of the cab bottom base
             GL.glTranslatef(cabinTranslateX, cabinTranslateY, 0.0f);
 
-            DrawCuboid(cabinWidth, cabinHeight, cabinDepth, ColorName.Bronze); // Drawing the cabin
+            DrawCuboid(controlCabinWidth, controlCabinHeight, controlCabinDepth, controlCabinColor); // Drawing the cabin
         }
 
 
@@ -340,14 +350,14 @@ namespace Models
             GL.glPushMatrix(); // Save the current transformation state
 
             // Calculate the translation values before drawing the chimney
-            float translateX = cabWidth * 0.75f;
-            float translateY = (cabHeight / 2) * 1.2f; // Align the base of the chimney with the top of the cab
+            float translateX = carriageWidth * 0.75f;
+            float translateY = (carriageHeight / 2) * 1.2f; // Align the base of the chimney with the top of the cab
             //float translateY = cabHeight / 1.1f; // On top of the cab
             float translateZ = 0.0f; // Centered along the cab's depth
 
 
             GL.glTranslatef(translateX, translateY, translateZ); // Apply the calculated translation
-            DrawCylinder(baseRadius: chimneyBaseRadius, topRadius: chimneyTopRadius, height: chimneyHeight, color: ColorName.Black);
+            DrawCylinder(chimneyBaseRadius, chimneyTopRadius, chimneyHeight, chimneyColor);
             GL.glPopMatrix(); // Restore the previous transformation state
         }
 
@@ -413,8 +423,8 @@ namespace Models
             // Constants for wheel placement
             float wheelOffsetX = cabBottomBaseWidth * 0.7f; // 20% of the bottom base width from the center to each side
             float wheelOffsetY = -(wheelRadius + cabBottomBaseHeight) * 1.3f; // Just below the bottom base
-            float wheelOffsetZFront = cabDepth;// * 0.8f; // 20% of the depth for front wheels
-            float wheelOffsetZBack = -cabDepth;// * 0.8f; // 20% of the depth for back wheels
+            float wheelOffsetZFront = carriageDepth;// * 0.8f; // 20% of the depth for front wheels
+            float wheelOffsetZBack = -carriageDepth;// * 0.8f; // 20% of the depth for back wheels
 
 
             // Place the wheels relative to the cab
