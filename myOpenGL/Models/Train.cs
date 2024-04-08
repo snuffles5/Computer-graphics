@@ -7,6 +7,8 @@ using System.Drawing;
 using GraphicProject.Utils.Math;
 using System.Linq;
 using System.IO;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace Models
 {
@@ -95,13 +97,18 @@ namespace Models
 
         gluNewQuadric obj;
 
-        private float wheelRotation = float.NaN;
+        private float wheelRotation = 0;
+        private bool isWheelRotation = true;
         private uint cabList, wheelList, locomotiveList;
         TextBox debugTextBox;
         private bool isShadowDrawing;
         private readonly ColorName shadowColor = ColorName.LightGrey;
         public uint[] Textures;
         public string[] imagesName;
+        Dictionary<Orientation, TrainObjects> carriageFaceDictionary;
+        Dictionary<Orientation, TrainObjects> controlCabinFaceDictionary;
+        Dictionary<Orientation, TrainObjects> cabBottomBaseFaceDictionary;
+        Dictionary<Orientation, TrainObjects> cabCouplerFaceDictionary;
 
         public Locomotive(TextBox debugTextBox,
             float shininess = DefaultConfig.MAT_SHININESS, bool isShadowDrawing = false)
@@ -121,9 +128,9 @@ namespace Models
             numOfWheels = 4;
             wheelRadius = 0.4f;
             wheelThickness = 0.2f;
-            chimneyBaseRadius = 0.1f;
-            chimneyTopRadius = 0.7f;
-            chimneyHeight = 0.7f;
+            chimneyBaseRadius = 0.2f;
+            chimneyTopRadius = 0.3f;
+            chimneyHeight = 1f;
 
             Textures = new uint[Enum.GetValues(typeof(TrainObjects)).Length];
             imagesName = Enum.GetNames(typeof(TrainObjects))
@@ -133,6 +140,45 @@ namespace Models
             {
                 Textures[i] = (uint)i;
             }
+
+            carriageFaceDictionary = new Dictionary<Orientation, TrainObjects>
+            {
+                { Orientation.FRONT, TrainObjects.CARRIAGE_FRONT },
+                { Orientation.BACK, TrainObjects.CARRIAGE_BACK },
+                { Orientation.RIGHT, TrainObjects.CARRIAGE_RIGHT },
+                { Orientation.LEFT, TrainObjects.CARRIAGE_LEFT },
+                { Orientation.TOP, TrainObjects.CARRIAGE_TOP },
+                { Orientation.BOTTOM, TrainObjects.CARRIAGE_BOTTOM },
+            };
+            controlCabinFaceDictionary = new Dictionary<Orientation, TrainObjects>
+            {
+                { Orientation.FRONT, TrainObjects.CONTROL_CABIN_FRONT},
+                { Orientation.BACK, TrainObjects.CONTROL_CABIN},
+                { Orientation.RIGHT, TrainObjects.CONTROL_CABIN},
+                { Orientation.LEFT, TrainObjects.CONTROL_CABIN},
+                { Orientation.TOP, TrainObjects.CONTROL_CABIN},
+                { Orientation.BOTTOM, TrainObjects.CONTROL_CABIN},
+            };
+            cabBottomBaseFaceDictionary = new Dictionary<Orientation, TrainObjects>
+            {
+                { Orientation.FRONT, TrainObjects.CAB_BOTTOM_BASE },
+                { Orientation.BACK, TrainObjects.CAB_BOTTOM_BASE },
+                { Orientation.RIGHT, TrainObjects.CAB_BOTTOM_BASE },
+                { Orientation.LEFT, TrainObjects.CAB_BOTTOM_BASE },
+                { Orientation.TOP, TrainObjects.CAB_BOTTOM_BASE },
+                { Orientation.BOTTOM, TrainObjects.CAB_BOTTOM_BASE },
+            };
+            cabCouplerFaceDictionary = new Dictionary<Orientation, TrainObjects>
+            {
+                { Orientation.FRONT, TrainObjects.CAB_COUPLER},
+                { Orientation.BACK, TrainObjects.CAB_COUPLER},
+                { Orientation.RIGHT, TrainObjects.CAB_COUPLER},
+                { Orientation.LEFT, TrainObjects.CAB_COUPLER},
+                { Orientation.TOP, TrainObjects.CAB_COUPLER},
+                { Orientation.BOTTOM, TrainObjects.CAB_COUPLER},
+            };
+
+
 
             this.isShadowDrawing = isShadowDrawing;
             obj = GLU.gluNewQuadric();
@@ -199,8 +245,11 @@ namespace Models
                 //Translate to set the new center
                 GL.glTranslated(translateVector.Value.X, translateVector.Value.Y, translateVector.Value.Z); // Shift everything to the left
             }
-
-            //GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // This uses the wheelRotation, adjust as needed
+            
+            if (isWheelRotation)
+            {
+                wheelRotation += 15;
+            }
 
             // Now draw the locomotive
             GL.glCallList(locomotiveList);
@@ -240,9 +289,11 @@ namespace Models
             GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[(int)trainObject]);
             switch (trainObject)
             {
-                case TrainObjects.CARRIAGE:
-                case TrainObjects.CONTROLCABIN:
-                case TrainObjects.CABBOTTOMBASE:
+                case TrainObjects.CARRIAGE_FRONT: case TrainObjects.CARRIAGE_BACK:
+                case TrainObjects.CARRIAGE_TOP: case TrainObjects.CARRIAGE_BOTTOM:
+                case TrainObjects.CARRIAGE_RIGHT: case TrainObjects.CARRIAGE_LEFT:
+                case TrainObjects.CONTROL_CABIN:
+                case TrainObjects.CAB_BOTTOM_BASE:
                     // For Cuboids, use object linear or another suitable mapping.
                     GL.glDisable(GL.GL_TEXTURE_GEN_S);
                     GL.glDisable(GL.GL_TEXTURE_GEN_T);
@@ -269,8 +320,8 @@ namespace Models
                     break;
             }
             ColorUtil.SetColor(color);
-
         }
+
         private void DisableTexture()
         {
             GL.glDisable(GL.GL_TEXTURE_GEN_S);
@@ -308,20 +359,19 @@ namespace Models
         private void DrawCabBase()
         {
             // Draw the carriage
-            EnableTexture(TrainObjects.CARRIAGE);
             GL.glPushMatrix(); // Save the current state
-            DrawCuboid(carriageWidth, carriageHeight, carriageDepth, carriageColor);
+            DrawCuboid(carriageWidth, carriageHeight, carriageDepth, carriageFaceDictionary, carriageColor);
             GL.glPopMatrix(); // Restore the original state
 
             // Draw the cabin of the cab
-            EnableTexture(TrainObjects.CONTROLCABIN);
+            EnableTexture(TrainObjects.CONTROL_CABIN);
             GL.glPushMatrix(); // Save the current state
             DrawControlCabin();
             GL.glPopMatrix(); // Restore the original state
             DisableTexture();
 
             // Draw the bottom base of the cab
-            EnableTexture(TrainObjects.CABBOTTOMBASE);
+            EnableTexture(TrainObjects.CAB_BOTTOM_BASE);
             GL.glPushMatrix(); // Save the current state
             DrawCabBottomBase();
             GL.glPopMatrix(); // Restore the original state
@@ -336,18 +386,17 @@ namespace Models
         {
             // FrontCoupler
             GL.glPushMatrix();
-            float halfBottomBaseWidth = cabBottomBaseWidth / 2;
             float translateY = -(carriageHeight / 2 + cabBottomBaseHeight*1.7f);
             float translateX = -(cabBottomBaseWidth + cabBottomCouplerWidth / 2) * 1.05f;
             GL.glTranslatef(translateX, translateY, 0.0f);
-            DrawCuboid(cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth, cabBottomColor);
+            DrawCuboid(cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth, cabCouplerFaceDictionary, cabBottomColor);
             GL.glPopMatrix();
 
             // Back Coupler
             GL.glPushMatrix();
             translateX = (cabBottomBaseWidth + cabBottomCouplerWidth / 2) * 0.9f; // halfBottomBaseWidth * 2f;
             GL.glTranslatef(translateX, translateY, 0.0f);
-            DrawCuboid(cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth, cabBottomColor);
+            DrawCuboid(cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth, cabCouplerFaceDictionary, cabBottomColor);
             GL.glPopMatrix();
 
         }
@@ -357,7 +406,7 @@ namespace Models
             float translateY = -carriageHeight; //- (cabHeight / 2 + cabBottomBaseHeight / 2);
             float translateX = -controlCabinWidth / 2;
             GL.glTranslatef(translateX, translateY, 0.0f); // No translation on X and Z axes
-            DrawCuboid(cabBottomBaseWidth, cabBottomBaseHeight, carriageDepth, cabBottomColor);
+            DrawCuboid(cabBottomBaseWidth, cabBottomBaseHeight, carriageDepth, cabBottomBaseFaceDictionary, cabBottomColor);
         }
 
         private void DrawControlCabin()
@@ -367,7 +416,7 @@ namespace Models
             float cabinTranslateY = cabBottomBaseHeight; // Align the bottom of the cabin with the top of the cab bottom base
             GL.glTranslatef(cabinTranslateX, cabinTranslateY, 0.0f);
 
-            DrawCuboid(controlCabinWidth, controlCabinHeight, controlCabinDepth, controlCabinColor); // Drawing the cabin
+            DrawCuboid(controlCabinWidth, controlCabinHeight, controlCabinDepth, controlCabinFaceDictionary, controlCabinColor); // Drawing the cabin
         }
 
 
@@ -402,10 +451,6 @@ namespace Models
 
             // Begin wheel rotation
             GL.glPushMatrix();
-            if (!float.IsNaN(wheelRotation))
-            {
-                GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // Rotate around the Z-axis
-            }
             EnableTexture(TrainObjects.WHEEL_FRONT_BACK);
             // Draw the bottom solid disc with texture
             GL.glPushMatrix();
@@ -448,6 +493,10 @@ namespace Models
                 float posZ = (i < 2) ? wheelOffsetZFront : wheelOffsetZBack; // Alternate front/back
                 // Apply the transformation for wheel position
                 GL.glTranslatef(posX, wheelOffsetY, posZ);
+                if (isWheelRotation)
+                {
+                    GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // Rotate around the Z-axis
+                }
                 GL.glCallList(wheelList);
                 GL.glPopMatrix();
             }
@@ -520,69 +569,116 @@ namespace Models
             }
         }
 
-        private void DrawCuboid(float width, float height, float depth, ColorName color)
+        private bool ShouldDrawTexture(Dictionary<Orientation, TrainObjects> faceTextures, Orientation orientation)
         {
-            // Set the color for the cuboid
-            if (isShadowDrawing)
+            return faceTextures.ContainsKey(orientation);
+        }
+
+        private void SetTexCoordIfNeeded(float x, float y, bool condition)
+        {
+            if (condition)
             {
-                color = shadowColor;
+                GL.glTexCoord2f(x, y);
             }
+        }
 
-            ColorUtil.SetColor(color);
 
-            // Front Face (pointing towards positive Z)
-            GL.glBegin(GL.GL_QUADS);
-            GL.glNormal3f(0.0f, 0.0f, 1.0f); // Normal pointing outwards the front face
-            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(-width, -height, depth);
-            GL.glTexCoord2f(1.0f, 0.0f); GL.glVertex3f(width, -height, depth);
-            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, height, depth);
-            GL.glTexCoord2f(0.0f, 1.0f); GL.glVertex3f(-width, height, depth);
-            GL.glEnd();
+        private void DrawCuboid(float width, float height, float depth, Dictionary<Orientation, TrainObjects> faceTextures, ColorName color = ColorName.White)
+        {
+            foreach (var face in faceTextures)
+            {
+                // Determine if we should draw texture for this face
+                bool shouldDrawTexture = ShouldDrawTexture(faceTextures, face.Key);
+                if (shouldDrawTexture)
+                {
+                    EnableTexture(face.Value, color);
+                }
+                else
+                {
+                    // Set the color for the cuboid
+                    if (isShadowDrawing)
+                    {
+                        color = shadowColor;
+                    }
+                    ColorUtil.SetColor(color); // Use fallback color if texture is missing
+                }
 
-            // Back Face (pointing towards negative Z)
-            GL.glBegin(GL.GL_QUADS);
-            GL.glNormal3f(0.0f, 0.0f, -1.0f); // Normal pointing outwards the back face
-            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(-width, -height, -depth);
-            GL.glTexCoord2f(1.0f, 0.0f); GL.glVertex3f(width, -height, -depth);
-            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, height, -depth);
-            GL.glTexCoord2f(0.0f, 1.0f); GL.glVertex3f(-width, height, -depth);
-            GL.glEnd();
+                // Drawing each face with conditional texture coordinates
+                switch (face.Key)
+                {
+                    case Orientation.FRONT:
+                        // Front Face (pointing towards positive Z)
+                        GL.glBegin(GL.GL_QUADS);
+                        GL.glNormal3f(0.0f, 0.0f, 1.0f); // Normal pointing outwards the front face
 
-            // Top Face (pointing upwards)
-            GL.glBegin(GL.GL_QUADS);
-            GL.glNormal3f(0.0f, 1.0f, 0.0f); // Normal pointing upwards
-            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(-width, height, -depth);
-            GL.glTexCoord2f(1.0f, 0.0f); GL.glVertex3f(width, height, -depth);
-            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, height, depth);
-            GL.glTexCoord2f(0.0f, 1.0f); GL.glVertex3f(-width, height, depth);
-            GL.glEnd();
+                        SetTexCoordIfNeeded(0.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(-width, -height, depth);
+                        SetTexCoordIfNeeded(1.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(width, -height, depth);
+                        SetTexCoordIfNeeded(1.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(width, height, depth);
+                        SetTexCoordIfNeeded(0.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(-width, height, depth);
+                        GL.glEnd();
+                        break;
+                    case Orientation.BACK:
+                        // Back Face (pointing towards negative Z)
+                        GL.glBegin(GL.GL_QUADS);
+                        GL.glNormal3f(0.0f, 0.0f, -1.0f); // Normal pointing outwards the back face
 
-            // Bottom Face (pointing downwards)
-            GL.glBegin(GL.GL_QUADS);
-            GL.glNormal3f(0.0f, -1.0f, 0.0f); // Normal pointing downwards
-            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(-width, -height, -depth);
-            GL.glTexCoord2f(1.0f, 0.0f); GL.glVertex3f(width, -height, -depth);
-            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, -height, depth);
-            GL.glTexCoord2f(0.0f, 1.0f); GL.glVertex3f(-width, -height, depth);
-            GL.glEnd();
+                        SetTexCoordIfNeeded(0.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(-width, -height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(width, -height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(width, height, -depth);
+                        SetTexCoordIfNeeded(0.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(-width, height, -depth);
+                        GL.glEnd();
+                        break;
+                    case Orientation.TOP:
+                        // Top Face (pointing upwards)
+                        GL.glBegin(GL.GL_QUADS);
+                        GL.glNormal3f(0.0f, 1.0f, 0.0f); // Normal pointing upwards
 
-            // Right Face (pointing towards positive X)
-            GL.glBegin(GL.GL_QUADS);
-            GL.glNormal3f(1.0f, 0.0f, 0.0f); // Normal pointing to the right
-            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(width, -height, -depth);
-            GL.glTexCoord2f(1.0f, 0.0f); GL.glVertex3f(width, height, -depth);
-            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, height, depth);
-            GL.glTexCoord2f(0.0f, 1.0f); GL.glVertex3f(width, -height, depth);
-            GL.glEnd();
+                        SetTexCoordIfNeeded(0.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(-width, height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(width, height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(width, height, depth);
+                        SetTexCoordIfNeeded(0.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(-width, height, depth);
+                        GL.glEnd();
+                        break;
+                    case Orientation.BOTTOM:
+                        // Bottom Face (pointing downwards)
+                        GL.glBegin(GL.GL_QUADS);
+                        GL.glNormal3f(0.0f, -1.0f, 0.0f); // Normal pointing downwards
 
-            // Left Face (pointing towards negative X)
-            GL.glBegin(GL.GL_QUADS);
-            GL.glNormal3f(-1.0f, 0.0f, 0.0f); // Normal pointing to the left
-            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(-width, -height, -depth);
-            GL.glTexCoord2f(1.0f, 0.0f); GL.glVertex3f(-width, height, -depth);
-            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(-width, height, depth);
-            GL.glTexCoord2f(0.0f, 1.0f); GL.glVertex3f(-width, -height, depth);
-            GL.glEnd();
+                        SetTexCoordIfNeeded(0.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(-width, -height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(width, -height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(width, -height, depth);
+                        SetTexCoordIfNeeded(0.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(-width, -height, depth);
+                        GL.glEnd();
+                        break;
+                    case Orientation.RIGHT:
+                        // Right Face (pointing towards positive X)
+                        GL.glBegin(GL.GL_QUADS);
+                        GL.glNormal3f(1.0f, 0.0f, 0.0f); // Normal pointing to the right
+
+                        SetTexCoordIfNeeded(0.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(width, -height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(width, height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(width, height, depth);
+                        SetTexCoordIfNeeded(0.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(width, -height, depth);
+                        GL.glEnd();
+                        break;
+                    case Orientation.LEFT:
+                        // Left Face (pointing towards negative X)
+                        GL.glBegin(GL.GL_QUADS);
+                        GL.glNormal3f(-1.0f, 0.0f, 0.0f); // Normal pointing to the left
+
+                        SetTexCoordIfNeeded(0.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(-width, -height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 0.0f, shouldDrawTexture); GL.glVertex3f(-width, height, -depth);
+                        SetTexCoordIfNeeded(1.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(-width, height, depth);
+                        SetTexCoordIfNeeded(0.0f, 1.0f, shouldDrawTexture); GL.glVertex3f(-width, -height, depth);
+                        GL.glEnd();
+                        break;
+                }
+
+                if (shouldDrawTexture)
+                {
+                    DisableTexture();
+                }
+            }
         }
 
         public void Update(float deltaTime)

@@ -22,10 +22,11 @@ namespace myOpenGL
 
         cOGL cGL;
         object selectedLightingMaterialRadio;
+        int formRightMargin;
+        float panel1Ratio;
 
         public Form1()
         {
-
             InitializeComponent();
 
             cGL = new cOGL(panel1, textBox1);
@@ -49,8 +50,58 @@ namespace myOpenGL
             hScrollBarScroll(hScrollBar7, null);
             hScrollBarScroll(hScrollBar8, null);
             hScrollBarScroll(hScrollBar9, null);
+
         }
 
+        private int[] calculateNewSize()
+        {
+            int rightMargin = 20; // Margin from the right edge of the form.
+            int bottomMargin = 20; // Margin from the bottom edge of the form.
+
+            int formWidth = this.ClientSize.Width;
+            int formHeight = this.ClientSize.Height;
+            formRightMargin = formRightMargin == 0 ? formWidth - panel1.Size.Width : formRightMargin;
+            panel1Ratio = panel1Ratio == 0 ? (float)panel1.Size.Width / panel1.Size.Height : panel1Ratio;
+            // Calculate the available space for panel1
+            int maxWidth = formWidth - formRightMargin - rightMargin;
+            int maxHeight = formHeight - bottomMargin; // Assuming there's also a topMargin
+
+            // Calculate panelNewWidth and panelNewHeight based on the aspect ratio
+            int panelNewWidth = maxWidth;
+            int panelNewHeight = (int)(panelNewWidth / panel1Ratio);
+
+            // Adjust if the calculated height exceeds the maximum allowed height
+            if (panelNewHeight > maxHeight)
+            {
+                panelNewHeight = maxHeight;
+                panelNewWidth = (int)(panelNewHeight * panel1Ratio);
+            }
+
+            // Ensure panelNewWidth does not exceed maxWidth after adjustment
+            if (panelNewWidth > maxWidth)
+            {
+                panelNewWidth = maxWidth;
+                // Recalculate height if necessary, though this should not be needed after the initial adjustment
+                panelNewHeight = (int)(panelNewWidth / panel1Ratio);
+            }
+            return new int[] { panelNewHeight, panelNewWidth };
+        }
+
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            // Adjust panel1 size to maintain a dynamic width and a 20px margin from the bottom and right edges of the form.
+            int[] newSize = calculateNewSize();
+            int panelNewHeight = newSize[0];
+            int panelNewWidth = newSize[1];
+            panel1.Size = new Size(panelNewWidth, panelNewHeight);
+
+            // Notify cGL of the resize event.
+            if (cGL != null)
+            {
+                cGL.OnResize();
+            } 
+        }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
@@ -59,7 +110,9 @@ namespace myOpenGL
 
         private void panel1_Resize(object sender, EventArgs e)
         {
-            cGL.OnResize();
+            //this.Width = panel1.Width + this.Width - this.ClientRectangle.Width;
+            //this.Height = panel1.Height + this.Height - this.ClientRectangle.Height;
+            //cGL.OnResize();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -266,7 +319,7 @@ namespace myOpenGL
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            //cGL.Draw();
+            cGL.Draw();
         }
 
         //3D model b5

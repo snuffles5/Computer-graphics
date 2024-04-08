@@ -15,6 +15,7 @@ namespace OpenGL
         TextBox debugTextBox;
         int Width;
         int Height;
+        int ratio;
         uint m_uint_HWND = 0;
         uint m_uint_DC = 0;
         uint m_uint_RC = 0;
@@ -51,6 +52,7 @@ namespace OpenGL
             p = pb;
             Width = p.Width;
             Height = p.Height;
+            ratio = Width / Height;
             InitializeGL();
             obj = GLU.gluNewQuadric();
             this.debugTextBox = debugTextBox;
@@ -137,16 +139,20 @@ namespace OpenGL
 
         public void OnResize()
         {
-            GL.glViewport(0, 0, p.Width, p.Height);
-
+            Height = p.Height;
+            Width = p.Width;
+            GL.glViewport(0, 0, Width, Height);
             GL.glMatrixMode(GL.GL_PROJECTION);
             GL.glLoadIdentity();
-            // Setting up an orthographic projection where the origin (0,0) is the center of the panel
-            GLU.gluOrtho2D(-p.Width / 2, p.Width / 2, -p.Height / 2, p.Height / 2);
-
+            GLU.gluOrtho2D(-Width / 2, Width / 2, -Height / 2, Height / 2);
             GL.glMatrixMode(GL.GL_MODELVIEW);
             GL.glLoadIdentity();
+
+            initRenderingGL();
+            // Redraw the scene after resizing
+            Draw(); // Assuming Draw() is the method to redraw your scene
         }
+
 
         protected virtual void initRenderingGL()
         {

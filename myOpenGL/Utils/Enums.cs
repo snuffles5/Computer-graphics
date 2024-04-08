@@ -379,9 +379,17 @@ namespace Utils
 
     public enum TrainObjects
     {
-        CARRIAGE,
-        CONTROLCABIN,
-        CABBOTTOMBASE,
+        //CARRIAGE,
+        CARRIAGE_FRONT,
+        CARRIAGE_BACK,
+        CARRIAGE_LEFT,
+        CARRIAGE_RIGHT,
+        CARRIAGE_TOP,
+        CARRIAGE_BOTTOM,
+        CONTROL_CABIN_FRONT,
+        CONTROL_CABIN,
+        CAB_BOTTOM_BASE,
+        CAB_COUPLER,
         WHEEL_FRONT_BACK,
         WHEEL_TOP_BOTTOM,
         CHIMNEY
