@@ -195,9 +195,9 @@ namespace Models
         private void PrepareLists()
         {
             // Generate a contiguous block of list identifiers
-            locomotiveList = GL.glGenLists(3); // We request 3 lists at once
+            locomotiveList = GL.glGenLists(2); // We request 3 lists at once
             cabList = locomotiveList + 1; // The second list is for the cab
-            wheelList = locomotiveList + 2; // The third list is for the wheels
+            //wheelList = locomotiveList + 2; // The third list is for the wheels
 
 
             // Define the cab
@@ -209,10 +209,10 @@ namespace Models
             GL.glEndList();
 
             // Define the wheel
-            GL.glNewList(wheelList, GL.GL_COMPILE);
-            DrawWheel(wheelRadius, wheelThickness, WheelsColor);
-            DisableTexture();
-            GL.glEndList();
+            //GL.glNewList(wheelList, GL.GL_COMPILE);
+            //DrawWheel(wheelRadius, wheelThickness, WheelsColor);
+            //DisableTexture();
+            //GL.glEndList();
 
             // Combine into the locomotive
             GL.glNewList(locomotiveList, GL.GL_COMPILE);
@@ -227,7 +227,7 @@ namespace Models
             GL.glCallList(cabList);
             GL.glPopMatrix();
 
-            DrawWheels();
+            //DrawWheels();
         }
 
         public void Draw(Vector3? translateVector = null)
@@ -245,14 +245,17 @@ namespace Models
                 //Translate to set the new center
                 GL.glTranslated(translateVector.Value.X, translateVector.Value.Y, translateVector.Value.Z); // Shift everything to the left
             }
-            
+
+            // Now draw the locomotive
+            GL.glCallList(locomotiveList);
+
             if (isWheelRotation)
             {
                 wheelRotation += 15;
             }
-
-            // Now draw the locomotive
-            GL.glCallList(locomotiveList);
+            
+            // Directly calling draw wheels for rotation
+            DrawWheels();
 
             GL.glPopMatrix(); // Restore the original state
         }
@@ -497,7 +500,9 @@ namespace Models
                 {
                     GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // Rotate around the Z-axis
                 }
-                GL.glCallList(wheelList);
+                //GL.glCallList(wheelList);
+                DrawWheel(wheelRadius, wheelThickness, WheelsColor); // Adapt this call to your actual wheel drawing method
+
                 GL.glPopMatrix();
             }
         }
