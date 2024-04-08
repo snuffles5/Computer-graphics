@@ -1,3 +1,4 @@
+using GraphicProject.Utils.Math;
 using Models;
 using System;
 using System.Drawing;
@@ -23,6 +24,7 @@ namespace OpenGL
         public Vector3 sunCoords;
         public bool isLightingOn;
 
+        public float INITIALIZED_ZOOM_VALUE = -2.0f;
         float[,] ground = new float[3, 3];
         float[,] wall = new float[3, 3];
         float[] planeCoeff = { 1, 1, 1, 1 };
@@ -30,7 +32,6 @@ namespace OpenGL
         const int x = 0;
         const int y = 1;
         const int z = 2;
-
 
         // Initialization of AccumulatedRotationsTraslations to the identity matrix
         public double[] AccumulatedRotationsTraslations = new double[]{
@@ -160,6 +161,7 @@ namespace OpenGL
             GLU.gluPerspective(45.0f, (float)Width / (float)Height, 0.1f, 100.0f);
 
             GL.glMatrixMode(GL.GL_MODELVIEW);
+            GL.glShadeModel(GL.GL_SMOOTH);
             GL.glLoadIdentity();
         }
 
@@ -222,7 +224,7 @@ namespace OpenGL
             GLU.gluLookAt(ScrollValue[0], ScrollValue[1], ScrollValue[2],
                           ScrollValue[3], ScrollValue[4], ScrollValue[5],
                           ScrollValue[6], ScrollValue[7], ScrollValue[8]);
-            GL.glTranslatef(0.0f, 0.0f, -10.0f);
+            GL.glTranslatef(0.0f, 0.0f, INITIALIZED_ZOOM_VALUE);
 
             
 
@@ -231,6 +233,58 @@ namespace OpenGL
             // Reset ModelView Matrix to identity matrix
             GL.glLoadIdentity();
 
+            MakeTransformation();
+            ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
+
+            GL.glDisable(GL.GL_LIGHT0);
+            GL.glDisable(GL.GL_LIGHTING);
+            sun.Draw();
+
+            GL.glEnable(GL.GL_LIGHT0);
+            GL.glEnable(GL.GL_LIGHTING);
+            train.Draw(isShadowDrawing: false);
+
+
+            //DrawShadows();
+
+            // Flush GL pipeline
+            GL.glFlush();
+
+            // Swap buffers
+            WGL.wglSwapBuffers(m_uint_DC);
+        }
+
+        private void DrawShadows()
+        {
+            // Shadows
+            GL.glDisable(GL.GL_LIGHT0);
+            GL.glDisable(GL.GL_LIGHTING);
+            // floor shadow
+            //!!!!!!!!!!!!!
+            GL.glPushMatrix();
+            //!!!!!!!!!!!!    		
+            MakeShadowMatrix(ground);
+            GL.glMultMatrixf(cubeXform);
+
+            train.Draw(isShadowDrawing: true);
+            //!!!!!!!!!!!!!
+            GL.glPopMatrix();
+            //!!!!!!!!!!!!!
+
+            //// wall shadow
+            ////!!!!!!!!!!!!!
+            //GL.glPushMatrix();
+            ////!!!!!!!!!!!!       
+            //MakeShadowMatrix(wall);
+            //GL.glMultMatrixf(cubeXform);
+            //train.Draw(isShadowDrawing: true);
+            ////!!!!!!!!!!!!!
+            //GL.glPopMatrix();
+            ////!!!!!!!!!!!!!       
+        }
+
+        private void MakeTransformation()
+        {
             // Apply transformation according to KeyCode
             float delta;
             if (intOptionC != 0)
@@ -260,47 +314,6 @@ namespace OpenGL
                 }
             }
             // The ModelView Matrix now represents only the KeyCode transform
-
-            
-            ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
-
-
-
-            train.Draw(isShadowDrawing: false);
-
-
-            GL.glDisable(GL.GL_LIGHT0);
-            GL.glDisable(GL.GL_LIGHTING);
-            sun.Draw();
-
-            // floor shadow
-            //!!!!!!!!!!!!!
-            GL.glPushMatrix();
-            //!!!!!!!!!!!!    		
-            MakeShadowMatrix(ground);
-            GL.glMultMatrixf(cubeXform);
-
-            train.Draw(isShadowDrawing: true);
-            //!!!!!!!!!!!!!
-            GL.glPopMatrix();
-            //!!!!!!!!!!!!!
-
-            //// wall shadow
-            ////!!!!!!!!!!!!!
-            //GL.glPushMatrix();
-            ////!!!!!!!!!!!!       
-            //MakeShadowMatrix(wall);
-            //GL.glMultMatrixf(cubeXform);
-            //train.Draw(isShadowDrawing: true);
-            ////!!!!!!!!!!!!!
-            //GL.glPopMatrix();
-            ////!!!!!!!!!!!!!
-
-            // Flush GL pipeline
-            GL.glFlush();
-
-            // Swap buffers
-            WGL.wglSwapBuffers(m_uint_DC);
         }
 
         public void ApplyAndAccumulateTransformations(double[] ModelVievMatrixBeforeSpecificTransforms)
@@ -394,7 +407,7 @@ namespace OpenGL
 
             // Now do the projection
             // First column
-            
+
             cubeXform[0] = dot - LightConfig.Instance.Position[0] * planeCoeff[0];
             cubeXform[4] = 0.0f - LightConfig.Instance.Position[0] * planeCoeff[1];
             cubeXform[8] = 0.0f - LightConfig.Instance.Position[0] * planeCoeff[2];
@@ -418,6 +431,7 @@ namespace OpenGL
             cubeXform[11] = 0.0f - LightConfig.Instance.Position[3] * planeCoeff[2];
             cubeXform[15] = dot - LightConfig.Instance.Position[3] * planeCoeff[3];
         }
+
 
         void DrawObjects(bool isForShades, int c)
         {

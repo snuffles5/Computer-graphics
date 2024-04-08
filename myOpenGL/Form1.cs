@@ -12,6 +12,7 @@ using Milkshape;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Utils;
 using Models;
+using GraphicProject.Utils.Math;
 //3D model e
 
 namespace myOpenGL

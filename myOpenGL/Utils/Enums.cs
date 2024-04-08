@@ -1,4 +1,5 @@
-﻿using Milkshape;
+﻿using MathEX;
+using Milkshape;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -48,6 +49,7 @@ namespace Utils
         Black,
         Blue,
         Bronze,
+        DarkBronze,
         Brown,
         Chartreuse,
         Chocolate,
@@ -160,6 +162,8 @@ namespace Utils
                     return Color.FromArgb(192, 192, 192);
                 case ColorName.Bronze:
                     return Color.FromArgb(205, 127, 50);
+                case ColorName.DarkBronze:
+                    return Color.FromArgb(103, 64, 25);
                 case ColorName.Violet:
                     return Color.FromArgb(238, 130, 238);
                 case ColorName.Indigo:
@@ -373,19 +377,24 @@ namespace Utils
         public float[] NewValues { get; set; }
     }
 
-    public class Vector3
+    public enum TrainObjects
     {
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Z { get; set; }
-    
-        public Vector3(float X = 0, float Y = 0, float Z = 0)
-        {
-            this.X = X;
-            this.Y = Y;
-            this.Z = Z;
-        }
+        CARRIAGE,
+        CONTROLCABIN,
+        CABBOTTOMBASE,
+        WHEEL_FRONT_BACK,
+        WHEEL_TOP_BOTTOM,
+        CHIMNEY
     }
 
+    public enum Orientation
+    {
+        FRONT,
+        BACK,
+        RIGHT,
+        LEFT,
+        TOP,
+        BOTTOM
+    }
 
 }

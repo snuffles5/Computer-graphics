@@ -4,6 +4,7 @@ using static Utils.MaterialConfig;
 using Utils;
 using TextBox = System.Windows.Forms.TextBox;
 using System.Drawing;
+using GraphicProject.Utils.Math;
 
 namespace Models
 {
@@ -15,17 +16,17 @@ namespace Models
         TextBox debugTextBox;
         gluNewQuadric obj;
 
-        public Sun(TextBox debugTextBox, Vector3 vector = null, float angle = 0, float radius = 0.5f)
+        public Sun(TextBox debugTextBox, Vector3? vector = null, float angle = 0, float radius = 0.5f)
         {
             this.obj = GLU.gluNewQuadric();
             this.debugTextBox = debugTextBox;
-            if (vector == null)
+            if (vector.HasValue)
             {
-                Coords = new Vector3(-5, 5, -5);
+                Coords = (Vector3)vector;
             }
             else
             {
-                Coords = vector;
+                Coords = new Vector3(-5, 5, -5);
             }
             Angle = angle;
             this.radius = radius;
@@ -41,7 +42,7 @@ namespace Models
         private void DrawSun()
         {
             //GL.glRotatef(Angle, 0, 0, 1);
-            GL.glTranslatef(Coords.X, Coords.Y, Coords.Z); 
+            GL.glTranslated(Coords.X, Coords.Y, Coords.Z); 
             //GL.glEnable(GL.GL_BLEND);           // "blender" ON
             GL.glEnable(GL.GL_CULL_FACE);       // ON - cull polygons on their winding(twist) in window coordinates
             ColorUtil.SetColor(ColorName.Yellow);
