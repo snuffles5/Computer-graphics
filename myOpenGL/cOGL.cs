@@ -1,7 +1,9 @@
 using GraphicProject.Utils.Math;
+using Milkshape;
 using Models;
 using System;
 using System.Drawing;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 using Utils;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -15,13 +17,14 @@ namespace OpenGL
         TextBox debugTextBox;
         int Width;
         int Height;
-        int ratio;
         uint m_uint_HWND = 0;
         uint m_uint_DC = 0;
         uint m_uint_RC = 0;
         gluNewQuadric obj;
-        public float[] ScrollValue = new float[10];
-        public int intOptionC = 0;
+        public Milkshape.Character ch;
+        public float[] DefaultCameraPointOfView;
+        public float[] CameraPointOfView = new float[10];
+        public TransformationsOperations intOptionC = TransformationsOperations.NONE;
         public Vector3 sunCoords;
         public bool isLightingOn;
 
@@ -33,6 +36,7 @@ namespace OpenGL
         const int x = 0;
         const int y = 1;
         const int z = 2;
+        bool isFirstDraw = true;
 
         // Initialization of AccumulatedRotationsTraslations to the identity matrix
         public double[] AccumulatedRotationsTraslations = new double[]{
@@ -43,6 +47,12 @@ namespace OpenGL
         };
         public Train train;
         public Sun sun;
+        public float xShift;
+        public float yShift;
+        public float zShift;
+        public float xAngle;
+        public float yAngle;
+        public float zAngle;
 
         public MaterialPropertyUpdateKeyAndValue MaterialPropertyUpdatedValue { get; internal set; }
         public LightPropertyUpdateKeyAndValue LightPropertyUpdatedValue { get; internal set; }
@@ -52,9 +62,11 @@ namespace OpenGL
             p = pb;
             Width = p.Width;
             Height = p.Height;
-            ratio = Width / Height;
             InitializeGL();
             obj = GLU.gluNewQuadric();
+            Vector3 characterShiftOffset = new Vector3(0, -0.5d, 0);
+            Vector3WithAngle characterRotationOffset = new Vector3WithAngle(x: 0.0f,y: 1.0f, z:0.0f, angle: 360);
+            ch = new Character("ninja.ms3d", characterShiftOffset, characterRotationOffset);
             this.debugTextBox = debugTextBox;
             train = new Train(debugTextBox, 1);
             sun = new Sun(debugTextBox);
@@ -75,17 +87,6 @@ namespace OpenGL
             ground[2, 1] = 0;
             ground[2, 2] = -0.5f;
 
-            wall[0, 0] = -15;
-            wall[0, 1] = 3;
-            wall[0, 2] = 0;
-
-            wall[1, 0] = 15;
-            wall[1, 1] = 3;
-            wall[1, 2] = 0;
-
-            wall[2, 0] = 15;
-            wall[2, 1] = 3;
-            wall[2, 2] = 15;
         }
 
         ~cOGL()
@@ -181,12 +182,6 @@ namespace OpenGL
                 GL.glEnable(GL.GL_LIGHT0);
                 GL.glEnable(GL.GL_LIGHTING);
 
-                // Set lighting parameters
-                //GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, LightConfig.Instance.Ambient);
-                //GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, LightConfig.Instance.Diffuse);
-                //GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, LightConfig.Instance.Specular);
-                //GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, LightConfig.Instance.Position);
-
                 GL.glEnable(GL.GL_NORMALIZE);
                 
                 // Enable color material
@@ -212,7 +207,6 @@ namespace OpenGL
             if (m_uint_DC == 0 || m_uint_RC == 0)
                 return;
 
-
             // Clear color and depth buffers
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
@@ -225,11 +219,14 @@ namespace OpenGL
 
             SetupLightingAndMaterial();
 
-
+            if (DefaultCameraPointOfView == null)
+            {
+                DefaultCameraPointOfView = (float[])CameraPointOfView.Clone();
+            }
             // Set up viewing transformation
-            GLU.gluLookAt(ScrollValue[0], ScrollValue[1], ScrollValue[2],
-                          ScrollValue[3], ScrollValue[4], ScrollValue[5],
-                          ScrollValue[6], ScrollValue[7], ScrollValue[8]);
+            GLU.gluLookAt(CameraPointOfView[0], CameraPointOfView[1], CameraPointOfView[2],
+                          CameraPointOfView[3], CameraPointOfView[4], CameraPointOfView[5],
+                          CameraPointOfView[6], CameraPointOfView[7], CameraPointOfView[8]);
             GL.glTranslatef(0.0f, 0.0f, INITIALIZED_ZOOM_VALUE);
 
             
@@ -253,11 +250,16 @@ namespace OpenGL
 
             //DrawShadows();
 
+            DrawSuprise();
+
             // Flush GL pipeline
             GL.glFlush();
 
             // Swap buffers
             WGL.wglSwapBuffers(m_uint_DC);
+
+            // Todo better:
+            isFirstDraw = false;
         }
 
         private void DrawShadows()
@@ -289,35 +291,57 @@ namespace OpenGL
             ////!!!!!!!!!!!!!       
         }
 
+        private void DrawSuprise()
+        {
+            GL.glMatrixMode(GL.GL_MODELVIEW);
+
+            MakeTransformation();
+
+            ch.scaleFactor = 0.1f;
+            ch.DrawModel();
+
+            // Pop the matrix off the stack, reverting to the state before we applied the translation and scaling
+            GL.glPopMatrix();
+
+        }
+
         private void MakeTransformation()
         {
             // Apply transformation according to KeyCode
             float delta;
-            if (intOptionC != 0)
+            if (intOptionC != TransformationsOperations.NONE)
             {
-                delta = 5.0f * Math.Abs(intOptionC) / intOptionC; // signed 5
-
-                switch (Math.Abs(intOptionC))
+                switch (intOptionC)
                 {
-                    case 1:
-                        GL.glRotatef(delta, 1, 0, 0);
+                    case TransformationsOperations.ROTATE_X:
+                    case TransformationsOperations.ROTATE_OPPOSITE_X:
+                        GL.glRotatef(xAngle, 1, 0, 0);
                         break;
-                    case 2:
-                        GL.glRotatef(delta, 0, 1, 0);
+                    case TransformationsOperations.ROTATE_Y:
+                    case TransformationsOperations.ROTATE_OPPOSITE_Y:
+                        GL.glRotatef(yAngle, 0, 1, 0);
                         break;
-                    case 3:
-                        GL.glRotatef(delta, 0, 0, 1);
+                    case TransformationsOperations.ROTATE_Z:
+                    case TransformationsOperations.ROTATE_OPPOSITE_Z:
+                        GL.glRotatef(zAngle, 0, 0, 1);
                         break;
-                    case 4:
-                        GL.glTranslatef(delta / 20, 0, 0);
+                    case TransformationsOperations.SHIFT_X:
+                    case TransformationsOperations.SHIFT_OPPOSITE_X:
+                        GL.glTranslatef(xShift, 0, 0);
                         break;
-                    case 5:
-                        GL.glTranslatef(0, delta / 20, 0);
+                    case TransformationsOperations.SHIFT_Y:
+                    case TransformationsOperations.SHIFT_OPPOSITE_Y:
+                        GL.glTranslatef(0, yShift, 0);
                         break;
-                    case 6:
-                        GL.glTranslatef(0, 0, delta / 20);
+                    case TransformationsOperations.SHIFT_Z:
+                    case TransformationsOperations.SHIFT_OPPOSITE_Z:
+                        GL.glTranslatef(0, 0, zShift);
+                        break;
+                    default:
+                        // No transformation
                         break;
                 }
+
             }
             // The ModelView Matrix now represents only the KeyCode transform
         }

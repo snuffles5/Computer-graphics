@@ -392,7 +392,8 @@ namespace Utils
         CAB_COUPLER,
         WHEEL_FRONT_BACK,
         WHEEL_TOP_BOTTOM,
-        CHIMNEY
+        CHIMNEY,
+        SMOKE
     }
 
     public enum Orientation
@@ -404,5 +405,23 @@ namespace Utils
         TOP,
         BOTTOM
     }
+
+    public enum TransformationsOperations
+    {
+        ROTATE_X,
+        ROTATE_OPPOSITE_X,
+        ROTATE_Y,
+        ROTATE_OPPOSITE_Y,
+        ROTATE_Z,
+        ROTATE_OPPOSITE_Z,
+        SHIFT_X,
+        SHIFT_OPPOSITE_X,
+        SHIFT_Y,
+        SHIFT_OPPOSITE_Y,
+        SHIFT_Z,
+        SHIFT_OPPOSITE_Z,
+        NONE,
+    }
+
 
 }

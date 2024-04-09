@@ -59,6 +59,12 @@ namespace Models
             GL.glPopMatrix(); // Restore the original state
         }
 
+        public void Update(float deltaTime)
+        {
+            mainLocomotive.Update(deltaTime);
+            shadowLocomotive.Update(deltaTime);
+        }
+
         public void DrawCoaches(bool isShadowDrawing)
         {
             for (int i = 0; i < coaches.Length; i++)
@@ -88,7 +94,8 @@ namespace Models
         private readonly float chimneyBaseRadius;
         private readonly float chimneyTopRadius;
         private readonly float chimneyHeight;
-        
+
+
         private readonly ColorName chimneyColor = ColorName.White;
         private readonly ColorName controlCabinColor = ColorName.White;
         private readonly ColorName cabBottomColor = ColorName.DimGrey;
@@ -99,7 +106,7 @@ namespace Models
 
         private float wheelRotation = 0;
         private bool isWheelRotation = true;
-        private uint cabList, wheelList, locomotiveList;
+        private uint cabList, smokeQuadDisplayList, locomotiveList;
         TextBox debugTextBox;
         private bool isShadowDrawing;
         private readonly ColorName shadowColor = ColorName.LightGrey;
@@ -109,6 +116,16 @@ namespace Models
         Dictionary<Orientation, TrainObjects> controlCabinFaceDictionary;
         Dictionary<Orientation, TrainObjects> cabBottomBaseFaceDictionary;
         Dictionary<Orientation, TrainObjects> cabCouplerFaceDictionary;
+
+        List<SmokeParticle> particles;
+        Random random = new Random();
+        private float particleGenerationTimer = 0.0f;
+        private float particleGenerationInterval = 0.1f;
+        private float chimneyTopX;
+        private float chimneyTopY;
+        private float chimneyTopZ;
+
+
 
         public Locomotive(TextBox debugTextBox,
             float shininess = DefaultConfig.MAT_SHININESS, bool isShadowDrawing = false)
@@ -178,6 +195,7 @@ namespace Models
                 { Orientation.BOTTOM, TrainObjects.CAB_COUPLER},
             };
 
+            particles = new List<SmokeParticle>();
 
 
             this.isShadowDrawing = isShadowDrawing;
@@ -195,9 +213,10 @@ namespace Models
         private void PrepareLists()
         {
             // Generate a contiguous block of list identifiers
-            locomotiveList = GL.glGenLists(2); // We request 3 lists at once
+            locomotiveList = GL.glGenLists(3); // We request 3 lists at once
             cabList = locomotiveList + 1; // The second list is for the cab
             //wheelList = locomotiveList + 2; // The third list is for the wheels
+            smokeQuadDisplayList = locomotiveList + 2; // The third list is for the wheels
 
 
             // Define the cab
@@ -207,7 +226,6 @@ namespace Models
             DrawChimney();
             DisableTexture();
             GL.glEndList();
-
             // Define the wheel
             //GL.glNewList(wheelList, GL.GL_COMPILE);
             //DrawWheel(wheelRadius, wheelThickness, WheelsColor);
@@ -218,6 +236,29 @@ namespace Models
             GL.glNewList(locomotiveList, GL.GL_COMPILE);
             CreateLocomotiveList();
             GL.glEndList();
+            
+
+            // Define the smoke
+            GL.glNewList(smokeQuadDisplayList, GL.GL_COMPILE);
+            EnableTexture(TrainObjects.SMOKE);
+            DrawSmoke();
+            DisableTexture();
+            GL.glEndList();
+
+        }
+
+        private void DrawSmoke()
+        {
+            // Begin defining a quad
+            GL.glBegin(GL.GL_QUADS);
+
+            // Define the quad vertices. Adjust these to create the desired size and orientation.
+            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(-0.5f, -0.5f, 0.0f); // Bottom Left
+            GL.glTexCoord2f(1.0f, 0.0f); GL.glVertex3f(0.5f, -0.5f, 0.0f);  // Bottom Right
+            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(0.5f, 0.5f, 0.0f);   // Top Right
+            GL.glTexCoord2f(0.0f, 1.0f); GL.glVertex3f(-0.5f, 0.5f, 0.0f); // Top Left
+            GL.glEnd();
+            // End defining the quad
         }
 
         private void CreateLocomotiveList()
@@ -230,7 +271,7 @@ namespace Models
             //DrawWheels();
         }
 
-        public void Draw(Vector3? translateVector = null)
+        public void Draw()
         {
             GL.glPushMatrix(); // Save the current state
             if (!isShadowDrawing)
@@ -240,22 +281,12 @@ namespace Models
                 GenerateTextures();
             }
 
-            if (translateVector.HasValue)
-            {
-                //Translate to set the new center
-                GL.glTranslated(translateVector.Value.X, translateVector.Value.Y, translateVector.Value.Z); // Shift everything to the left
-            }
-
             // Now draw the locomotive
             GL.glCallList(locomotiveList);
 
-            if (isWheelRotation)
-            {
-                wheelRotation += 15;
-            }
-            
-            // Directly calling draw wheels for rotation
+            // Directl-call to support animation
             DrawWheels();
+            DrawParticles();
 
             GL.glPopMatrix(); // Restore the original state
         }
@@ -431,11 +462,14 @@ namespace Models
             // Calculate the translation values before drawing the chimney
             float translateX = carriageWidth * 0.75f;
             float translateY = (carriageHeight / 2) * 1.2f; // Align the base of the chimney with the top of the cab
-            //float translateY = cabHeight / 1.1f; // On top of the cab
             float translateZ = 0.0f; // Centered along the cab's depth
 
-
             GL.glTranslatef(translateX, translateY, translateZ); // Apply the calculated translation
+
+            chimneyTopX = translateX;
+            chimneyTopY = translateY + chimneyHeight; // Add the chimney's height to get the top position
+            chimneyTopZ = translateZ;
+
             DrawCylinder(chimneyBaseRadius, chimneyTopRadius, chimneyHeight, chimneyColor);
             GL.glPopMatrix(); // Restore the previous transformation state
         }
@@ -504,6 +538,60 @@ namespace Models
                 DrawWheel(wheelRadius, wheelThickness, WheelsColor); // Adapt this call to your actual wheel drawing method
 
                 GL.glPopMatrix();
+            }
+        }
+
+        void GenerateParticle()
+        {
+            Vector3 position = new Vector3(chimneyTopX, chimneyTopY, chimneyTopZ);
+            float randX = (float)random.NextDouble() * 0.2f - 0.1f;
+            float randZ = (float)random.NextDouble() * 0.2f - 0.1f;
+            Vector3 velocity = new Vector3(randX, 0.3f, randZ);
+
+            float scale = 0.5f;
+            float life = 2.0f; // Particle will live for 2 seconds
+
+            particles.Add(new SmokeParticle(position, velocity, scale, life));
+        }
+
+        private void UpdateParticles(float deltaTime)
+        {
+            particleGenerationTimer -= deltaTime;
+
+            if (particleGenerationTimer <= 0)
+            {
+                GenerateParticle();
+                particleGenerationTimer = particleGenerationInterval; // Reset the timer
+            }
+
+            // Update existing particles
+            for (int i = particles.Count - 1; i >= 0; i--)
+            {
+                var particle = particles[i];
+                particle.Position += particle.Velocity * deltaTime;
+                particle.Life -= deltaTime;
+
+                if (particle.Life <= 0)
+                {
+                    particles.RemoveAt(i);
+                }
+            }
+        }
+
+        void DrawParticles()
+        {
+            foreach (SmokeParticle p in particles)
+            {
+                GL.glPushMatrix(); // Save the current transformation state
+
+                // Apply particle transformations here
+                GL.glTranslated(p.Position.X, p.Position.Y, p.Position.Z);
+                GL.glScalef(p.Scale, p.Scale, p.Scale); // Example scaling
+
+                // Draw the quad by executing the display list
+                GL.glCallList(smokeQuadDisplayList);
+
+                GL.glPopMatrix(); // Restore the previous transformation state
             }
         }
 
@@ -586,7 +674,6 @@ namespace Models
                 GL.glTexCoord2f(x, y);
             }
         }
-
 
         private void DrawCuboid(float width, float height, float depth, Dictionary<Orientation, TrainObjects> faceTextures, ColorName color = ColorName.White)
         {
@@ -689,7 +776,16 @@ namespace Models
         public void Update(float deltaTime)
         {
             // Update the wheel rotation based on delta time
-            wheelRotation += deltaTime * 20.0f; // Adjust the speed as necessary
+            // Translate the locomotive, if necessary
+            // Update wheel rotation
+            if (isWheelRotation)
+            {
+                wheelRotation += deltaTime * 200.0f; // Adjust the speed as necessary
+            }
+
+            Draw();
+            // Update particle system
+            UpdateParticles(deltaTime);
         }
 
     }
@@ -708,4 +804,21 @@ namespace Models
 
         }
     }
+
+    class SmokeParticle
+    {
+        public Vector3 Position;
+        public Vector3 Velocity;
+        public float Scale;
+        public float Life;
+
+        public SmokeParticle(Vector3 position, Vector3 velocity, float scale, float life)
+        {
+            Position = position;
+            Velocity = velocity;
+            Scale = scale;
+            Life = life;
+        }
+    }
+
 }

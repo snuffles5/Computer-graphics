@@ -24,13 +24,14 @@ namespace myOpenGL
         object selectedLightingMaterialRadio;
         int formRightMargin;
         float panel1Ratio;
+        private DateTime previousUpdateTime;
 
         public Form1()
         {
             InitializeComponent();
 
             cGL = new cOGL(panel1, textBox1);
-
+            previousUpdateTime = DateTime.Now; // Initialize the timestamp
 
             //3D model b4
             //listBox1.Items.Add("Stop");
@@ -110,9 +111,6 @@ namespace myOpenGL
 
         private void panel1_Resize(object sender, EventArgs e)
         {
-            //this.Width = panel1.Width + this.Width - this.ClientRectangle.Width;
-            //this.Height = panel1.Height + this.Height - this.ClientRectangle.Height;
-            //cGL.OnResize();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -122,7 +120,7 @@ namespace myOpenGL
 
         private void hScrollBarScroll(object sender, ScrollEventArgs e)
         {
-            cGL.intOptionC = 0;
+            cGL.intOptionC = TransformationsOperations.NONE;
             HScrollBar hb = (HScrollBar)sender;
             var parentGroupBox = hb.Parent as GroupBox;
             string scrollBarText = hb.Name;
@@ -130,7 +128,7 @@ namespace myOpenGL
             if (scrollBarText.Contains("hScrollBar"))
             {
                 int n = int.Parse(hb.Name.Substring(hb.Name.Length - 1));
-                cGL.ScrollValue[n - 1] = (hb.Value - 100) / 10.0f;
+                cGL.CameraPointOfView[n - 1] = (hb.Value - 100) / 10.0f;
             } 
             else if (parentGroupBox != null && parentGroupBox.Text == "Lighting and Material")
             {
@@ -180,50 +178,6 @@ namespace myOpenGL
                         }
                 }
 
-                //MaterialProperty? materialProperty = MaterialConfig.Instance.GetMaterialByString(scrollBarText.Replace("property_mat_", ""));
-                //if (materialProperty != null)
-                //{
-                //    switch (materialProperty)
-                //    {
-                //        case MaterialProperty.AMBIENT:
-                //        case MaterialProperty.DIFFUSE:
-                //        case MaterialProperty.SPECULAR:
-                //            float normalizedValue = hb.Value / 100.0f; 
-                //            cGL.UpdateValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValues = new float[] { normalizedValue, normalizedValue, normalizedValue, 1.0f } };
-                //            break;
-                //        case MaterialProperty.SHININESS:
-                //            cGL.UpdateValue = new MaterialPropertyUpdateKeyAndValue { Key = materialProperty, NewValue = hb.Value };
-                //            break;
-                //        default:
-                //            break;
-                //    }
-                //}
-
-
-
-                //    if (Enum.TryParse<MaterialProperty>(materialProperty, ignoreCase: true, out var property))
-                //{
-                //    switch (property)
-                //    {
-                //        case MaterialProperty.MATAMBIENT:
-                //        case MaterialProperty.MATDIFFUSE:
-                //        case MaterialProperty.MATSPECULAR:
-                //        float normalizedValue = hb.Value / 100;
-                //            cGL.UpdateValue = new PropertyUpdateKeyAndValue { Key = materialProperty.ToUpper(), NewValues = new float[] { normalizedValue, normalizedValue, normalizedValue, 1.0f } };
-                //            break;
-                //        case MaterialProperty.SHININESS:
-                //            cGL.UpdateValue = new PropertyUpdateKeyAndValue { Key = materialProperty.ToUpper(), NewValue = hb.Value };
-                //            break;
-                //        default:
-                //            cGL.UpdateValue = new PropertyUpdateKeyAndValue { Key = materialProperty.ToUpper(), NewValue = hb.Value };
-                //            break;
-                //    }
-                //}
-                //MaterialConfig.Instance.UpdateMaterialProperty(materialProperty.ToUpper(), newValue: hb.Value);
-                //cGL.UpdateValue = new PropertyUpdateKeyAndValue { Key = "SHININESS",  NewValue = 120.0f };
-
-
-                //cGL.ScrollValue[9] = hb.Value;
             }
 
             if (e != null)
@@ -231,6 +185,8 @@ namespace myOpenGL
         }
 
         public float[] oldPos = new float[7];
+        private float SHIFT_STEP = 0.25f;
+        private int ROTATION_STEP_ANGLE = 5;
 
         private void numericUpDownValueChanged(object sender, EventArgs e)
         {
@@ -242,84 +198,92 @@ namespace myOpenGL
                 case 1:
                     if (pos > oldPos[i - 1])
                     {
-                        //cGL.xShift += 0.25f;
-                        cGL.intOptionC = 4;
+                        cGL.xShift = SHIFT_STEP;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_X;
                     }
                     else
                     {
-                        //cGL.xShift -= 0.25f;
-                        cGL.intOptionC = -4;
+                        cGL.xShift = -SHIFT_STEP;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_OPPOSITE_X;
                     }
                     break;
                 case 2:
                     if (pos > oldPos[i - 1])
                     {
-                        //cGL.yShift += 0.25f;
-                        cGL.intOptionC = 5;
+                        cGL.yShift = SHIFT_STEP;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_Y;
                     }
                     else
                     {
-                        //cGL.yShift -= 0.25f;
-                        cGL.intOptionC = -5;
+                        cGL.yShift = -SHIFT_STEP;
+                        cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_Y;
                     }
                     break;
                 case 3:
                     if (pos > oldPos[i - 1])
                     {
-                        //cGL.zShift += 0.25f;
-                        cGL.intOptionC = 6;
+                        cGL.zShift = SHIFT_STEP;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_Z;
                     }
                     else
                     {
-                        //cGL.zShift -= 0.25f;
-                        cGL.intOptionC = -6;
+                        cGL.zShift = -SHIFT_STEP;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_OPPOSITE_Z;
                     }
                     break;
                 case 4:
                     if (pos > oldPos[i - 1])
                     {
-                        //cGL.xAngle += 5;
-                        cGL.intOptionC = 1;
+                        cGL.xAngle = ROTATION_STEP_ANGLE;
+                        cGL.intOptionC = TransformationsOperations.ROTATE_X;
                     }
                     else
                     {
-                        //cGL.xAngle -= 5;
-                        cGL.intOptionC = -1;
+                        cGL.xAngle = -ROTATION_STEP_ANGLE;
+                        cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_X;
                     }
                     break;
                 case 5:
                     if (pos > oldPos[i - 1])
                     {
-                        //cGL.yAngle += 5;
-                        cGL.intOptionC = 2;
+                        cGL.yAngle = ROTATION_STEP_ANGLE;
+                        cGL.intOptionC = TransformationsOperations.ROTATE_Y;
                     }
                     else
                     {
-                        //cGL.yAngle -= 5;
-                        cGL.intOptionC = -2;
+                        cGL.yAngle = -ROTATION_STEP_ANGLE;
+                        cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_Y;
                     }
                     break;
                 case 6:
                     if (pos > oldPos[i - 1])
                     {
-                        //cGL.zAngle += 5;
-                        cGL.intOptionC = 3;
+                        cGL.zAngle = ROTATION_STEP_ANGLE;
+                        cGL.intOptionC = TransformationsOperations.ROTATE_Z;
                     }
                     else
                     {
-                        //cGL.zAngle -= 5;
-                        cGL.intOptionC = -3;
+                        cGL.zAngle = -ROTATION_STEP_ANGLE;
+                        cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_Z;
                     }
                     break;
             }
             cGL.Draw();
             oldPos[i - 1] = pos;
-            cGL.intOptionC = 0;
+            cGL.intOptionC = TransformationsOperations.NONE;
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void OnTick(object sender, EventArgs e)
         {
-            cGL.Draw();
+            DateTime currentTime = DateTime.Now;
+            float deltaTime = (float)(currentTime - previousUpdateTime).TotalSeconds;
+            previousUpdateTime = currentTime;
+            this.cGL.Draw(); // Proceed to draw your scene
+
+            // Use deltaTime for updates
+            this.cGL.train.Update(deltaTime); // Update your train (and other objects as needed) with deltaTime
+
+
         }
 
         //3D model b5
@@ -338,20 +302,39 @@ namespace myOpenGL
 
             if (e.KeyCode == Keys.Back)
             {
+                if (cGL.DefaultCameraPointOfView != null)
+                {
+                    // Iterate through all controls in the form or a specific container
+                    foreach (Control ctrl in this.Controls) // If the scroll bars are in a specific container, use that instead of 'this.Controls'
+                    {
+                        if (ctrl is HScrollBar && ctrl.Name.Contains("hScrollBar"))
+                        {
+                            HScrollBar hb = (HScrollBar)ctrl;
+                            int n = int.Parse(hb.Name.Substring("hScrollBar".Length));
+
+                            // Set the scroll bar to its default value, assuming the default value is calculated somehow related to 'DefaultCameraPointOfView'
+                            int defaultValue = (int)(cGL.DefaultCameraPointOfView[n - 1] * 10 + 100); // This calculation should be adjusted based on how 'DefaultCameraPointOfView' relates to the scroll bar value
+                            hb.Value = Math.Max(hb.Minimum, Math.Min(hb.Maximum, defaultValue)); // Ensure the value is within the min-max range of the scroll bar
+
+                            // Update the CameraPointOfView to reflect the default value
+                            cGL.CameraPointOfView[n - 1] = cGL.DefaultCameraPointOfView[n - 1];
+                        }
+                    }
+                }
                 // Reset position and rotation to default values
-                //cGL.xShift = 0.0f;
-                //cGL.yShift = 0.0f;
-                //cGL.zShift = 0.0f;
-                //cGL.xAngle = 0.0f;
-                //cGL.yAngle = 0.0f;
-                //cGL.zAngle = 0.0f;
+                cGL.xShift = 0.0f;
+                cGL.yShift = 0.0f;
+                cGL.zShift = 0.0f;
+                cGL.xAngle = 0.0f;
+                cGL.yAngle = 0.0f;
+                cGL.zAngle = 0.0f;
                 cGL.AccumulatedRotationsTraslations = new double[]{
                     1, 0, 0, 0,
                     0, 1, 0, 0,
                     0, 0, 1, 0,
                     0, 0, 0, 1
                 };
-                cGL.intOptionC = 0; // Reset transformations
+                cGL.intOptionC = TransformationsOperations.NONE; // Reset transformations
             }
             else if (isShiftPressed)
             {
@@ -359,20 +342,20 @@ namespace myOpenGL
                 switch (e.KeyCode)
                 {
                     case Keys.Right:
-                        //cGL.yAngle += 5; // Rotate around Y-axis
-                        cGL.intOptionC = 2; // Indicating a rotation around Y
+                        cGL.yAngle = ROTATION_STEP_ANGLE; // Rotate around Y-axis
+                        cGL.intOptionC = TransformationsOperations.ROTATE_Y; // Indicating a rotation around Y
                         break;
                     case Keys.Left:
-                        //cGL.yAngle -= 5; // Rotate around Y-axis
-                        cGL.intOptionC = -2; // Indicating a rotation around Y in the opposite direction
+                        cGL.yAngle = -ROTATION_STEP_ANGLE; // Rotate around Y-axis
+                        cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_Y; // Indicating a rotation around Y in the opposite direction
                         break;
                     case Keys.Up:
-                        //cGL.xAngle += 5; // Rotate around X-axis
-                        cGL.intOptionC = 1; // Indicating a rotation around X
+                        cGL.xAngle = ROTATION_STEP_ANGLE; // Rotate around X-axis
+                        cGL.intOptionC = TransformationsOperations.ROTATE_X; // Indicating a rotation around X
                         break;
                     case Keys.Down:
-                        //cGL.xAngle -= 5; // Rotate around X-axis
-                        cGL.intOptionC = -1; // Indicating a rotation around X in the opposite direction
+                        cGL.xAngle = -ROTATION_STEP_ANGLE; // Rotate around X-axis
+                        cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_X; // Indicating a rotation around X in the opposite direction
                         break;
                 }
             }
@@ -382,20 +365,20 @@ namespace myOpenGL
                 switch (e.KeyCode)
                 {
                     case Keys.Right:
-                        //cGL.xShift += 0.1f;
-                        cGL.intOptionC = 4; // Indicating a shift along X
+                        cGL.xShift = SHIFT_STEP;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_X; // Indicating a shift along X
                         break;
                     case Keys.Left:
-                        //cGL.xShift -= 0.1f;
-                        cGL.intOptionC = -4; // Indicating a shift along X in the opposite direction
+                        cGL.xShift = -SHIFT_STEP;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_OPPOSITE_X; // Indicating a shift along X in the opposite direction
                         break;
                     case Keys.Up:
-                        //cGL.yShift += 0.1f;
-                        cGL.intOptionC = 5; // Indicating a shift along Y
+                        cGL.yShift = 0.25f;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_Y; // Indicating a shift along Y
                         break;
                     case Keys.Down:
-                        //cGL.yShift -= 0.1f;
-                        cGL.intOptionC = -5; // Indicating a shift along Y in the opposite direction
+                        cGL.yShift = -SHIFT_STEP;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_OPPOSITE_Y; // Indicating a shift along Y in the opposite direction
                         break;
                 }
             }
@@ -404,7 +387,7 @@ namespace myOpenGL
             e.Handled = true; // Mark the event as handled
 
             // Reset intOptionC to default after applying transformation and redrawing
-            cGL.intOptionC = 0;
+            cGL.intOptionC = TransformationsOperations.NONE;
         }
 
 
@@ -413,16 +396,16 @@ namespace myOpenGL
         {
             if (e.Delta > 0)
             {
-                //cGL.zShift += 0.5f; // Zoom in
-                cGL.intOptionC = 6; // Assuming positive intOptionC value for zoom in
+                cGL.zShift = SHIFT_STEP; // Zoom in
+                cGL.intOptionC = TransformationsOperations.SHIFT_Z; // Assuming positive intOptionC value for zoom in
             }
             else if (e.Delta < 0)
             {
-                //cGL.zShift -= 0.5f; // Zoom out
-                cGL.intOptionC = -6; // Assuming negative intOptionC value for zoom out
+                cGL.zShift = -SHIFT_STEP; // Zoom out
+                cGL.intOptionC = TransformationsOperations.SHIFT_OPPOSITE_Z; // Assuming negative intOptionC value for zoom out
             }
             cGL.Draw();
-            cGL.intOptionC = 0; // Reset to default after drawing
+            cGL.intOptionC = TransformationsOperations.NONE; // Reset to default after drawing
         }
 
         private void panel1_MouseEnter(object sender, EventArgs e)
@@ -438,7 +421,7 @@ namespace myOpenGL
 
         private void lightOrMaterialRaddioChange(object sender, EventArgs e)
         {
-            cGL.intOptionC = 0;
+            cGL.intOptionC = TransformationsOperations.NONE;
             RadioButton rb = (RadioButton)sender;
             string radioButtonName = rb.Name;
             bool isLighting = radioButtonName.Contains("Light");

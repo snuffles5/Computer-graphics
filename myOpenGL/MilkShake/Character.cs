@@ -4,12 +4,17 @@ using System.Text.RegularExpressions;
 using System.IO;
 using MathEX;
 using OpenGL;
+using GraphicProject.Utils.Math;
 
 namespace Milkshape
 {
     public class Character : MilkshapeModel
     {
         private AnimationCollection animations;
+        public float scaleFactor = 1.0f; // Default scale is 1 (no scaling)
+        public Vector3 InitialPosition { get; set; } = new Vector3();
+        public Vector3WithAngle InitialRotate { get; set; } = new Vector3WithAngle();
+
         /// Gets the AnimationCollection which was generate by the animation configuration file
         public AnimationCollection Animations { get { return animations; } }
 
@@ -18,13 +23,16 @@ namespace Milkshape
         { }
 
         /// Creates a new instance of Character.
-        public Character(string ms3dfile)
+        public Character(string ms3dfile, Vector3 initialPositionOffset = new Vector3(), Vector3WithAngle initialRotateOffset = new Vector3WithAngle())
         {
             // Loads the main ms3d model
             LoadModelData(ms3dfile);
 
             // Loads the accompanying ms3dfile .txt adnimation config file.
             LoadConfigFile(ms3dfile.ToLower().Replace(".ms3d", ".txt"));
+
+            this.InitialPosition += initialPositionOffset;
+            this.InitialRotate += initialRotateOffset;
 
             // Reset the animation
             Restart();
@@ -80,14 +88,24 @@ namespace Milkshape
         {
             GL.glPushAttrib(GL.GL_ALL_ATTRIB_BITS);
 
+            // Apply the initial position translation
+            GL.glPushMatrix(); // Save the current matrix
+            GL.glTranslated(InitialPosition.X, InitialPosition.Y, InitialPosition.Z);
+            GL.glRotated(InitialRotate.Angle, InitialRotate.Position.X, InitialRotate.Position.Y, InitialRotate.Position.Z);
+
             if (Animate)
                 AdvanceAnimation();
 
             // Draw by group
             for (int i = 0; i < model_data.numMeshes; i++)
             {
-                                                                 //our case
-                                                                   //0..4
+                GL.glPushMatrix(); // Save the current matrix
+
+                // Apply the scaling transformation
+                GL.glScalef(scaleFactor, scaleFactor, scaleFactor); // Scale uniformly in all directions
+
+                //our case
+                //0..4
                 int materialIndex = model_data.Meshes[i].materialIndex+1;
                 //3D model b6
                 //instead
@@ -121,10 +139,13 @@ namespace Milkshape
                         Vector newVertex = new Vector(model_data.Vertices[index].location);
                         newVertex.Transform(final);
                         GL.glVertex3fv(newVertex.GetVector);
+                        GL.glPopMatrix();
                     }
                 }
                 GL.glEnd();
             }
+
+            GL.glPopMatrix(); // Restore the matrix
 
             GL.glPopAttrib();
         }
