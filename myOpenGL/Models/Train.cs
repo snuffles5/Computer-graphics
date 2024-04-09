@@ -112,10 +112,10 @@ namespace Models
         private readonly ColorName shadowColor = ColorName.LightGrey;
         public uint[] Textures;
         public string[] imagesName;
-        Dictionary<Orientation, TrainObjects> carriageFaceDictionary;
-        Dictionary<Orientation, TrainObjects> controlCabinFaceDictionary;
-        Dictionary<Orientation, TrainObjects> cabBottomBaseFaceDictionary;
-        Dictionary<Orientation, TrainObjects> cabCouplerFaceDictionary;
+        Dictionary<Orientation, TrainObject> carriageFaceDictionary;
+        Dictionary<Orientation, TrainObject> controlCabinFaceDictionary;
+        Dictionary<Orientation, TrainObject> cabBottomBaseFaceDictionary;
+        Dictionary<Orientation, TrainObject> cabCouplerFaceDictionary;
 
         List<SmokeParticle> particles;
         Random random = new Random();
@@ -149,8 +149,8 @@ namespace Models
             chimneyTopRadius = 0.3f;
             chimneyHeight = 1f;
 
-            Textures = new uint[Enum.GetValues(typeof(TrainObjects)).Length];
-            imagesName = Enum.GetNames(typeof(TrainObjects))
+            Textures = new uint[Enum.GetValues(typeof(TrainObject)).Length];
+            imagesName = Enum.GetNames(typeof(TrainObject))
                      .Select(name => name.ToLower() + ".bmp")
                      .ToArray();
             for (int i = 0; i < Textures.Length; i++)
@@ -158,41 +158,41 @@ namespace Models
                 Textures[i] = (uint)i;
             }
 
-            carriageFaceDictionary = new Dictionary<Orientation, TrainObjects>
+            carriageFaceDictionary = new Dictionary<Orientation, TrainObject>
             {
-                { Orientation.FRONT, TrainObjects.CARRIAGE_FRONT },
-                { Orientation.BACK, TrainObjects.CARRIAGE_BACK },
-                { Orientation.RIGHT, TrainObjects.CARRIAGE_RIGHT },
-                { Orientation.LEFT, TrainObjects.CARRIAGE_LEFT },
-                { Orientation.TOP, TrainObjects.CARRIAGE_TOP },
-                { Orientation.BOTTOM, TrainObjects.CARRIAGE_BOTTOM },
+                { Orientation.FRONT, TrainObject.CARRIAGE_FRONT },
+                { Orientation.BACK, TrainObject.CARRIAGE_BACK },
+                { Orientation.RIGHT, TrainObject.CARRIAGE_RIGHT },
+                { Orientation.LEFT, TrainObject.CARRIAGE_LEFT },
+                { Orientation.TOP, TrainObject.CARRIAGE_TOP },
+                { Orientation.BOTTOM, TrainObject.CARRIAGE_BOTTOM },
             };
-            controlCabinFaceDictionary = new Dictionary<Orientation, TrainObjects>
+            controlCabinFaceDictionary = new Dictionary<Orientation, TrainObject>
             {
-                { Orientation.FRONT, TrainObjects.CONTROL_CABIN_FRONT},
-                { Orientation.BACK, TrainObjects.CONTROL_CABIN},
-                { Orientation.RIGHT, TrainObjects.CONTROL_CABIN},
-                { Orientation.LEFT, TrainObjects.CONTROL_CABIN},
-                { Orientation.TOP, TrainObjects.CONTROL_CABIN},
-                { Orientation.BOTTOM, TrainObjects.CONTROL_CABIN},
+                { Orientation.FRONT, TrainObject.CONTROL_CABIN_FRONT},
+                { Orientation.BACK, TrainObject.CONTROL_CABIN},
+                { Orientation.RIGHT, TrainObject.CONTROL_CABIN},
+                { Orientation.LEFT, TrainObject.CONTROL_CABIN},
+                { Orientation.TOP, TrainObject.CONTROL_CABIN},
+                { Orientation.BOTTOM, TrainObject.CONTROL_CABIN},
             };
-            cabBottomBaseFaceDictionary = new Dictionary<Orientation, TrainObjects>
+            cabBottomBaseFaceDictionary = new Dictionary<Orientation, TrainObject>
             {
-                { Orientation.FRONT, TrainObjects.CAB_BOTTOM_BASE },
-                { Orientation.BACK, TrainObjects.CAB_BOTTOM_BASE },
-                { Orientation.RIGHT, TrainObjects.CAB_BOTTOM_BASE },
-                { Orientation.LEFT, TrainObjects.CAB_BOTTOM_BASE },
-                { Orientation.TOP, TrainObjects.CAB_BOTTOM_BASE },
-                { Orientation.BOTTOM, TrainObjects.CAB_BOTTOM_BASE },
+                { Orientation.FRONT, TrainObject.CAB_BOTTOM_BASE },
+                { Orientation.BACK, TrainObject.CAB_BOTTOM_BASE },
+                { Orientation.RIGHT, TrainObject.CAB_BOTTOM_BASE },
+                { Orientation.LEFT, TrainObject.CAB_BOTTOM_BASE },
+                { Orientation.TOP, TrainObject.CAB_BOTTOM_BASE },
+                { Orientation.BOTTOM, TrainObject.CAB_BOTTOM_BASE },
             };
-            cabCouplerFaceDictionary = new Dictionary<Orientation, TrainObjects>
+            cabCouplerFaceDictionary = new Dictionary<Orientation, TrainObject>
             {
-                { Orientation.FRONT, TrainObjects.CAB_COUPLER},
-                { Orientation.BACK, TrainObjects.CAB_COUPLER},
-                { Orientation.RIGHT, TrainObjects.CAB_COUPLER},
-                { Orientation.LEFT, TrainObjects.CAB_COUPLER},
-                { Orientation.TOP, TrainObjects.CAB_COUPLER},
-                { Orientation.BOTTOM, TrainObjects.CAB_COUPLER},
+                { Orientation.FRONT, TrainObject.CAB_COUPLER},
+                { Orientation.BACK, TrainObject.CAB_COUPLER},
+                { Orientation.RIGHT, TrainObject.CAB_COUPLER},
+                { Orientation.LEFT, TrainObject.CAB_COUPLER},
+                { Orientation.TOP, TrainObject.CAB_COUPLER},
+                { Orientation.BOTTOM, TrainObject.CAB_COUPLER},
             };
 
             particles = new List<SmokeParticle>();
@@ -222,7 +222,7 @@ namespace Models
             // Define the cab
             GL.glNewList(cabList, GL.GL_COMPILE);
             DrawCabBase();
-            EnableTexture(TrainObjects.CHIMNEY);
+            EnableTexture(TrainObject.CHIMNEY);
             DrawChimney();
             DisableTexture();
             GL.glEndList();
@@ -240,7 +240,7 @@ namespace Models
 
             // Define the smoke
             GL.glNewList(smokeQuadDisplayList, GL.GL_COMPILE);
-            EnableTexture(TrainObjects.SMOKE);
+            EnableTexture(TrainObject.SMOKE);
             DrawSmoke();
             DisableTexture();
             GL.glEndList();
@@ -317,24 +317,24 @@ namespace Models
             GL.glMaterialf(GL.GL_FRONT_AND_BACK, GL.GL_SHININESS, MaterialConfig.Instance.Shininess);
         }
 
-        private void EnableTexture(TrainObjects trainObject, ColorName color = ColorName.White)
+        private void EnableTexture(TrainObject trainObject, ColorName color = ColorName.White)
         {
             GL.glEnable(GL.GL_TEXTURE_2D);
             GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[(int)trainObject]);
             switch (trainObject)
             {
-                case TrainObjects.CARRIAGE_FRONT: case TrainObjects.CARRIAGE_BACK:
-                case TrainObjects.CARRIAGE_TOP: case TrainObjects.CARRIAGE_BOTTOM:
-                case TrainObjects.CARRIAGE_RIGHT: case TrainObjects.CARRIAGE_LEFT:
-                case TrainObjects.CONTROL_CABIN:
-                case TrainObjects.CAB_BOTTOM_BASE:
+                case TrainObject.CARRIAGE_FRONT: case TrainObject.CARRIAGE_BACK:
+                case TrainObject.CARRIAGE_TOP: case TrainObject.CARRIAGE_BOTTOM:
+                case TrainObject.CARRIAGE_RIGHT: case TrainObject.CARRIAGE_LEFT:
+                case TrainObject.CONTROL_CABIN:
+                case TrainObject.CAB_BOTTOM_BASE:
                     // For Cuboids, use object linear or another suitable mapping.
                     GL.glDisable(GL.GL_TEXTURE_GEN_S);
                     GL.glDisable(GL.GL_TEXTURE_GEN_T);
                     // Setup texture coordinates in your drawing function for these.
                     break;
-                case TrainObjects.WHEEL_FRONT_BACK:
-                case TrainObjects.WHEEL_TOP_BOTTOM:
+                case TrainObject.WHEEL_FRONT_BACK:
+                case TrainObject.WHEEL_TOP_BOTTOM:
                     // Wheels might use a different mapping if they look better with spherical.
                     //GL.glEnable(GL.GL_TEXTURE_GEN_S);
                     //GL.glEnable(GL.GL_TEXTURE_GEN_T);
@@ -343,7 +343,7 @@ namespace Models
                     GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
                     GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
                     break;
-                case TrainObjects.CHIMNEY:
+                case TrainObject.CHIMNEY:
                     // Assuming the Chimney, being cylindrical, benefits from spherical mapping.
                     //GL.glEnable(GL.GL_TEXTURE_GEN_S);
                     //GL.glEnable(GL.GL_TEXTURE_GEN_T);
@@ -398,14 +398,14 @@ namespace Models
             GL.glPopMatrix(); // Restore the original state
 
             // Draw the cabin of the cab
-            EnableTexture(TrainObjects.CONTROL_CABIN);
+            EnableTexture(TrainObject.CONTROL_CABIN);
             GL.glPushMatrix(); // Save the current state
             DrawControlCabin();
             GL.glPopMatrix(); // Restore the original state
             DisableTexture();
 
             // Draw the bottom base of the cab
-            EnableTexture(TrainObjects.CAB_BOTTOM_BASE);
+            EnableTexture(TrainObject.CAB_BOTTOM_BASE);
             GL.glPushMatrix(); // Save the current state
             DrawCabBottomBase();
             GL.glPopMatrix(); // Restore the original state
@@ -488,7 +488,7 @@ namespace Models
 
             // Begin wheel rotation
             GL.glPushMatrix();
-            EnableTexture(TrainObjects.WHEEL_FRONT_BACK);
+            EnableTexture(TrainObject.WHEEL_FRONT_BACK);
             // Draw the bottom solid disc with texture
             GL.glPushMatrix();
             GL.glTranslatef(0.0f, 0.0f, -thickness / 2);
@@ -500,7 +500,7 @@ namespace Models
             GL.glTranslatef(0.0f, 0.0f, thickness / 2); // Adjust position to draw on the other end
             DrawDiscWithTexture(0, radius, numSides, true); // Use 0 for inner radius to make it solid
             GL.glPopMatrix();
-            EnableTexture(TrainObjects.WHEEL_TOP_BOTTOM);
+            EnableTexture(TrainObject.WHEEL_TOP_BOTTOM);
             // Draw the cylinder between the two discs
             GL.glPushMatrix();
             GL.glTranslatef(0.0f, 0.0f, -thickness / 2);
@@ -662,7 +662,7 @@ namespace Models
             }
         }
 
-        private bool ShouldDrawTexture(Dictionary<Orientation, TrainObjects> faceTextures, Orientation orientation)
+        private bool ShouldDrawTexture(Dictionary<Orientation, TrainObject> faceTextures, Orientation orientation)
         {
             return faceTextures.ContainsKey(orientation);
         }
@@ -675,7 +675,7 @@ namespace Models
             }
         }
 
-        private void DrawCuboid(float width, float height, float depth, Dictionary<Orientation, TrainObjects> faceTextures, ColorName color = ColorName.White)
+        private void DrawCuboid(float width, float height, float depth, Dictionary<Orientation, TrainObject> faceTextures, ColorName color = ColorName.White)
         {
             foreach (var face in faceTextures)
             {

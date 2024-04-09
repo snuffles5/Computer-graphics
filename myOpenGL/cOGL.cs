@@ -53,6 +53,7 @@ namespace OpenGL
         public float xAngle;
         public float yAngle;
         public float zAngle;
+        private Rail rails;
 
         public MaterialPropertyUpdateKeyAndValue MaterialPropertyUpdatedValue { get; internal set; }
         public LightPropertyUpdateKeyAndValue LightPropertyUpdatedValue { get; internal set; }
@@ -70,6 +71,7 @@ namespace OpenGL
             this.debugTextBox = debugTextBox;
             train = new Train(debugTextBox, 1);
             sun = new Sun(debugTextBox);
+            rails = new Rail();
             sunCoords = new Vector3();
             debugTextBox.Text = Width + "w, " + Height + "h\n";
             isLightingOn = true;
@@ -198,7 +200,6 @@ namespace OpenGL
                     LightPropertyUpdatedValue = null;
                 }
             }
-
         }
 
         public void Draw()
@@ -246,11 +247,10 @@ namespace OpenGL
             GL.glEnable(GL.GL_LIGHT0);
             GL.glEnable(GL.GL_LIGHTING);
             train.Draw(isShadowDrawing: false);
-
+            //DrawSuprise();
+            //DrawRails();
 
             //DrawShadows();
-
-            DrawSuprise();
 
             // Flush GL pipeline
             GL.glFlush();
@@ -261,6 +261,22 @@ namespace OpenGL
             // Todo better:
             isFirstDraw = false;
         }
+
+        private void DrawRails()
+        {
+            GL.glMatrixMode(GL.GL_MODELVIEW);
+
+            GL.glPushMatrix();
+
+            // Assuming the train is on the ground (y = 0), lower the rails slightly below.
+            // This translation moves the rails below the train and positions them to start just behind the front of the train.
+            GL.glTranslatef(0.0f, -0.8f, 0.0f); // Adjust these values as needed
+
+            rails.Draw(); // Draw the rail model
+
+            GL.glPopMatrix();
+        }
+
 
         private void DrawShadows()
         {

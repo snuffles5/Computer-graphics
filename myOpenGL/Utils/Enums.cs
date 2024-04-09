@@ -377,7 +377,7 @@ namespace Utils
         public float[] NewValues { get; set; }
     }
 
-    public enum TrainObjects
+    public enum TrainObject
     {
         //CARRIAGE,
         CARRIAGE_FRONT,
@@ -394,6 +394,12 @@ namespace Utils
         WHEEL_TOP_BOTTOM,
         CHIMNEY,
         SMOKE
+    }
+
+    public enum RailObject
+    {
+        RAIL,
+        TIES,
     }
 
     public enum Orientation

@@ -68,6 +68,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Rail.cs" />
     <Compile Include="Models\Environment.cs" />
     <Compile Include="Models\Train.cs" />
     <Compile Include="OpenGL\GLU.cs" />
