@@ -23,11 +23,14 @@ namespace OpenGL
         uint m_uint_RC = 0;
         gluNewQuadric obj;
         public Milkshape.Character ch;
-        public float[] DefaultCameraPointOfView;
         public float[] CameraPointOfView = new float[10];
+        public float[] DefaultCameraPointOfView = new float[10];
         public TransformationsOperations intOptionC = TransformationsOperations.NONE;
         public Vector3 sunCoords;
-        public bool isLightingOn;
+        public bool isLightingEnabled;
+        public bool isShadowEnabled;
+        public bool isReflectionEnabled;
+        public bool isToDrawGround;
 
         public float INITIALIZED_ZOOM_VALUE = -2.0f;
         float[,] ground = new float[3, 3];
@@ -80,8 +83,17 @@ namespace OpenGL
             rails = new Rail();
             sunCoords = new Vector3();
             debugTextBox.Text = Width + "w, " + Height + "h\n";
-            isLightingOn = true;
+            isLightingEnabled = true;
+            isShadowEnabled = true;
+            isReflectionEnabled = false;
+            isToDrawGround = false;
 
+            DefaultCameraPointOfView = new float[]
+            {
+                0.0f, 0.0f, 10.0f,  // Eye position (X right-left, Y up-down, Z depth)
+                0.0f, 0.0f, 0.0f,   // Look at the origin
+                0.0f, 1.0f, 0.0f
+            };
             // Ground and Walls 
             //ground[0, 0] = 1;
             //ground[0, 1] = 1;
@@ -190,35 +202,36 @@ namespace OpenGL
             GL.glLoadIdentity();
         }
 
-        private void SetupLightingAndMaterial(bool isLightingOn = true)
+        private void SetupLightingAndMaterial(bool isLightingEnabled = true)
         {
-            if (isLightingOn)
+            if (!isLightingEnabled)
+                return;
+            GL.glShadeModel(GL.GL_SMOOTH);
+
+            // Lighting setup
+            EnableLighting();
+
+            GL.glEnable(GL.GL_NORMALIZE);
+
+            // Enable color material
+            GL.glEnable(GL.GL_COLOR_MATERIAL);
+            GL.glColorMaterial(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE);
+            if (MaterialPropertyUpdatedValue != null)
             {
-                GL.glShadeModel(GL.GL_SMOOTH);
-
-                // Lighting setup
-                EnableLighting();
-
-                GL.glEnable(GL.GL_NORMALIZE);
-
-                // Enable color material
-                GL.glEnable(GL.GL_COLOR_MATERIAL);
-                GL.glColorMaterial(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE);
-                if (MaterialPropertyUpdatedValue != null)
-                {
-                    MaterialConfig.Instance.SetMaterialProperty(MaterialPropertyUpdatedValue.Key, MaterialPropertyUpdatedValue.NewValues, MaterialPropertyUpdatedValue.NewValue);
-                    MaterialPropertyUpdatedValue = null;
-                }
-                if (LightPropertyUpdatedValue != null)
-                {
-                    LightConfig.Instance.SetLightProperty(LightPropertyUpdatedValue.Key, LightPropertyUpdatedValue.NewValues);
-                    LightPropertyUpdatedValue = null;
-                }
+                MaterialConfig.Instance.SetMaterialProperty(MaterialPropertyUpdatedValue.Key, MaterialPropertyUpdatedValue.NewValues, MaterialPropertyUpdatedValue.NewValue);
+                MaterialPropertyUpdatedValue = null;
+            }
+            if (LightPropertyUpdatedValue != null)
+            {
+                LightConfig.Instance.SetLightProperty(LightPropertyUpdatedValue.Key, LightPropertyUpdatedValue.NewValues);
+                LightPropertyUpdatedValue = null;
             }
         }
 
         public void EnableLighting()
         {
+            if (!isLightingEnabled)
+                return;
             GL.glEnable(GL.GL_LIGHT0);
             GL.glEnable(GL.GL_LIGHTING);
         }
@@ -246,18 +259,13 @@ namespace OpenGL
 
             SetupLightingAndMaterial();
 
-            if (DefaultCameraPointOfView == null)
+            if (CameraPointOfView == null)
             {
-                DefaultCameraPointOfView = (float[])CameraPointOfView.Clone();
+                CameraPointOfView = (float[])DefaultCameraPointOfView.Clone();
             }
-            //ground[0, 2] = ground[1, 2] = ground[2, 2] = CameraPointOfView[8];
-            // Set up viewing transformation
-            //GLU.gluLookAt(CameraPointOfView[0], CameraPointOfView[1], CameraPointOfView[2],
-            //              CameraPointOfView[3], CameraPointOfView[4], CameraPointOfView[5],
-            //              CameraPointOfView[6], CameraPointOfView[7], CameraPointOfView[8]);
-            GLU.gluLookAt(0.0f, 0.0f, 10.0f,  // Eye position (X right-left, Y up-down, Z depth)
-              0.0f, 0.0f, 0.0f,   // Look at the origin
-              0.0f, 1.0f, 0.0f);  // Up vector is along Y-axis
+            GLU.gluLookAt(CameraPointOfView[0], CameraPointOfView[1], CameraPointOfView[2],
+                          CameraPointOfView[3], CameraPointOfView[4], CameraPointOfView[5],
+                          CameraPointOfView[6], CameraPointOfView[7], CameraPointOfView[8]);  // Up vector is along Y-axis
 
             GL.glTranslatef(0.0f, 0.0f, INITIALIZED_ZOOM_VALUE);
 
@@ -272,16 +280,11 @@ namespace OpenGL
             ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
 
             DrawGround();
+            DrawWalls();
+            DrawScene();
 
-            DisableLighting();
-            sun.Draw();
-
-            EnableLighting();
-            train.Draw(isShadowDrawing: false);
-            DrawSuprise();
-            DrawRails();
-
-            //DrawShadows();
+            DrawShadows();
+            DrawReflections();
 
             // Flush GL pipeline
             GL.glFlush();
@@ -293,41 +296,23 @@ namespace OpenGL
             isFirstDraw = false;
         }
 
-        private void DrawGround()
+        private void DrawScene()
         {
             DisableLighting();
-            ColorUtil.SetColor(wallColor);
-            float wallHeight = 200;
-            //GL.glBegin(GL.GL_QUADS);
-            //GL.glVertex3d(wallVertexes[0].X, wallVertexes[0].Y, wallVertexes[0].Z);
-            //GL.glVertex3d(wallVertexes[1].X, wallVertexes[1].Y, wallVertexes[1].Z);
-            //GL.glVertex3d(wallVertexes[2].X, wallVertexes[2].Y, wallVertexes[2].Z);
-            //GL.glVertex3d(wallVertexes[3].X, wallVertexes[3].Y, wallVertexes[3].Z);
-            //GL.glEnd();
-            for (int i = 0; i < 4; i++)
-            {
-                wallVertexes[i] = new Vector3(groundVertexes[i].X, groundVertexes[i].Y + wallHeight, groundVertexes[i].Z);
-            }
+            sun.Draw();
 
-            // Define each wall with 4 vertices (2 ground vertices and 2 top vertices)
-            // Assuming we're creating quads for simplicity, though you could use triangles as well
-            for (int i = 0; i < 4; i++)
-            {
-                // Define vertices for wall i
-                Vector3 bottomStart = groundVertexes[i];
-                Vector3 bottomEnd = groundVertexes[(i + 1) % 4]; // Loop around with modulo
-                Vector3 topStart = wallVertexes[i];
-                Vector3 topEnd = wallVertexes[(i + 1) % 4];
-
-                GL.glBegin(GL.GL_QUADS);
-                GL.glVertex3d(bottomStart.X, bottomStart.Y, bottomStart.Z);
-                GL.glVertex3d(bottomEnd.X, bottomEnd.Y, bottomEnd.Z);
-                GL.glVertex3d(topEnd.X, topEnd.Y, topEnd.Z);
-                GL.glVertex3d(topStart.X, topStart.Y, topStart.Z);
-                GL.glEnd();
-            }
             EnableLighting();
+            train.Draw(isShadowDrawing: false);
+            DrawSuprise();
+            DrawRails();
 
+        }
+
+        private void DrawGround()
+        {
+            if (!isToDrawGround)
+                return;
+            EnableLighting();
             ColorUtil.SetColor(groundColor);
             GL.glBegin(GL.GL_QUADS);
             GL.glVertex3d(groundVertexes[0].X, groundVertexes[0].Y, groundVertexes[0].Z);
@@ -355,31 +340,102 @@ namespace OpenGL
 
         private void DrawShadows()
         {
+            if (!isShadowEnabled)
+                return;
             // Shadows
-            //GL.glDisable(GL.GL_LIGHT0);
-            GL.glDisable(GL.GL_LIGHTING);
+            DisableLighting();
             // floor shadow
-            //!!!!!!!!!!!!!
             GL.glPushMatrix();
-            //!!!!!!!!!!!!    		
             MakeShadowMatrix(ground);//, LightConfig.Instance.Position);
             GL.glMultMatrixf(cubeXform);
 
             train.Draw(isShadowDrawing: true);
-            //!!!!!!!!!!!!!
             GL.glPopMatrix();
-            //!!!!!!!!!!!!!
+            EnableLighting();
+        }
 
-            //// wall shadow
-            ////!!!!!!!!!!!!!
-            //GL.glPushMatrix();
-            ////!!!!!!!!!!!!       
-            //MakeShadowMatrix(wall);
-            //GL.glMultMatrixf(cubeXform);
-            //train.Draw(isShadowDrawing: true);
-            ////!!!!!!!!!!!!!
-            //GL.glPopMatrix();
-            ////!!!!!!!!!!!!!       
+        public void DrawReflections()
+        {
+            if (!isReflectionEnabled)
+                return;
+            // Enable stencil buffer to restrict the drawing area of the reflection
+            GL.glEnable(GL.GL_STENCIL_TEST);
+            GL.glStencilOp(GL.GL_REPLACE, GL.GL_REPLACE, GL.GL_REPLACE);
+            GL.glStencilFunc(GL.GL_ALWAYS, 1, 0xffffffff);
+            GL.glClearStencil(0);
+
+            // Clear the stencil buffer
+            GL.glClear(GL.GL_STENCIL_BUFFER_BIT);
+
+            // Disable writing to color and depth buffers
+            GL.glColorMask(0, 0, 0, 0);
+            GL.glDisable(GL.GL_DEPTH_TEST);
+
+            // Draw ground to the stencil buffer
+            DrawGround();
+
+            // Enable color and depth buffers again
+            GL.glColorMask(1, 1, 1, 1);
+            GL.glEnable(GL.GL_DEPTH_TEST);
+
+            // Make sure that the reflection only gets drawn where the stencil buffer is set to 1
+            GL.glStencilFunc(GL.GL_EQUAL, 1, 0xffffffff);
+            GL.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP);
+
+            // Set up the reflection transformation matrix
+            GL.glPushMatrix();
+            GL.glScalef(1.0f, -1.0f, 1.0f);  // Reflect along the Y-axis
+
+            // Draw the reflected objects
+            DrawScene();
+
+            // Restore the original matrix
+            GL.glPopMatrix();
+
+            // Disable stencil test to draw normally again
+            GL.glDisable(GL.GL_STENCIL_TEST);
+
+            // Enable blending to smooth out the reflection
+            GL.glEnable(GL.GL_BLEND);
+            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+
+            // Set a transparent color for the ground
+            ColorUtil.SetColor(groundColor, 0.5f);
+
+            // Draw the ground again to blend with the reflection
+            DrawGround();
+
+            // Disable blending
+            GL.glDisable(GL.GL_BLEND);
+        }
+
+        private void DrawWalls()
+        {
+            DisableLighting();
+            ColorUtil.SetColor(wallColor);
+            float wallHeight = 200;
+            for (int i = 0; i < 4; i++)
+            {
+                wallVertexes[i] = new Vector3(groundVertexes[i].X, groundVertexes[i].Y + wallHeight, groundVertexes[i].Z);
+            }
+
+            // Define each wall with 4 vertices (2 ground vertices and 2 top vertices)
+            // Assuming we're creating quads for simplicity, though you could use triangles as well
+            for (int i = 0; i < 4; i++)
+            {
+                // Define vertices for wall i
+                Vector3 bottomStart = groundVertexes[i];
+                Vector3 bottomEnd = groundVertexes[(i + 1) % 4]; // Loop around with modulo
+                Vector3 topStart = wallVertexes[i];
+                Vector3 topEnd = wallVertexes[(i + 1) % 4];
+
+                GL.glBegin(GL.GL_QUADS);
+                GL.glVertex3d(bottomStart.X, bottomStart.Y, bottomStart.Z);
+                GL.glVertex3d(bottomEnd.X, bottomEnd.Y, bottomEnd.Z);
+                GL.glVertex3d(topEnd.X, topEnd.Y, topEnd.Z);
+                GL.glVertex3d(topStart.X, topStart.Y, topStart.Z);
+                GL.glEnd();
+            }
         }
 
         private void DrawSuprise()
