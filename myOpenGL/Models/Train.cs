@@ -15,12 +15,13 @@ namespace Models
     public class Train
     {
         public bool isLocomotive = true;
+        public bool isTextureEnabled = true;
         private Locomotive mainLocomotive;
         private Locomotive shadowLocomotive;
         private Coach[] coaches;
         public TextBox debugTextBox;
 
-        public Train(TextBox debugTextBox, int numberOfCoaches)
+        public Train(TextBox debugTextBox, int numberOfCoaches, bool isTextureEnabled = true)
         {
             this.debugTextBox = debugTextBox;
             this.coaches = new Coach[numberOfCoaches];
@@ -29,11 +30,12 @@ namespace Models
                 // Initialize each coach instance here
                 this.coaches[i] = new Coach(debugTextBox);
             }
-            this.mainLocomotive = new Locomotive(debugTextBox, isShadowDrawing: false);
-            this.shadowLocomotive = new Locomotive(debugTextBox, isShadowDrawing: true);
+            this.isTextureEnabled = isTextureEnabled;
+            this.mainLocomotive = new Locomotive(debugTextBox, isShadowDrawing: false, isTextureEnabled: isTextureEnabled);
+            this.shadowLocomotive = new Locomotive(debugTextBox, isShadowDrawing: true, isTextureEnabled: false);
         }
 
-        public void Draw(bool isShadowDrawing)
+        public void Draw(bool isShadowDrawing = false)
         {
             GL.glPushMatrix(); // Save the current state
 
@@ -96,11 +98,17 @@ namespace Models
         private readonly float chimneyHeight;
 
 
-        private readonly ColorName chimneyColor = ColorName.White;
-        private readonly ColorName controlCabinColor = ColorName.White;
-        private readonly ColorName cabBottomColor = ColorName.DimGrey;
-        private readonly ColorName carriageColor = ColorName.White;
-        private readonly ColorName WheelsColor = ColorName.White;
+        private readonly Color textureColor = Color.White;
+        private readonly Color chimneyColor = Color.DarkGray;
+        private readonly Color controlCabinColor = Color.DarkGoldenrod;
+        private readonly Color carriageColor = Color.SandyBrown;
+        private readonly Color cabBottomColor = Color.DarkOliveGreen;
+        private readonly Color WheelsColor = Color.DarkSlateGray;
+        //private readonly Color chimneyColor = Color.White;
+        //private readonly Color controlCabinColor = Color.White;
+        //private readonly Color carriageColor = Color.White;
+        //private readonly Color cabBottomColor = Color.White;
+        //private readonly Color WheelsColor = Color.White;
 
         gluNewQuadric obj;
 
@@ -109,7 +117,8 @@ namespace Models
         private uint cabList, smokeQuadDisplayList, locomotiveList;
         TextBox debugTextBox;
         private bool isShadowDrawing;
-        private readonly ColorName shadowColor = ColorName.LightGrey;
+        private bool isTextureEnabled;
+        private readonly Color shadowColor = Color.LightGray;
         public uint[] Textures;
         public string[] imagesName;
         Dictionary<Orientation, TrainObject> carriageFaceDictionary;
@@ -126,9 +135,8 @@ namespace Models
         private float chimneyTopZ;
 
 
-
         public Locomotive(TextBox debugTextBox,
-            float shininess = DefaultConfig.MAT_SHININESS, bool isShadowDrawing = false)
+            float shininess = DefaultConfig.MAT_SHININESS, bool isShadowDrawing = false, bool isTextureEnabled = true)
         {
             carriageWidth = 3.5f;
             carriageHeight = 0.7f;
@@ -197,8 +205,8 @@ namespace Models
 
             particles = new List<SmokeParticle>();
 
-
             this.isShadowDrawing = isShadowDrawing;
+            this.isTextureEnabled = isTextureEnabled;
             obj = GLU.gluNewQuadric();
             this.debugTextBox = debugTextBox;
             PrepareLists();
@@ -317,43 +325,70 @@ namespace Models
             GL.glMaterialf(GL.GL_FRONT_AND_BACK, GL.GL_SHININESS, MaterialConfig.Instance.Shininess);
         }
 
-        private void EnableTexture(TrainObject trainObject, ColorName color = ColorName.White)
+        private void EnableTexture(TrainObject trainObject, Color? color = null)
         {
-            GL.glEnable(GL.GL_TEXTURE_2D);
-            GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[(int)trainObject]);
-            switch (trainObject)
+            color = GetAdjustedColor(); // Will return the appropriate color based on the flags or the default Color
+            if (isTextureEnabled && !isShadowDrawing)
             {
-                case TrainObject.CARRIAGE_FRONT: case TrainObject.CARRIAGE_BACK:
-                case TrainObject.CARRIAGE_TOP: case TrainObject.CARRIAGE_BOTTOM:
-                case TrainObject.CARRIAGE_RIGHT: case TrainObject.CARRIAGE_LEFT:
-                case TrainObject.CONTROL_CABIN:
-                case TrainObject.CAB_BOTTOM_BASE:
-                    // For Cuboids, use object linear or another suitable mapping.
-                    GL.glDisable(GL.GL_TEXTURE_GEN_S);
-                    GL.glDisable(GL.GL_TEXTURE_GEN_T);
-                    // Setup texture coordinates in your drawing function for these.
-                    break;
-                case TrainObject.WHEEL_FRONT_BACK:
-                case TrainObject.WHEEL_TOP_BOTTOM:
-                    // Wheels might use a different mapping if they look better with spherical.
-                    //GL.glEnable(GL.GL_TEXTURE_GEN_S);
-                    //GL.glEnable(GL.GL_TEXTURE_GEN_T);
-                    GL.glDisable(GL.GL_TEXTURE_GEN_S);
-                    GL.glDisable(GL.GL_TEXTURE_GEN_T);
-                    GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
-                    GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
-                    break;
-                case TrainObject.CHIMNEY:
-                    // Assuming the Chimney, being cylindrical, benefits from spherical mapping.
-                    //GL.glEnable(GL.GL_TEXTURE_GEN_S);
-                    //GL.glEnable(GL.GL_TEXTURE_GEN_T);
-                    GL.glDisable(GL.GL_TEXTURE_GEN_S);
-                    GL.glDisable(GL.GL_TEXTURE_GEN_T);
-                    GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
-                    GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
-                    break;
+                GL.glEnable(GL.GL_TEXTURE_2D);
+                GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[(int)trainObject]);
+                switch (trainObject)
+                {
+                    case TrainObject.CARRIAGE_FRONT:
+                    case TrainObject.CARRIAGE_BACK:
+                    case TrainObject.CARRIAGE_TOP:
+                    case TrainObject.CARRIAGE_BOTTOM:
+                    case TrainObject.CARRIAGE_RIGHT:
+                    case TrainObject.CARRIAGE_LEFT:
+                    case TrainObject.CONTROL_CABIN:
+                    case TrainObject.CAB_BOTTOM_BASE:
+                        // For Cuboids, use object linear or another suitable mapping.
+                        GL.glDisable(GL.GL_TEXTURE_GEN_S);
+                        GL.glDisable(GL.GL_TEXTURE_GEN_T);
+                        // Setup texture coordinates in your drawing function for these.
+                        break;
+                    case TrainObject.WHEEL_FRONT_BACK:
+                    case TrainObject.WHEEL_TOP_BOTTOM:
+                        // Wheels might use a different mapping if they look better with spherical.
+                        //GL.glEnable(GL.GL_TEXTURE_GEN_S);
+                        //GL.glEnable(GL.GL_TEXTURE_GEN_T);
+                        GL.glDisable(GL.GL_TEXTURE_GEN_S);
+                        GL.glDisable(GL.GL_TEXTURE_GEN_T);
+                        GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
+                        GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
+                        break;
+                    case TrainObject.CHIMNEY:
+                        // Assuming the Chimney, being cylindrical, benefits from spherical mapping.
+                        //GL.glEnable(GL.GL_TEXTURE_GEN_S);
+                        //GL.glEnable(GL.GL_TEXTURE_GEN_T);
+                        GL.glDisable(GL.GL_TEXTURE_GEN_S);
+                        GL.glDisable(GL.GL_TEXTURE_GEN_T);
+                        GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
+                        GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
+                        break;
+                }
             }
-            ColorUtil.SetColor(color);
+            ColorUtil.SetColor((Color)color);
+        }
+
+        private Color GetAdjustedColor(Color? color = null)
+        {
+            if (isShadowDrawing)
+            {
+                return shadowColor; // Assuming shadowColor is a predefined Color
+            }
+            else if (isTextureEnabled)
+            {
+                return textureColor; // Assuming textureColor is a predefined Color
+            }
+            else if (color.HasValue)
+            {
+                return color.Value;
+            }
+            else
+            {
+                return Color.White; // Default color
+            }
         }
 
         private void DisableTexture()
@@ -475,7 +510,7 @@ namespace Models
         }
 
 
-        private void DrawWheel(float radius, float thickness, ColorName color)
+        private void DrawWheel(float radius, float thickness, Color color)
         {
             if (isShadowDrawing)
             {
@@ -613,7 +648,7 @@ namespace Models
         }
 
         
-        private void DrawCylinder(float baseRadius, float topRadius, float height, ColorName color, bool isRotateUpwards = true, bool isTextureOn = true)
+        private void DrawCylinder(float baseRadius, float topRadius, float height, Color color, bool isRotateUpwards = true, bool isTextureOn = true)
         {
             if (isShadowDrawing)
             {
@@ -675,8 +710,9 @@ namespace Models
             }
         }
 
-        private void DrawCuboid(float width, float height, float depth, Dictionary<Orientation, TrainObject> faceTextures, ColorName color = ColorName.White)
+        private void DrawCuboid(float width, float height, float depth, Dictionary<Orientation, TrainObject> faceTextures, Color color)
         {
+            color = color == null ? Color.White : color;
             foreach (var face in faceTextures)
             {
                 // Determine if we should draw texture for this face
