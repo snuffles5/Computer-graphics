@@ -80,16 +80,23 @@ namespace GraphicProject.Utils.Math
             return new Vector3(vector.X * scalar, vector.Y * scalar, vector.Z * scalar);
         }
 
+        //public static Vector3 operator -(Vector3 v1, Vector3 v2)
+        //{
+        //    Vector3 vr;
+
+        //    vr.X = v1.X - v2.X;
+        //    vr.Y = v1.Y - v2.Y;
+        //    vr.Z = v1.Z - v2.Z;
+
+        //    return vr;
+        //}
+
+        // Define the subtraction operator
         public static Vector3 operator -(Vector3 v1, Vector3 v2)
         {
-            Vector3 vr;
-
-            vr.X = v1.X - v2.X;
-            vr.Y = v1.Y - v2.Y;
-            vr.Z = v1.Z - v2.Z;
-
-            return vr;
+            return new Vector3(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
         }
+
     }
 
     public struct Vector3WithAngle
@@ -140,7 +147,7 @@ namespace GraphicProject.Utils.Math
             return new Vector3WithAngle(newX, newY, newZ, newAngle);
         }
 
-        // Other operators as needed, following the pattern above
     }
+
 
 }

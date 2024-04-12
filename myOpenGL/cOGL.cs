@@ -33,9 +33,10 @@ namespace OpenGL
         public bool isToDrawGround;
 
         public float INITIALIZED_ZOOM_VALUE = -2.0f;
-        float[,] ground = new float[3, 3];
+        //float[,] ground = new float[3, 3];
+        Vector3[] groundVertices = new Vector3[3];
         float[] groundPlane;
-        Vector3[] groundVertexes = new Vector3[4];
+        Vector3[] shadowPlaneVertices = new Vector3[4];
         Vector3[] wallVertexes = new Vector3[4];
         float[,] wall = new float[3, 3];
         float[] planeCoeff = { 1, 1, 1, 1 };
@@ -95,6 +96,10 @@ namespace OpenGL
                 0.0f, 1.0f, 0.0f
             };
             // Ground and Walls 
+            groundVertices[0] = new Vector3(1.0f, 1.0f, -0.5f);
+            groundVertices[1] = new Vector3(0.0f, 1.0f, -0.5f);
+            groundVertices[2] = new Vector3(1.0f, 0.0f, -0.5f);
+            //groundVertices[3] = new Vector3(-0.5f, -0.5f, -0.5f);  // Assuming a fourth vertex if needed, adjust as necessary
             //ground[0, 0] = 1;
             //ground[0, 1] = 1;
             //ground[0, 2] = -0.5f;
@@ -106,15 +111,11 @@ namespace OpenGL
             //ground[2, 0] = 1;
             //ground[2, 1] = 0;
             //ground[2, 2] = -0.5f;
-            groundVertexes[0] = new Vector3(-50.0f, -1.5f, -50.0f);
-            groundVertexes[1] = new Vector3(-50.0f, -1.5f, 50.0f);
-            groundVertexes[2] = new Vector3(50.0f, -1.5f, 50.0f);
-            groundVertexes[3] = new Vector3(50.0f, -1.5f, -50.0f);
+            shadowPlaneVertices[0] = new Vector3(-50.0f, -1.5f, -50.0f);
+            shadowPlaneVertices[1] = new Vector3(-50.0f, -1.5f, 50.0f);
+            shadowPlaneVertices[2] = new Vector3(50.0f, -1.5f, 50.0f);
+            shadowPlaneVertices[3] = new Vector3(50.0f, -1.5f, -50.0f);
             
-            //wallVertexes[0] = new Vector3(-200, 0, 200);
-            //wallVertexes[1] = new Vector3(200, 0, 200);
-            //wallVertexes[2] = new Vector3(200, 0, -200);
-            //wallVertexes[3] = new Vector3(-200, 0, -200);
             groundPlane = new float[] { 0.0f, 1.0f, 0.0f, 0.0f };
         }
 
@@ -211,6 +212,7 @@ namespace OpenGL
             // Lighting setup
             EnableLighting();
 
+
             GL.glEnable(GL.GL_NORMALIZE);
 
             // Enable color material
@@ -233,7 +235,8 @@ namespace OpenGL
             if (!isLightingEnabled)
                 return;
             GL.glEnable(GL.GL_LIGHT0);
-            GL.glEnable(GL.GL_LIGHTING);
+            //GL.glEnable(GL.GL_LIGHTING);
+            //GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, LightConfig.Instance.Position);
         }
         public void DisableLighting()
         {
@@ -279,12 +282,12 @@ namespace OpenGL
             MakeTransformation();
             ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
 
-            DrawGround();
-            DrawWalls();
+            //DrawGround();
+            //DrawWalls();
             DrawScene();
 
             DrawShadows();
-            DrawReflections();
+            //DrawReflections();
 
             // Flush GL pipeline
             GL.glFlush();
@@ -298,13 +301,13 @@ namespace OpenGL
 
         private void DrawScene()
         {
-            DisableLighting();
-            sun.Draw();
+            //DisableLighting();
+            //sun.Draw();
 
             EnableLighting();
             train.Draw(isShadowDrawing: false);
-            DrawSuprise();
-            DrawRails();
+            //DrawSuprise();
+            //DrawRails();
 
         }
 
@@ -315,10 +318,10 @@ namespace OpenGL
             EnableLighting();
             ColorUtil.SetColor(groundColor);
             GL.glBegin(GL.GL_QUADS);
-            GL.glVertex3d(groundVertexes[0].X, groundVertexes[0].Y, groundVertexes[0].Z);
-            GL.glVertex3d(groundVertexes[1].X, groundVertexes[1].Y, groundVertexes[1].Z);
-            GL.glVertex3d(groundVertexes[2].X, groundVertexes[2].Y, groundVertexes[2].Z);
-            GL.glVertex3d(groundVertexes[3].X, groundVertexes[3].Y, groundVertexes[3].Z);
+            GL.glVertex3d(shadowPlaneVertices[0].X, shadowPlaneVertices[0].Y, shadowPlaneVertices[0].Z);
+            GL.glVertex3d(shadowPlaneVertices[1].X, shadowPlaneVertices[1].Y, shadowPlaneVertices[1].Z);
+            GL.glVertex3d(shadowPlaneVertices[2].X, shadowPlaneVertices[2].Y, shadowPlaneVertices[2].Z);
+            GL.glVertex3d(shadowPlaneVertices[3].X, shadowPlaneVertices[3].Y, shadowPlaneVertices[3].Z);
             GL.glEnd();
         }
 
@@ -344,11 +347,12 @@ namespace OpenGL
                 return;
             // Shadows
             DisableLighting();
+            GL.glEnable(GL.GL_STENCIL_TEST);
+
             // floor shadow
             GL.glPushMatrix();
-            MakeShadowMatrix(ground);//, LightConfig.Instance.Position);
+            MakeShadowMatrix(shadowPlaneVertices);
             GL.glMultMatrixf(cubeXform);
-
             train.Draw(isShadowDrawing: true);
             GL.glPopMatrix();
             EnableLighting();
@@ -416,7 +420,7 @@ namespace OpenGL
             float wallHeight = 200;
             for (int i = 0; i < 4; i++)
             {
-                wallVertexes[i] = new Vector3(groundVertexes[i].X, groundVertexes[i].Y + wallHeight, groundVertexes[i].Z);
+                wallVertexes[i] = new Vector3(shadowPlaneVertices[i].X, shadowPlaneVertices[i].Y + wallHeight, shadowPlaneVertices[i].Z);
             }
 
             // Define each wall with 4 vertices (2 ground vertices and 2 top vertices)
@@ -424,8 +428,8 @@ namespace OpenGL
             for (int i = 0; i < 4; i++)
             {
                 // Define vertices for wall i
-                Vector3 bottomStart = groundVertexes[i];
-                Vector3 bottomEnd = groundVertexes[(i + 1) % 4]; // Loop around with modulo
+                Vector3 bottomStart = shadowPlaneVertices[i];
+                Vector3 bottomEnd = shadowPlaneVertices[(i + 1) % 4]; // Loop around with modulo
                 Vector3 topStart = wallVertexes[i];
                 Vector3 topEnd = wallVertexes[(i + 1) % 4];
 
@@ -536,7 +540,7 @@ namespace OpenGL
             vector[2] /= length;
         }
 
-        void calcNormal(float[,] v, float[] outp)
+        void calculateNormal(float[,] v, float[] outp)
         {
             float[] v1 = new float[3];
             float[] v2 = new float[3];
@@ -568,7 +572,7 @@ namespace OpenGL
             // Find the plane equation coefficients
             // Find the first three coefficients the same way we
             // find a normal.
-            calcNormal(points, planeCoeff);
+            calculateNormal(points, planeCoeff);
 
             // Find the last coefficient by back substitutions
             planeCoeff[3] = -(
@@ -607,6 +611,76 @@ namespace OpenGL
             cubeXform[7] = 0.0f - LightConfig.Instance.Position[3] * planeCoeff[1];
             cubeXform[11] = 0.0f - LightConfig.Instance.Position[3] * planeCoeff[2];
             cubeXform[15] = dot - LightConfig.Instance.Position[3] * planeCoeff[3];
+        }
+
+        void MakeShadowMatrix(Vector3[] points)
+        {
+            Vector3 lightPosition = new Vector3(
+                LightConfig.Instance.Position[0],
+                LightConfig.Instance.Position[1],
+                LightConfig.Instance.Position[2]
+            );
+            double lightW = LightConfig.Instance.Position[3];  // Homogeneous coordinate
+
+            Vector3 v1 = points[1] - points[0];
+            Vector3 v2 = points[2] - points[0];
+            Vector3 normal = v1.CrossProduct(v2).Normalize();
+
+            // Calculate the plane coefficient D (Ax + By + Cz + D = 0)
+            double planeD = -(normal.X * points[0].X + normal.Y * points[0].Y + normal.Z * points[0].Z);
+
+            // Compute dot product of plane normal and light position
+            double dot = normal.X * lightPosition.X + normal.Y * lightPosition.Y + normal.Z * lightPosition.Z + planeD * lightW;
+
+            // Initialize shadow matrix
+            float[] shadowMatrix = new float[16];
+
+            // Fill the shadow matrix according to the shadow matrix formula
+            shadowMatrix[0] = (float)(dot - lightPosition.X * normal.X);
+            shadowMatrix[4] = (float)(-lightPosition.X * normal.Y);
+            shadowMatrix[8] = (float)(-lightPosition.X * normal.Z);
+            shadowMatrix[12] = (float)(-lightPosition.X * planeD);
+
+            shadowMatrix[1] = (float)(-lightPosition.Y * normal.X);
+            shadowMatrix[5] = (float)(dot - lightPosition.Y * normal.Y);
+            shadowMatrix[9] = (float)(-lightPosition.Y * normal.Z);
+            shadowMatrix[13] = (float)(-lightPosition.Y * planeD);
+
+            shadowMatrix[2] = (float)(-lightPosition.Z * normal.X);
+            shadowMatrix[6] = (float)(-lightPosition.Z * normal.Y);
+            shadowMatrix[10] = (float)(dot - lightPosition.Z * normal.Z);
+            shadowMatrix[14] = (float)(-lightPosition.Z * planeD);
+
+            shadowMatrix[3] = 0.0f;
+            shadowMatrix[7] = 0.0f;
+            shadowMatrix[11] = 0.0f;
+            shadowMatrix[15] = (float)dot;
+
+            // Replace cubeXform with the calculated shadowMatrix
+            cubeXform = shadowMatrix;
+
+            // Print the matrix for debugging
+            Console.WriteLine("Shadow Matrix:");
+            for (int i = 0; i < 16; i++)
+            {
+                if (i % 4 == 0) Console.WriteLine();
+                Console.Write(shadowMatrix[i] + " ");
+            }
+            Console.WriteLine();
+        }
+
+
+        Vector3 calculateNormal(Vector3[] points)
+        {
+            Vector3 v1 = points[1] - points[0];
+            Vector3 v2 = points[2] - points[0];
+            Vector3 normal = v1.CrossProduct(v2);
+
+            // Ensure the normal points upwards by checking its Y component
+            if (normal.Y < 0)
+                normal = -1 * normal;
+
+            return normal.Normalize();
         }
 
 
