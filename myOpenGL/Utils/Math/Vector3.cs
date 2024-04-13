@@ -80,16 +80,15 @@ namespace GraphicProject.Utils.Math
             return new Vector3(vector.X * scalar, vector.Y * scalar, vector.Z * scalar);
         }
 
-        //public static Vector3 operator -(Vector3 v1, Vector3 v2)
-        //{
-        //    Vector3 vr;
+        public static bool operator ==(Vector3 v1, Vector3 v2)
+        {
+            return v1.X == v2.X && v1.Y == v2.Y && v1.Z == v2.Z;
+        }
 
-        //    vr.X = v1.X - v2.X;
-        //    vr.Y = v1.Y - v2.Y;
-        //    vr.Z = v1.Z - v2.Z;
-
-        //    return vr;
-        //}
+        public static bool operator !=(Vector3 v1, Vector3 v2)
+        {
+            return !(v1 == v2);
+        }
 
         // Define the subtraction operator
         public static Vector3 operator -(Vector3 v1, Vector3 v2)

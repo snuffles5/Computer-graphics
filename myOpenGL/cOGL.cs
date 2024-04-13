@@ -272,8 +272,6 @@ namespace OpenGL
 
             GL.glTranslatef(0.0f, 0.0f, INITIALIZED_ZOOM_VALUE);
 
-
-
             // Save current ModelView Matrix values before specific transformations
             GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, ModelVievMatrixBeforeSpecificTransforms);
             // Reset ModelView Matrix to identity matrix
@@ -282,12 +280,19 @@ namespace OpenGL
             MakeTransformation();
             ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
 
-            //DrawGround();
-            //DrawWalls();
-            DrawScene();
+            Vector3 lightDirection = new Vector3(
+                LightConfig.Instance.Position[0],
+                LightConfig.Instance.Position[1],
+                LightConfig.Instance.Position[2]
+            );
 
-            DrawShadows();
-            //DrawReflections();
+            DrawDebug(-1 * lightDirection, sun.Coords, 10.0f);
+            DrawShadow();
+            DrawReflections();
+
+            DrawGround();
+            DrawWalls();
+            DrawScene();
 
             // Flush GL pipeline
             GL.glFlush();
@@ -301,13 +306,13 @@ namespace OpenGL
 
         private void DrawScene()
         {
-            //DisableLighting();
-            //sun.Draw();
+            DisableLighting();
+            sun.Draw();
 
             EnableLighting();
             train.Draw(isShadowDrawing: false);
-            //DrawSuprise();
-            //DrawRails();
+            DrawSuprise();
+            DrawRails();
 
         }
 
@@ -340,13 +345,34 @@ namespace OpenGL
             GL.glPopMatrix();
         }
 
+        void DrawDebug(Vector3 lightDirection, Vector3 startPoint, float length)
+        {
+            // DrawLightDirection
+            // Scale the light direction by the desired length
+            Vector3 endPoint = new Vector3(
+                startPoint.X + lightDirection.X * length,
+                startPoint.Y + lightDirection.Y * length,
+                startPoint.Z + lightDirection.Z * length
+            );
 
-        private void DrawShadows()
+            // Set the color for the line (red for visibility)
+            ColorUtil.SetColor(Color.LightGoldenrodYellow);
+
+            // Begin drawing lines
+            GL.glBegin(GL.GL_LINES);
+            GL.glVertex3d(startPoint.X, startPoint.Y, startPoint.Z);
+            GL.glVertex3d(endPoint.X, endPoint.Y, endPoint.Z);
+            GL.glEnd();
+        }
+
+private void DrawShadow()
         {
             if (!isShadowEnabled)
                 return;
+
             // Shadows
             DisableLighting();
+            GL.glDisable(GL.GL_DEPTH_TEST);
             GL.glEnable(GL.GL_STENCIL_TEST);
 
             // floor shadow
@@ -355,6 +381,7 @@ namespace OpenGL
             GL.glMultMatrixf(cubeXform);
             train.Draw(isShadowDrawing: true);
             GL.glPopMatrix();
+            GL.glEnable(GL.GL_DEPTH_TEST);
             EnableLighting();
         }
 
@@ -625,16 +652,18 @@ namespace OpenGL
             Vector3 v1 = points[1] - points[0];
             Vector3 v2 = points[2] - points[0];
             Vector3 normal = v1.CrossProduct(v2).Normalize();
+            //if (normal.Y < 0) normal = -1 * normal;
 
             // Calculate the plane coefficient D (Ax + By + Cz + D = 0)
             double planeD = -(normal.X * points[0].X + normal.Y * points[0].Y + normal.Z * points[0].Z);
 
             // Compute dot product of plane normal and light position
             double dot = normal.X * lightPosition.X + normal.Y * lightPosition.Y + normal.Z * lightPosition.Z + planeD * lightW;
-
             // Initialize shadow matrix
             float[] shadowMatrix = new float[16];
+            //lightPosition = -1 * lightPosition;  // Invert the light position to ensure shadows cast away from the light
 
+            //dot = -dot;
             // Fill the shadow matrix according to the shadow matrix formula
             shadowMatrix[0] = (float)(dot - lightPosition.X * normal.X);
             shadowMatrix[4] = (float)(-lightPosition.X * normal.Y);
