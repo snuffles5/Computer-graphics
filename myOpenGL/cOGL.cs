@@ -87,7 +87,7 @@ namespace OpenGL
             isLightingEnabled = true;
             isShadowEnabled = true;
             isReflectionEnabled = false;
-            isToDrawGround = false;
+            isToDrawGround = true;
 
             DefaultCameraPointOfView = new float[]
             {
@@ -235,8 +235,12 @@ namespace OpenGL
             if (!isLightingEnabled)
                 return;
             GL.glEnable(GL.GL_LIGHT0);
-            //GL.glEnable(GL.GL_LIGHTING);
+            GL.glEnable(GL.GL_LIGHTING);
             //GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, LightConfig.Instance.Position);
+            GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, LightConfig.Instance.Ambient);
+            GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, LightConfig.Instance.Diffuse);
+            GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, LightConfig.Instance.Specular);
+            GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, LightConfig.Instance.Position);
         }
         public void DisableLighting()
         {
@@ -286,12 +290,13 @@ namespace OpenGL
                 LightConfig.Instance.Position[2]
             );
 
+            DrawGround();
+            DrawWalls();
+
             DrawDebug(-1 * lightDirection, sun.Coords, 10.0f);
             DrawShadow();
             DrawReflections();
 
-            DrawGround();
-            DrawWalls();
             DrawScene();
 
             // Flush GL pipeline
@@ -316,11 +321,24 @@ namespace OpenGL
 
         }
 
-        private void DrawGround()
+        public void DrawGround()
         {
             if (!isToDrawGround)
                 return;
+
+            // Enable lighting
             EnableLighting();
+
+            // Set material properties for the ground here if needed
+            float[] matAmbient = new float[] { 0.7f, 0.7f, 0.7f, 1.0f };
+            float[] matDiffuse = new float[] { 0.8f, 0.8f, 0.8f, 1.0f };
+            //GL.glMaterialfv(GL.GL_FRONT, GL.GL_AMBIENT, matAmbient);
+            //GL.glMaterialfv(GL.GL_FRONT, GL.GL_DIFFUSE, matDiffuse);
+
+            // Make sure the normal vector is set correctly
+            GL.glNormal3f(0.0f, 1.0f, 0.0f); // Assuming ground plane is XZ plane
+
+            // Draw the ground plane
             ColorUtil.SetColor(groundColor);
             GL.glBegin(GL.GL_QUADS);
             GL.glVertex3d(shadowPlaneVertices[0].X, shadowPlaneVertices[0].Y, shadowPlaneVertices[0].Z);
@@ -328,7 +346,11 @@ namespace OpenGL
             GL.glVertex3d(shadowPlaneVertices[2].X, shadowPlaneVertices[2].Y, shadowPlaneVertices[2].Z);
             GL.glVertex3d(shadowPlaneVertices[3].X, shadowPlaneVertices[3].Y, shadowPlaneVertices[3].Z);
             GL.glEnd();
+
+            // Disable lighting if it's not needed afterwards
+            DisableLighting();
         }
+
 
         private void DrawRails()
         {

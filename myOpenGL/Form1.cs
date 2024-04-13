@@ -139,6 +139,18 @@ namespace myOpenGL
                         case LightProperty.AMBIENT:
                         case LightProperty.DIFFUSE:
                         case LightProperty.SPECULAR:
+                            switch (scrollBarText)
+                            {
+                                case "slider1":
+                                    slider2.Value = slider3.Value = slider1.Value;
+                                    break;
+                                case "slider2":
+                                    slider1.Value = slider3.Value = slider2.Value;
+                                    break;
+                                case "slider3":
+                                    slider2.Value = slider1.Value = slider3.Value;
+                                    break;
+                            }
                             float normalizedRValue = slider1.Value / 100.0f;
                             float normalizedGValue = slider2.Value / 100.0f;
                             float normalizedBValue = slider3.Value / 100.0f;
@@ -146,7 +158,7 @@ namespace myOpenGL
                             cGL.LightPropertyUpdatedValue = new LightPropertyUpdateKeyAndValue { Key = lightProperty, NewValues = new float[] { normalizedRValue, normalizedGValue, normalizedBValue, normalizedAValue } };
                             break;
                         case LightProperty.POSITION:
-                            int w = slider4.Value > 50? 1 : 0;
+                            int w = slider4.Value > 40? 1 : 0;
                             cGL.LightPropertyUpdatedValue = new LightPropertyUpdateKeyAndValue { Key = lightProperty, NewValues = new float[] {slider1.Value, slider2.Value, slider3.Value, w} };
                             Sun sun = cGL.sun;
                             sun.Coords = new Vector3(X: slider1.Value, Y: slider2.Value, Z: slider3.Value);
@@ -177,7 +189,6 @@ namespace myOpenGL
                                 break;
                         }
                 }
-
             }
 
             if (e != null)

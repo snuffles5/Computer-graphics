@@ -118,7 +118,7 @@ namespace Models
         TextBox debugTextBox;
         private bool isShadowDrawing;
         private bool isTextureEnabled;
-        private readonly Color shadowColor = Color.LightGray;
+        private readonly Color shadowColor = Color.DarkGray;
         public uint[] Textures;
         public string[] imagesName;
         Dictionary<Orientation, TrainObject> carriageFaceDictionary;
@@ -375,7 +375,7 @@ namespace Models
         {
             if (isShadowDrawing)
             {
-                return shadowColor; // Assuming shadowColor is a predefined Color
+                return Color.FromArgb((int)(0.5f * 255), shadowColor.R, shadowColor.G, shadowColor.B);
             }
             else if (isTextureEnabled)
             {
