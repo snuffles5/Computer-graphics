@@ -521,29 +521,24 @@ namespace Models
             int numSides = 50; // Number of sides for the disc
             float cylinderRadius = radius * 0.8f; // Reduced radius for the cylinder to create an edge effect
 
-            // Begin wheel rotation
             GL.glPushMatrix();
             EnableTexture(TrainObject.WHEEL_FRONT_BACK);
-            // Draw the bottom solid disc with texture
             GL.glPushMatrix();
             GL.glTranslatef(0.0f, 0.0f, -thickness / 2);
             DrawDiscWithTexture(0, radius, numSides, true); // Use 0 for inner radius to make it solid
             GL.glPopMatrix();
-
-            // Draw the top solid disc with texture
             GL.glPushMatrix();
             GL.glTranslatef(0.0f, 0.0f, thickness / 2); // Adjust position to draw on the other end
             DrawDiscWithTexture(0, radius, numSides, true); // Use 0 for inner radius to make it solid
             GL.glPopMatrix();
             EnableTexture(TrainObject.WHEEL_TOP_BOTTOM);
-            // Draw the cylinder between the two discs
             GL.glPushMatrix();
             GL.glTranslatef(0.0f, 0.0f, -thickness / 2);
             DrawCylinder(cylinderRadius, cylinderRadius, thickness, color, isRotateUpwards: false, isTextureOn: true);
             GL.glPopMatrix();
 
             DisableTexture();
-            GL.glPopMatrix(); // End wheel rotation
+            GL.glPopMatrix();
         }
 
 
@@ -634,20 +629,30 @@ namespace Models
         {
             float angleStep = 360.0f / numSides;
             GL.glBegin(GL.GL_TRIANGLE_FAN);
+
+            // Normal for the center vertex of the disc
+            GL.glNormal3f(0.0f, 0.0f, bottom ? 1.0f : -1.0f);
+
             GL.glTexCoord2f(0.5f, 0.5f); // Center of the disc in texture coordinates
             GL.glVertex3f(0.0f, 0.0f, 0.0f); // Center vertex for a solid disc
+
             for (int i = 0; i <= numSides; i++)
             {
                 float angle = i * angleStep * (float)Math.PI / 180.0f;
                 float x = (float)Math.Cos(angle) * outerRadius;
                 float y = (float)Math.Sin(angle) * outerRadius;
+
+                // The normal for all the vertices around the disc edge should be the same
+                // and should point directly out along the positive or negative Z-axis.
+                GL.glNormal3f(0.0f, 0.0f, bottom ? 1.0f : -1.0f);
+
                 GL.glTexCoord2f((float)Math.Cos(angle) * 0.5f + 0.5f, (float)Math.Sin(angle) * 0.5f + 0.5f); // Mapping texture
                 GL.glVertex3f(x, y, 0.0f);
             }
             GL.glEnd();
         }
 
-        
+
         private void DrawCylinder(float baseRadius, float topRadius, float height, Color color, bool isRotateUpwards = true, bool isTextureOn = true)
         {
             if (isShadowDrawing)
