@@ -21,6 +21,8 @@ namespace Models
         private Coach[] coaches;
         public TextBox debugTextBox;
 
+        public Locomotive MainLocomotive { get => mainLocomotive; set => mainLocomotive = value; }
+
         public Train(TextBox debugTextBox, int numberOfCoaches, bool isTextureEnabled = true)
         {
             this.debugTextBox = debugTextBox;
@@ -113,6 +115,9 @@ namespace Models
         gluNewQuadric obj;
 
         private float wheelRotation = 0;
+        private float wheelOffsetX;
+        private float wheelOffsetZFront;
+        private float wheelOffsetZBack;
         private bool isWheelRotation = true;
         private uint cabList, smokeQuadDisplayList, locomotiveList;
         TextBox debugTextBox;
@@ -133,7 +138,8 @@ namespace Models
         private float chimneyTopX;
         private float chimneyTopY;
         private float chimneyTopZ;
-
+        private float wheelOffsetY;
+        public float WheelOffsetY { get => wheelOffsetY; set => wheelOffsetY = value; }
 
         public Locomotive(TextBox debugTextBox,
             float shininess = DefaultConfig.MAT_SHININESS, bool isShadowDrawing = false, bool isTextureEnabled = true)
@@ -156,6 +162,11 @@ namespace Models
             chimneyBaseRadius = 0.2f;
             chimneyTopRadius = 0.3f;
             chimneyHeight = 1f;
+            // Constants for wheel placement
+            wheelOffsetX = cabBottomBaseWidth * 0.7f; // 20% of the bottom base width from the center to each side
+            wheelOffsetZFront = carriageDepth * 1.10f;// * 0.8f; // 20% of the depth for front wheels
+            wheelOffsetZBack = -carriageDepth * 1.10f;// * 0.8f; // 20% of the depth for back wheels
+            WheelOffsetY = -(wheelRadius + cabBottomBaseHeight) * 1.3f; // Just below the bottom base
 
             Textures = new uint[Enum.GetValues(typeof(TrainObject)).Length];
             imagesName = Enum.GetNames(typeof(TrainObject))
@@ -421,7 +432,11 @@ namespace Models
 
                     textureImage.UnlockBits(bitmapdata);
                     textureImage.Dispose();
-                }    
+                }
+                else
+                {
+                    //Textures[i] = 0; // Assign 0 to indicate no texture
+                }
             }
         }
 
@@ -544,13 +559,6 @@ namespace Models
 
         private void DrawWheels()
         {
-            // Constants for wheel placement
-            float wheelOffsetX = cabBottomBaseWidth * 0.7f; // 20% of the bottom base width from the center to each side
-            float wheelOffsetY = -(wheelRadius + cabBottomBaseHeight) * 1.3f; // Just below the bottom base
-            float wheelOffsetZFront = carriageDepth * 1.10f;// * 0.8f; // 20% of the depth for front wheels
-            float wheelOffsetZBack = -carriageDepth * 1.10f;// * 0.8f; // 20% of the depth for back wheels
-
-
             // Place the wheels relative to the cab
             for (int i = 0; i < numOfWheels; i++)
             {
@@ -559,7 +567,7 @@ namespace Models
                 float posX = (i % 2 == 0) ? -wheelOffsetX : wheelOffsetX; // Alternate sides
                 float posZ = (i < 2) ? wheelOffsetZFront : wheelOffsetZBack; // Alternate front/back
                 // Apply the transformation for wheel position
-                GL.glTranslatef(posX, wheelOffsetY, posZ);
+                GL.glTranslatef(posX, WheelOffsetY, posZ);
                 if (isWheelRotation)
                 {
                     GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // Rotate around the Z-axis

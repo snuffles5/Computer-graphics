@@ -81,7 +81,7 @@ namespace OpenGL
             this.debugTextBox = debugTextBox;
             train = new Train(debugTextBox, 1, isTextureEnabled: true);
             sun = new Sun(debugTextBox);
-            rails = new Rail();
+            rails = new Rail(train.MainLocomotive.WheelOffsetY);
             sunCoords = new Vector3();
             debugTextBox.Text = Width + "w, " + Height + "h\n";
             isLightingEnabled = true;
@@ -274,7 +274,7 @@ namespace OpenGL
                           CameraPointOfView[3], CameraPointOfView[4], CameraPointOfView[5],
                           CameraPointOfView[6], CameraPointOfView[7], CameraPointOfView[8]);  // Up vector is along Y-axis
 
-            GL.glTranslatef(0.0f, 0.0f, INITIALIZED_ZOOM_VALUE);
+            GL.glTranslatef(0.0f, -0.2f, INITIALIZED_ZOOM_VALUE);
 
             // Save current ModelView Matrix values before specific transformations
             GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, ModelVievMatrixBeforeSpecificTransforms);
@@ -315,7 +315,10 @@ namespace OpenGL
             sun.Draw();
 
             EnableLighting();
+            GL.glPushMatrix();
+            GL.glTranslatef(0.0f, -0.2f, 0.0f);
             train.Draw(isShadowDrawing: false);
+            GL.glPopMatrix();
             DrawSuprise();
             DrawRails();
 

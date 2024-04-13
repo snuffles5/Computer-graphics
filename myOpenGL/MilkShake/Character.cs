@@ -92,7 +92,7 @@ namespace Milkshape
             GL.glPushMatrix(); // Save the current matrix
             GL.glTranslated(InitialPosition.X, InitialPosition.Y, InitialPosition.Z);
             GL.glRotated(InitialRotate.Angle, InitialRotate.Position.X, InitialRotate.Position.Y, InitialRotate.Position.Z);
-
+            int[] indexes = new int[model_data.numMeshes];
             if (Animate)
                 AdvanceAnimation();
 

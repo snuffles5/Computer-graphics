@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,16 +12,17 @@ namespace Models
 {
     internal class Rail
     {
-        private readonly ColorName shadowColor = ColorName.LightGrey;
-        private readonly float railLength = 100.0f;
-        private readonly float railWidth = 0.7f * 1.5f;
-        private readonly float railHeight = 0.05f;
-        private readonly ColorName railColor = ColorName.DimGrey;
-        private readonly ColorName tieColor = ColorName.Brown;
-        private readonly float tieWidth = 0.2f;
-        private readonly float tieHeight = 0.1f;
-        private readonly float tieLength = 0.1f;
-        private readonly float tieSpacing = 2.0f;
+        private static readonly ColorName shadowColor = ColorName.LightGrey;
+        private static readonly float railLength = 100.0f;
+        private static readonly float railWidth = 0.7f;
+        private static readonly float railThickness = 0.05f; // Thickness of the rail
+        private static readonly float railHeight = 0.05f;
+        private static readonly ColorName railColor = ColorName.DimGrey;
+        private static readonly ColorName tieColor = ColorName.DarkBronze;
+        private static readonly float tieWidth = 1f;
+        private static readonly float tieHeight = 0.1f;
+        private static readonly float tieLength = 0.1f;
+        private static readonly float tieSpacing = 0.5f;
         private uint displayListId;
         public uint[] Textures;
         public string[] imagesName;
@@ -28,7 +30,7 @@ namespace Models
         Dictionary<Orientation, RailObject> railFaceDictionary;
         Dictionary<Orientation, RailObject> TiesFaceDictionary;
 
-        public Rail(bool isShadowDrawing = false)
+        public Rail(float trainWheelGauge, bool isShadowDrawing = false)
         {
             railFaceDictionary = new Dictionary<Orientation, RailObject>
             {
@@ -57,23 +59,23 @@ namespace Models
                 Textures[i] = (uint)i;
             }
 
-            PrepareList();
+            PrepareList(trainWheelGauge);
             this.isShadowDrawing = isShadowDrawing;
         }
 
-        private void PrepareList()
+        private void PrepareList(float trainWheelGauge)
         {
             displayListId = GL.glGenLists(1);
             GL.glNewList(displayListId, GL.GL_COMPILE);
 
 
-            // Draw two rails
+            // Draw two rails, positioned to match the wheels' gauge
             for (int i = -1; i <= 1; i += 2)
             {
                 GL.glPushMatrix();
-                GL.glTranslatef(i * tieLength / 2, 0.0f, 0.0f); // Position the rails
-                GL.glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-                DrawCuboid(railWidth, railHeight, railLength, railFaceDictionary, railColor);
+                GL.glRotatef(90.0f, 0.0f, 1.0f, 0.0f); // Rotate to lay it along the Z axis
+                GL.glTranslatef(i * trainWheelGauge, 0.0f, 0.0f); // Use the train wheel gauge for positioning
+                DrawCuboid(railHeight, railThickness, railLength, railFaceDictionary, railColor); // railHeight is now the horizontal dimension
                 GL.glPopMatrix();
             }
 
@@ -82,8 +84,9 @@ namespace Models
             {
                 GL.glPushMatrix();
                 GL.glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+                GL.glTranslatef(0, -0.3f, 0.0f); // Position the rails
                 GL.glTranslatef(0.0f, railHeight / 2 + tieHeight / 2, z); // Position the ties
-                DrawCuboid(tieWidth, tieHeight, tieLength, TiesFaceDictionary, tieColor);
+                DrawCuboid(tieWidth, tieHeight, tieLength, TiesFaceDictionary, tieColor); 
                 GL.glPopMatrix();
             }
             GL.glEndList();
@@ -91,6 +94,7 @@ namespace Models
 
         public void Draw()
         {
+            GenerateTextures();
             GL.glCallList(displayListId);
         }
 
@@ -118,6 +122,36 @@ namespace Models
             GL.glDisable(GL.GL_TEXTURE_2D);
         }
 
+        void GenerateTextures()
+        {
+            for (int i = 0; i < Textures.Length; i++)
+            {
+                if (File.Exists(imagesName[i]))
+                {
+
+                    GL.glGenTextures(1, new uint[] { Textures[i] });
+                    Bitmap textureImage = new Bitmap(imagesName[i]);
+                    textureImage.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                    System.Drawing.Imaging.BitmapData bitmapdata;
+                    Rectangle rect = new Rectangle(0, 0, textureImage.Width, textureImage.Height);
+
+                    bitmapdata = textureImage.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+                    GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[i]);
+                    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, (int)GL.GL_RGB8, textureImage.Width, textureImage.Height,
+                                                                    0, GL.GL_BGR_EXT, GL.GL_UNSIGNED_byte, bitmapdata.Scan0);
+                    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, (int)GL.GL_LINEAR);
+                    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, (int)GL.GL_LINEAR);
+
+                    textureImage.UnlockBits(bitmapdata);
+                    textureImage.Dispose();
+                }
+                else
+                {
+                    Textures[i] = 0; // Assign 0 to indicate no texture
+                }
+            }
+        }
 
         private bool ShouldDrawTexture(Dictionary<Orientation, RailObject> faceTextures, Orientation orientation)
         {
