@@ -293,6 +293,8 @@ namespace myOpenGL
             previousUpdateTime = currentTime;
             this.cGL.Draw(); // Proceed to draw your scene
 
+            float doorAngle = this.cGL.train.MainLocomotive.DoorAngle;
+            this.cGL.newDoorAngle = cGL.isDoorOpened ? doorAngle + ROTATION_STEP_ANGLE : doorAngle - ROTATION_STEP_ANGLE;
             // Use deltaTime for updates
             this.cGL.train.Update(deltaTime); // Update your train (and other objects as needed) with deltaTime
 
@@ -525,11 +527,22 @@ namespace myOpenGL
         private void ShadowReflectionToggle_CheckedChanged(object sender, EventArgs e)
         {
             CheckBox cb = (CheckBox)sender;
-            cGL.isReflectionEnabled = ShadowReflectionToggle.Checked;
-            cGL.isShadowEnabled = !ShadowReflectionToggle.Checked;
+            cGL.isReflectionEnabled = cb.Checked;
+            cGL.isShadowEnabled = !cb.Checked;
 
             if (cGL.isReflectionEnabled) cb.Text = "Shadow";
             else cb.Text = "Reflection";
+        }
+
+        private void DoorToggle_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox cb = (CheckBox)sender;
+            cGL.isDoorOpened = cb.Checked;
+
+            if (cGL.isDoorOpened) cb.Text = "Close";
+            else cb.Text = "Open";
+
+
         }
     }
 }

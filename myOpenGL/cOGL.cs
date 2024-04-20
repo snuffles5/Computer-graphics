@@ -65,6 +65,8 @@ namespace OpenGL
         private Rail rails;
         private Color groundColor = Color.LightGray;
         private Color wallColor = Color.SkyBlue;
+        internal float newDoorAngle;
+        internal bool isDoorOpened;
 
         public MaterialPropertyUpdateKeyAndValue MaterialPropertyUpdatedValue { get; internal set; }
         public LightPropertyUpdateKeyAndValue LightPropertyUpdatedValue { get; internal set; }
@@ -276,7 +278,7 @@ namespace OpenGL
                           CameraPointOfView[3], CameraPointOfView[4], CameraPointOfView[5],
                           CameraPointOfView[6], CameraPointOfView[7], CameraPointOfView[8]);  // Up vector is along Y-axis
 
-            //GL.glTranslatef(0.0f, 0.0f, INITIALIZED_ZOOM_VALUE);
+            GL.glTranslatef(0.0f, 0.0f, INITIALIZED_ZOOM_VALUE);
 
             // Save current ModelView Matrix values before specific transformations
             GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, ModelVievMatrixBeforeSpecificTransforms);
@@ -293,8 +295,7 @@ namespace OpenGL
             );
 
 
-            //if (isReflectionEnabled) groundHeight = -2.5f;
-            //else groundHeight = -1.5f;
+            train.MainLocomotive.SetDoorAngle(newDoorAngle);
             groundPlaneVertices[0].Y = groundPlaneVertices[1].Y = groundPlaneVertices[2].Y = groundPlaneVertices[3].Y = groundHeight;
             if (isReflectionEnabled)
             {
@@ -440,14 +441,6 @@ namespace OpenGL
             GL.glEnable(GL.GL_BLEND);
             GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
-            ////only floor, draw only to STENCIL buffer
-            //GL.glEnable(GL.GL_STENCIL_TEST);
-            //GL.glStencilOp(GL.GL_REPLACE, GL.GL_REPLACE, GL.GL_REPLACE);
-            //GL.glStencilFunc(GL.GL_ALWAYS, 1, 0xFFFFFFFF); // draw floor always
-            //GL.glColorMask((byte)GL.GL_FALSE, (byte)GL.GL_FALSE, (byte)GL.GL_FALSE, (byte)GL.GL_FALSE);
-            //GL.glDisable(GL.GL_DEPTH_TEST);
-
-            //DrawGround();
 
             float objectsHeight = 3.3f;
             // draw reflected scene

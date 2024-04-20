@@ -78,6 +78,8 @@ namespace myOpenGL
             this.MatAmbient = new System.Windows.Forms.RadioButton();
             this.label9 = new System.Windows.Forms.Label();
             this.ShadowReflectionToggle = new System.Windows.Forms.CheckBox();
+            this.DoorToggle = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -630,11 +632,35 @@ namespace myOpenGL
             this.ShadowReflectionToggle.UseVisualStyleBackColor = true;
             this.ShadowReflectionToggle.CheckedChanged += new System.EventHandler(this.ShadowReflectionToggle_CheckedChanged);
             // 
+            // DoorToggle
+            // 
+            this.DoorToggle.Appearance = System.Windows.Forms.Appearance.Button;
+            this.DoorToggle.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.DoorToggle.Location = new System.Drawing.Point(550, 172);
+            this.DoorToggle.Name = "DoorToggle";
+            this.DoorToggle.Size = new System.Drawing.Size(100, 23);
+            this.DoorToggle.TabIndex = 27;
+            this.DoorToggle.Text = "Open";
+            this.DoorToggle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.DoorToggle.UseVisualStyleBackColor = true;
+            this.DoorToggle.CheckedChanged += new System.EventHandler(this.DoorToggle_CheckedChanged);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(583, 156);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(30, 13);
+            this.label7.TabIndex = 26;
+            this.label7.Text = "Door";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(863, 528);
+            this.Controls.Add(this.DoorToggle);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.ShadowReflectionToggle);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.LightingMaterialChoises);
@@ -725,6 +751,8 @@ namespace myOpenGL
         private RadioButton MatDiffuse;
         private Label label9;
         private CheckBox ShadowReflectionToggle;
+        private CheckBox DoorToggle;
+        private Label label7;
     }
 }
 

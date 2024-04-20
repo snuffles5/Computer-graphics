@@ -1,6 +1,5 @@
 ﻿using OpenGL;
 using System;
-using static Utils.MaterialConfig;
 using Utils;
 using TextBox = System.Windows.Forms.TextBox;
 using System.Drawing;
@@ -8,7 +7,6 @@ using GraphicProject.Utils.Math;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-using System.Collections;
 
 namespace Models
 {
@@ -82,23 +80,24 @@ namespace Models
     {
         // Constants for the locomotive parts dimensions
         private readonly int numOfWheels;
-        private readonly float wheelRadius;
-        private readonly float wheelThickness;
-        private readonly float carriageWidth;
-        private readonly float carriageHeight;
-        private readonly float carriageDepth;
-        private readonly float cabBottomBaseWidth;
-        private readonly float cabBottomBaseHeight;
-        private readonly float cabBottomCouplerWidth;
-        private readonly float cabBottomCouplerHeight;
-        private readonly float cabBottomCouplerDepth;
-        private readonly float controlCabinWidth;
-        private readonly float controlCabinHeight;
-        private readonly float controlCabinDepth;
-        private readonly float chimneyBaseRadius;
-        private readonly float chimneyTopRadius;
-        private readonly float chimneyHeight;
+        private readonly float wheelRadius, wheelThickness;
+        private readonly float carriageWidth, carriageHeight, carriageDepth;
+        private readonly float cabBottomBaseWidth, cabBottomBaseHeight;
+        private readonly float cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth;
+        private readonly float controlCabinWidth, controlCabinHeight, controlCabinDepth;
+        private readonly float chimneyBaseRadius, chimneyTopRadius, chimneyHeight;
+        private readonly float doorWidth, doorHeight, doorDepth;
+        private float particleGenerationTimer = 0.0f;
+        private float particleGenerationInterval = 0.1f;
+        private float chimneyTopX, chimneyTopY, chimneyTopZ;
+        private float wheelOffsetY, wheelOffsetZ;
+        private float controlCabinTranslateX, controlCabinTranslateY = 0;
+        private float doorAngle;
+        float doorPivotX;
+        float doorPivotY;
+        float doorPivotZ = 0.0f; // If the cabin depth and door depth are the same
 
+        private const float maxDoorAngle = 90.0f; // Max angle in degrees for the door to open
 
         private readonly Color textureColor = Color.White;
         private readonly Color chimneyColor = Color.DarkGray;
@@ -106,6 +105,7 @@ namespace Models
         private readonly Color carriageColor = Color.SandyBrown;
         private readonly Color cabBottomColor = Color.DarkOliveGreen;
         private readonly Color WheelsColor = Color.DarkSlateGray;
+        private readonly Color controlCabinDoorColor = Color.DarkGoldenrod;
         //private readonly Color chimneyColor = Color.White;
         //private readonly Color controlCabinColor = Color.White;
         //private readonly Color carriageColor = Color.White;
@@ -115,11 +115,11 @@ namespace Models
         gluNewQuadric obj;
 
         private float wheelRotation = 0;
-        private float wheelOffsetX;
-        private float wheelOffsetZFront;
-        private float wheelOffsetZBack;
+        private float wheelOffsetX, wheelOffsetZFront, wheelOffsetZBack;
         private bool isWheelRotation = true;
-        private uint cabList, smokeQuadDisplayList, locomotiveList;
+        private uint cabList, smokeQuadDisplayList, locomotiveList, doorDisplayList, controlCabinList;
+        private uint controlCabinOpenedList;
+        private uint controlCabinClosedList;
         TextBox debugTextBox;
         private bool isShadowDrawing;
         private bool isTextureEnabled;
@@ -127,21 +127,22 @@ namespace Models
         public uint[] Textures;
         public string[] imagesName;
         Dictionary<Orientation, TrainObject> carriageFaceDictionary;
-        Dictionary<Orientation, TrainObject> controlCabinFaceDictionary;
+        Dictionary<Orientation, TrainObject> controlCabinOpenedFaceDictionary;
+        Dictionary<Orientation, TrainObject> controlCabinClosedFaceDictionary;
+        Dictionary<Orientation, TrainObject> controlCabinDoorFaceDictionary;
         Dictionary<Orientation, TrainObject> cabBottomBaseFaceDictionary;
         Dictionary<Orientation, TrainObject> cabCouplerFaceDictionary;
 
         List<SmokeParticle> particles;
         Random random = new Random();
-        private float particleGenerationTimer = 0.0f;
-        private float particleGenerationInterval = 0.1f;
-        private float chimneyTopX;
-        private float chimneyTopY;
-        private float chimneyTopZ;
-        private float wheelOffsetY;
-        private float wheelOffsetZ;
-        public float WheelOffsetZ { get => wheelOffsetZ; set => wheelOffsetZ = value; }
 
+
+        public float WheelOffsetZ { get => wheelOffsetZ; set => wheelOffsetZ = value; }
+        public float DoorAngle
+        {
+            get => doorAngle;
+            set => doorAngle = Math.Max(0.0f, Math.Min(value, maxDoorAngle)); // Set within the range 0 to maxDoorAngle
+        }
         public Locomotive(TextBox debugTextBox,
             float shininess = DefaultConfig.MAT_SHININESS, bool isShadowDrawing = false, bool isTextureEnabled = true)
         {
@@ -151,6 +152,9 @@ namespace Models
             controlCabinWidth = 0.7f;
             controlCabinHeight = carriageHeight * 1.2f;
             controlCabinDepth = carriageDepth;
+            doorWidth = 0.25f;
+            doorHeight = controlCabinHeight - 0.35f;
+            doorDepth = 0.1f;
             cabBottomBaseWidth = carriageWidth * 1.2f + controlCabinWidth;
             cabBottomBaseHeight = 0.2f;
             cabBottomCouplerWidth = 0.4f;
@@ -163,6 +167,7 @@ namespace Models
             chimneyBaseRadius = 0.2f;
             chimneyTopRadius = 0.3f;
             chimneyHeight = 1f;
+            doorAngle = 0.0f;
             // Constants for wheel placement
             wheelOffsetX = cabBottomBaseWidth * 0.7f; // 20% of the bottom base width from the center to each side
             wheelOffsetZFront = carriageDepth * 1.10f;
@@ -188,14 +193,32 @@ namespace Models
                 { Orientation.TOP, TrainObject.CARRIAGE_TOP },
                 { Orientation.BOTTOM, TrainObject.CARRIAGE_BOTTOM },
             };
-            controlCabinFaceDictionary = new Dictionary<Orientation, TrainObject>
+            controlCabinOpenedFaceDictionary = new Dictionary<Orientation, TrainObject>
             {
-                { Orientation.FRONT, TrainObject.CONTROL_CABIN_FRONT},
+                { Orientation.FRONT, TrainObject.CONTROL_CABIN_FRONT_OPENED},
                 { Orientation.BACK, TrainObject.CONTROL_CABIN},
                 { Orientation.RIGHT, TrainObject.CONTROL_CABIN},
                 { Orientation.LEFT, TrainObject.CONTROL_CABIN},
                 { Orientation.TOP, TrainObject.CONTROL_CABIN},
                 { Orientation.BOTTOM, TrainObject.CONTROL_CABIN},
+            };
+            controlCabinClosedFaceDictionary = new Dictionary<Orientation, TrainObject>
+            {
+                { Orientation.FRONT, TrainObject.CONTROL_CABIN_FRONT_CLOSED},
+                { Orientation.BACK, TrainObject.CONTROL_CABIN},
+                { Orientation.RIGHT, TrainObject.CONTROL_CABIN},
+                { Orientation.LEFT, TrainObject.CONTROL_CABIN},
+                { Orientation.TOP, TrainObject.CONTROL_CABIN},
+                { Orientation.BOTTOM, TrainObject.CONTROL_CABIN},
+            };
+            controlCabinDoorFaceDictionary = new Dictionary<Orientation, TrainObject>
+            {
+                { Orientation.FRONT, TrainObject.CONTROL_CABIN_DOOR_FRONT},
+                { Orientation.BACK, TrainObject.CONTROL_CABIN_DOOR},
+                { Orientation.RIGHT, TrainObject.CONTROL_CABIN_DOOR},
+                { Orientation.LEFT, TrainObject.CONTROL_CABIN_DOOR},
+                { Orientation.TOP, TrainObject.CONTROL_CABIN_DOOR},
+                { Orientation.BOTTOM, TrainObject.CONTROL_CABIN_DOOR},
             };
             cabBottomBaseFaceDictionary = new Dictionary<Orientation, TrainObject>
             {
@@ -234,10 +257,12 @@ namespace Models
         private void PrepareLists()
         {
             // Generate a contiguous block of list identifiers
-            locomotiveList = GL.glGenLists(3); // We request 3 lists at once
+            locomotiveList = GL.glGenLists(6); // We request 3 lists at once
             cabList = locomotiveList + 1; // The second list is for the cab
-            //wheelList = locomotiveList + 2; // The third list is for the wheels
-            smokeQuadDisplayList = locomotiveList + 2; // The third list is for the wheels
+            controlCabinOpenedList = locomotiveList + 2; // The second list is for the cab
+            controlCabinClosedList = locomotiveList + 3; // The second list is for the cab
+            smokeQuadDisplayList = locomotiveList + 4; // The third list is for the wheels
+            doorDisplayList = locomotiveList + 5; // The third list is for the wheels
 
 
             // Define the cab
@@ -246,6 +271,22 @@ namespace Models
             EnableTexture(TrainObject.CHIMNEY);
             DrawChimney();
             DisableTexture();
+            GL.glEndList();
+
+            // Define the control cabin when door is closed
+            GL.glNewList(controlCabinClosedList, GL.GL_COMPILE);
+            DrawControlCabin(isClosed: true);
+            DisableTexture();
+            GL.glEndList();
+
+            // Define the control cabin when door is opened
+            GL.glNewList(controlCabinOpenedList, GL.GL_COMPILE);
+            DrawControlCabin(isClosed: false);
+            DisableTexture();
+            GL.glEndList();
+
+            GL.glNewList(doorDisplayList, GL.GL_COMPILE);
+            DrawStaticControlCabinDoor();
             GL.glEndList();
 
             // Combine into the locomotive
@@ -301,6 +342,8 @@ namespace Models
             // Directl-call to support animation
             DrawWheels();
             DrawParticles();
+            DrawDoorRotation();
+            DrawControlCabin(DoorAngle <= 10 );
 
             GL.glPopMatrix(); // Restore the original state
         }
@@ -308,10 +351,6 @@ namespace Models
 
         private void SetLighting()
         {
-            //Console.WriteLine($" Ambient = {LightConfig.Instance.Ambient[0]}, {LightConfig.Instance.Ambient[1]}, {LightConfig.Instance.Ambient[2]}, {LightConfig.Instance.Ambient[3]} " +
-            //$"Diffuse = {LightConfig.Instance.Diffuse[0]}, {LightConfig.Instance.Diffuse[1]}, {LightConfig.Instance.Diffuse[2]}, {LightConfig.Instance.Diffuse[3]} " +
-            //$"Specular = {LightConfig.Instance.Specular[0]}, {LightConfig.Instance.Specular[1]}, {LightConfig.Instance.Specular[2]}, {LightConfig.Instance.Specular[3]} " +
-            //$"Position = {LightConfig.Instance.Position[0]}, {LightConfig.Instance.Position[1]}, {LightConfig.Instance.Position[2]}, {LightConfig.Instance.Position[3]} ");
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, LightConfig.Instance.Ambient);
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, LightConfig.Instance.Diffuse);
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, LightConfig.Instance.Specular);
@@ -321,10 +360,6 @@ namespace Models
 
         private void SetMaterial()
         {
-            //Console.WriteLine($" MatAmbient = {MaterialConfig.Instance.MatAmbient[0]}, {MaterialConfig.Instance.MatAmbient[1]}, {MaterialConfig.Instance.MatAmbient[2]}, {MaterialConfig.Instance.MatAmbient[3]} " +
-            //    $"MatDiffuse = {MaterialConfig.Instance.MatDiffuse[0]}, {MaterialConfig.Instance.MatDiffuse[1]}, {MaterialConfig.Instance.MatDiffuse[2]}, {MaterialConfig.Instance.MatDiffuse[3]} " +
-            //    $"MatSpecular = {MaterialConfig.Instance.MatSpecular[0]}, {MaterialConfig.Instance.MatSpecular[1]}, {MaterialConfig.Instance.MatSpecular[2]}, {MaterialConfig.Instance.MatSpecular[3]} " +
-            //    $"Shininess = { MaterialConfig.Instance.Shininess}");
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT, MaterialConfig.Instance.MatAmbient);
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, MaterialConfig.Instance.MatDiffuse);
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_SPECULAR, MaterialConfig.Instance.MatSpecular);
@@ -338,37 +373,13 @@ namespace Models
             {
                 GL.glEnable(GL.GL_TEXTURE_2D);
                 GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[(int)trainObject]);
+                GL.glDisable(GL.GL_TEXTURE_GEN_S);
+                GL.glDisable(GL.GL_TEXTURE_GEN_T);
                 switch (trainObject)
                 {
-                    case TrainObject.CARRIAGE_FRONT:
-                    case TrainObject.CARRIAGE_BACK:
-                    case TrainObject.CARRIAGE_TOP:
-                    case TrainObject.CARRIAGE_BOTTOM:
-                    case TrainObject.CARRIAGE_RIGHT:
-                    case TrainObject.CARRIAGE_LEFT:
-                    case TrainObject.CONTROL_CABIN:
-                    case TrainObject.CAB_BOTTOM_BASE:
-                        // For Cuboids, use object linear or another suitable mapping.
-                        GL.glDisable(GL.GL_TEXTURE_GEN_S);
-                        GL.glDisable(GL.GL_TEXTURE_GEN_T);
-                        // Setup texture coordinates in your drawing function for these.
-                        break;
                     case TrainObject.WHEEL_FRONT_BACK:
                     case TrainObject.WHEEL_TOP_BOTTOM:
-                        // Wheels might use a different mapping if they look better with spherical.
-                        //GL.glEnable(GL.GL_TEXTURE_GEN_S);
-                        //GL.glEnable(GL.GL_TEXTURE_GEN_T);
-                        GL.glDisable(GL.GL_TEXTURE_GEN_S);
-                        GL.glDisable(GL.GL_TEXTURE_GEN_T);
-                        GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
-                        GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
-                        break;
                     case TrainObject.CHIMNEY:
-                        // Assuming the Chimney, being cylindrical, benefits from spherical mapping.
-                        //GL.glEnable(GL.GL_TEXTURE_GEN_S);
-                        //GL.glEnable(GL.GL_TEXTURE_GEN_T);
-                        GL.glDisable(GL.GL_TEXTURE_GEN_S);
-                        GL.glDisable(GL.GL_TEXTURE_GEN_T);
                         GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
                         GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, (int)GL.GL_SPHERE_MAP);
                         break;
@@ -435,19 +446,64 @@ namespace Models
             }
         }
 
+        private void DrawStaticControlCabinDoor()
+        {
+            DrawCuboid(doorWidth, doorHeight, doorDepth, controlCabinDoorFaceDictionary, controlCabinDoorColor);
+        }
+
+        private void DrawDoorRotation()
+        {
+            if (doorAngle > 5) // Only draw the door if it's not fully closed
+            {
+                GL.glPushMatrix(); // Save the current transformation state
+
+                // Calculate initial positions based on cabin dimensions and door dimensions
+                float cabinDoorY = controlCabinTranslateY + 0.1f;
+                float cabinDoorX = controlCabinTranslateX + controlCabinWidth / 2; ; // Position Y at the bottom of the door
+                float cabinDoorZ = 0.45f + (controlCabinDepth / 2 - doorDepth / 2); // Center Z on cabin depth
+                float rotationAxis = 0.2f + doorDepth / 2;
+                // Translate to the initial position
+                GL.glTranslatef(cabinDoorX, cabinDoorY, cabinDoorZ);
+
+                // Translate to rotate around the left edge
+                GL.glTranslatef(0, 0, -rotationAxis);
+
+                // Apply rotation
+                GL.glRotatef(-DoorAngle, 0.0f, 1.0f, 0.0f); // Rotate around the Y-axis
+
+                // Translate back
+                GL.glTranslatef(0, 0, rotationAxis);
+
+                // Call the display list to draw the door
+                GL.glCallList(doorDisplayList);
+
+                GL.glPopMatrix(); // Restore the original matrix
+
+            }
+        }
+
+        public void SetDoorAngle(float angle)
+        {
+            DoorAngle = angle;
+        }
+
+        public void OpenDoor()
+        {
+            SetDoorAngle(maxDoorAngle); // Open the door fully
+        }
+
+        public void CloseDoor()
+        {
+            SetDoorAngle(0.0f); // Close the door
+        }
+
+
         private void DrawCabBase()
         {
             // Draw the carriage
             GL.glPushMatrix(); // Save the current state
             DrawCuboid(carriageWidth, carriageHeight, carriageDepth, carriageFaceDictionary, carriageColor);
             GL.glPopMatrix(); // Restore the original state
-
-            // Draw the cabin of the cab
-            EnableTexture(TrainObject.CONTROL_CABIN);
-            GL.glPushMatrix(); // Save the current state
-            DrawControlCabin();
-            GL.glPopMatrix(); // Restore the original state
-            DisableTexture();
 
             // Draw the bottom base of the cab
             EnableTexture(TrainObject.CAB_BOTTOM_BASE);
@@ -488,14 +544,14 @@ namespace Models
             DrawCuboid(cabBottomBaseWidth, cabBottomBaseHeight, carriageDepth, cabBottomBaseFaceDictionary, cabBottomColor);
         }
 
-        private void DrawControlCabin()
+        private void DrawControlCabin(bool isClosed = true)
         {
             // Translate for the cabin drawing
-            float cabinTranslateX = -(0.35f + (carriageWidth + controlCabinWidth / 2)); // Move it to the left of the cab base
-            float cabinTranslateY = cabBottomBaseHeight - 0.1f; // Align the bottom of the cabin with the top of the cab bottom base
-            GL.glTranslatef(cabinTranslateX, cabinTranslateY, 0.0f);
-
-            DrawCuboid(controlCabinWidth, controlCabinHeight, controlCabinDepth, controlCabinFaceDictionary, controlCabinColor); // Drawing the cabin
+            controlCabinTranslateX = -(0.35f + (carriageWidth + controlCabinWidth / 2)); // Move it to the left of the cab base
+            controlCabinTranslateY = cabBottomBaseHeight - 0.1f; // Align the bottom of the cabin with the top of the cab bottom base
+            GL.glTranslatef(controlCabinTranslateX, controlCabinTranslateY, 0.0f);
+            Dictionary<Orientation, TrainObject> face = isClosed ? controlCabinClosedFaceDictionary : controlCabinOpenedFaceDictionary;
+            DrawCuboid(controlCabinWidth, controlCabinHeight, controlCabinDepth, face, controlCabinColor);
         }
 
 
