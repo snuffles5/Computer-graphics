@@ -58,7 +58,6 @@ namespace myOpenGL
             this.numericUpDown5 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown6 = new System.Windows.Forms.NumericUpDown();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.listBox1 = new System.Windows.Forms.ListBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.slider2 = new System.Windows.Forms.HScrollBar();
             this.slider4 = new System.Windows.Forms.HScrollBar();
@@ -415,17 +414,6 @@ namespace myOpenGL
             this.timer1.Enabled = true;
             this.timer1.Tick += new System.EventHandler(this.OnTick);
             // 
-            // listBox1
-            // 
-            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(9, 406);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.ScrollAlwaysVisible = true;
-            this.listBox1.Size = new System.Drawing.Size(124, 82);
-            this.listBox1.TabIndex = 17;
-            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
-            // 
             // textBox1
             // 
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -680,7 +668,6 @@ namespace myOpenGL
             this.groupBox4.Controls.Add(this.hScrollBar2);
             this.groupBox4.Controls.Add(this.textBox1);
             this.groupBox4.Controls.Add(this.hScrollBar3);
-            this.groupBox4.Controls.Add(this.listBox1);
             this.groupBox4.Controls.Add(this.hScrollBar4);
             this.groupBox4.Controls.Add(this.groupBox2);
             this.groupBox4.Controls.Add(this.hScrollBar5);
@@ -758,7 +745,6 @@ namespace myOpenGL
         private System.Windows.Forms.NumericUpDown numericUpDown5;
         private System.Windows.Forms.NumericUpDown numericUpDown6;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.ListBox listBox1;
         private TextBox textBox1;
         private HScrollBar slider2;
         private HScrollBar slider4;

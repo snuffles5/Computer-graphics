@@ -147,6 +147,7 @@ namespace myOpenGL
                             Sun sun = cGL.sun;
                             sun.Coords = new Vector3(X: slider1.Value, Y: slider2.Value, Z: slider3.Value);
                             float rotateAngle = slider4.Value > sun.Coords.Z ? sun.Angle + 15 : sun.Angle - 15;
+                            textBox1.Text = slider1.Value + ", " + slider2.Value + ", " + slider3.Value + ", " +  w;
                             break;
                         default:
                             break;
@@ -282,13 +283,6 @@ namespace myOpenGL
 
 
         }
-
-        //3D model b5
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string curItem = listBox1.SelectedItem.ToString();
-        }
-
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             bool isShiftPressed = e.Shift; // Check if the Shift key is pressed

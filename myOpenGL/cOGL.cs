@@ -106,111 +106,120 @@ namespace OpenGL
 
     protected virtual void InitializeGL()
         {
+            // Assign handle from control to window handle
             m_uint_HWND = (uint)p.Handle.ToInt32();
+            // Get device context for the window
             m_uint_DC = WGL.GetDC(m_uint_HWND);
+            // Swap the buffers of the device context for double buffering
             WGL.wglSwapBuffers(m_uint_DC);
 
             WGL.PIXELFORMATDESCRIPTOR pfd = new WGL.PIXELFORMATDESCRIPTOR();
-            WGL.ZeroPixelDescriptor(ref pfd);
-            pfd.nVersion = 1;
-            pfd.dwFlags = WGL.PFD_DRAW_TO_WINDOW | WGL.PFD_SUPPORT_OPENGL | WGL.PFD_DOUBLEBUFFER;
-            pfd.iPixelType = (byte)WGL.PFD_TYPE_RGBA;
-            pfd.cColorBits = 32;
-            pfd.cDepthBits = 32;
-            pfd.iLayerType = (byte)WGL.PFD_MAIN_PLANE;
+            WGL.ZeroPixelDescriptor(ref pfd);  // Initialize pixel format descriptor
+            pfd.nVersion = 1;  // Set version number
+            pfd.dwFlags = WGL.PFD_DRAW_TO_WINDOW | WGL.PFD_SUPPORT_OPENGL | WGL.PFD_DOUBLEBUFFER;  // Set flags to use double-buffered window with OpenGL
+            pfd.iPixelType = (byte)WGL.PFD_TYPE_RGBA;  // Use RGBA pixel type
+            pfd.cColorBits = 32;  // Set color depth
+            pfd.cDepthBits = 32;  // Set depth buffer precision
+            pfd.iLayerType = (byte)WGL.PFD_MAIN_PLANE;  // Set layer type
 
+            // Choose pixel format that best matches the specified one
             int pixelFormatIndex = WGL.ChoosePixelFormat(m_uint_DC, ref pfd);
             if (pixelFormatIndex == 0)
             {
-                MessageBox.Show("Unable to retrieve pixel format");
+                MessageBox.Show("Unable to retrieve pixel format");  // Error handling if pixel format not found
                 return;
             }
 
+            // Set the pixel format for the device context
             if (WGL.SetPixelFormat(m_uint_DC, pixelFormatIndex, ref pfd) == 0)
             {
-                MessageBox.Show("Unable to set pixel format");
+                MessageBox.Show("Unable to set pixel format");  // Error handling if pixel format setting fails
                 return;
             }
+            // Create rendering context
             m_uint_RC = WGL.wglCreateContext(m_uint_DC);
             if (m_uint_RC == 0)
             {
-                MessageBox.Show("Unable to get rendering context");
+                MessageBox.Show("Unable to get rendering context");  // Error handling if rendering context creation fails
                 return;
             }
+            // Set the current rendering context
             if (WGL.wglMakeCurrent(m_uint_DC, m_uint_RC) == 0)
             {
-                MessageBox.Show("Unable to make rendering context current");
+                MessageBox.Show("Unable to make rendering context current");  // Error handling if setting context fails
                 return;
             }
-            initRenderingGL();
+            initRenderingGL();  // Initialize rendering settings
         }
 
         public void OnResize()
         {
-            Height = p.Height;
-            Width = p.Width;
-            GL.glViewport(0, 0, Width, Height);
-            GL.glMatrixMode(GL.GL_PROJECTION);
-            GL.glLoadIdentity();
+            Height = p.Height; // Update height from the control
+            Width = p.Width;   // Update width from the control
+            GL.glViewport(0, 0, Width, Height); // Set viewport to match new dimensions
+            GL.glMatrixMode(GL.GL_PROJECTION); // Switch to projection matrix
+            GL.glLoadIdentity(); // Reset projection matrix
+                                 // Set orthographic projection to cover new dimensions
             GLU.gluOrtho2D(-Width / 2, Width / 2, -Height / 2, Height / 2);
-            GL.glMatrixMode(GL.GL_MODELVIEW);
-            GL.glLoadIdentity();
+            GL.glMatrixMode(GL.GL_MODELVIEW); // Switch back to model view matrix
+            GL.glLoadIdentity(); // Reset model view matrix
 
-            initRenderingGL();
-            // Redraw the scene after resizing
-            Draw(); 
+            initRenderingGL(); // Initialize OpenGL rendering settings
+            Draw(); // Redraw the scene after resizing
         }
 
         protected virtual void initRenderingGL()
         {
-            if (this.Width == 0 || this.Height == 0) return;
-            GL.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-            GL.glEnable(GL.GL_DEPTH_TEST);
-            GL.glDepthFunc(GL.GL_LEQUAL);
+            if (this.Width == 0 || this.Height == 0) return; // Prevent division by zero in perspective calculation
+            GL.glClearColor(1.0f, 1.0f, 1.0f, 0.0f); // Set clear color to white
+            GL.glEnable(GL.GL_DEPTH_TEST); // Enable depth testing
+            GL.glDepthFunc(GL.GL_LEQUAL); // Specify depth comparison function
 
-            GL.glViewport(0, 0, this.Width, this.Height);
-            GL.glMatrixMode(GL.GL_PROJECTION);
-            GL.glLoadIdentity();
+            GL.glViewport(0, 0, this.Width, this.Height); // Set viewport to current dimensions
+            GL.glMatrixMode(GL.GL_PROJECTION); // Switch to projection matrix
+            GL.glLoadIdentity(); // Reset projection matrix
+                                 // Set perspective projection with a 45-degree field of view and depth range 0.1 to 100.0
             GLU.gluPerspective(45.0f, (float)Width / (float)Height, 0.1f, 100.0f);
 
-            GL.glMatrixMode(GL.GL_MODELVIEW);
-            GL.glShadeModel(GL.GL_SMOOTH);
-            GL.glLoadIdentity();
+            GL.glMatrixMode(GL.GL_MODELVIEW); // Switch back to model view matrix
+            GL.glShadeModel(GL.GL_SMOOTH); // Set shading to smooth
+            GL.glLoadIdentity(); // Reset model view matrix
         }
 
         private void SetupLightingAndMaterial(bool isLightingEnabled = true)
         {
-            if (!isLightingEnabled)
-                return;
-            GL.glShadeModel(GL.GL_SMOOTH);
+            if (!isLightingEnabled) return; // Exit if lighting is not enabled
 
-            // Lighting setup
-            EnableLighting();
+            GL.glShadeModel(GL.GL_SMOOTH); // Set smooth shading
 
+            EnableLighting(); // Configure initial lighting settings
 
-            GL.glEnable(GL.GL_NORMALIZE);
+            GL.glEnable(GL.GL_NORMALIZE); // Enable normalization of normal vectors
 
-            // Enable color material
-            GL.glEnable(GL.GL_COLOR_MATERIAL);
-            GL.glColorMaterial(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE);
+            GL.glEnable(GL.GL_COLOR_MATERIAL); // Allow materials to use glColor values
+            GL.glColorMaterial(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE); // Apply ambient and diffuse components
+
             if (MaterialPropertyUpdatedValue != null)
             {
+                // Update material properties from stored settings
                 MaterialConfig.Instance.SetMaterialProperty(MaterialPropertyUpdatedValue.Key, MaterialPropertyUpdatedValue.NewValues, MaterialPropertyUpdatedValue.NewValue);
-                MaterialPropertyUpdatedValue = null;
+                MaterialPropertyUpdatedValue = null; // Clear the update after applying
             }
             if (LightPropertyUpdatedValue != null)
             {
+                // Update lighting properties from stored settings
                 LightConfig.Instance.SetLightProperty(LightPropertyUpdatedValue.Key, LightPropertyUpdatedValue.NewValues);
-                LightPropertyUpdatedValue = null;
+                LightPropertyUpdatedValue = null; // Clear the update after applying
             }
         }
 
         public void EnableLighting()
         {
-            if (!isLightingEnabled)
-                return;
-            GL.glEnable(GL.GL_LIGHT0);
-            GL.glEnable(GL.GL_LIGHTING);
+            if (!isLightingEnabled) return; // Exit if lighting is globally disabled
+
+            GL.glEnable(GL.GL_LIGHT0); // Enable the first light source
+            GL.glEnable(GL.GL_LIGHTING); // Enable lighting
+            // Set light source parameters (ambient, diffuse, specular, position)
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, LightConfig.Instance.Ambient);
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, LightConfig.Instance.Diffuse);
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, LightConfig.Instance.Specular);
@@ -219,8 +228,8 @@ namespace OpenGL
 
         public void DisableLighting()
         {
-            GL.glDisable(GL.GL_LIGHT0);
-            GL.glDisable(GL.GL_LIGHTING);
+            GL.glDisable(GL.GL_LIGHT0); // Disable the first light source
+            GL.glDisable(GL.GL_LIGHTING); // Turn off lighting
         }
 
         public void Draw()
@@ -229,319 +238,290 @@ namespace OpenGL
             if (m_uint_DC == 0 || m_uint_RC == 0)
                 return;
 
-            // Clear color, depth and stencil buffers 
-            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT );
+            // Clear color, depth, and stencil buffers to prepare for new drawing
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
-            // Load identity matrix
+            // Load the identity matrix to reset transformations
             GL.glLoadIdentity();
 
-            // Define arrays to store matrix values
+            // Array to store matrix values before applying transformations
             double[] ModelVievMatrixBeforeSpecificTransforms = new double[16];
 
-
+            // Setup lighting and material properties
             SetupLightingAndMaterial();
 
+            // Use default camera position if not set
             if (CameraPointOfView == null)
             {
                 CameraPointOfView = (float[])DefaultCameraPointOfView.Clone();
             }
+
+            // Set camera position and orientation
             GLU.gluLookAt(CameraPointOfView[0], CameraPointOfView[1], CameraPointOfView[2],
                           CameraPointOfView[3], CameraPointOfView[4], CameraPointOfView[5],
-                          CameraPointOfView[6], CameraPointOfView[7], CameraPointOfView[8]);  // Up vector is along Y-axis
+                          CameraPointOfView[6], CameraPointOfView[7], CameraPointOfView[8]); // Camera setup with up vector
 
+            // Apply initial zoom transformation
             GL.glTranslatef(0.0f, 0.0f, INITIALIZED_ZOOM_VALUE);
 
-            // Save current ModelView Matrix values before specific transformations
+            // Save current ModelView matrix before applying specific transformations
             GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, ModelVievMatrixBeforeSpecificTransforms);
-            // Reset ModelView Matrix to identity matrix
+
+            // Reset ModelView matrix to identity
             GL.glLoadIdentity();
 
+            // Perform object-specific transformations
             MakeTransformation();
+
+            // Apply accumulated transformations
             ApplyAndAccumulateTransformations(ModelVievMatrixBeforeSpecificTransforms);
 
+            // Update light direction based on transformations
             Vector3 lightDirection = new Vector3(
                 LightConfig.Instance.Position[0],
                 LightConfig.Instance.Position[1],
                 LightConfig.Instance.Position[2]
             );
 
-
+            // Adjust locomotive door angle based on user input
             train.MainLocomotive.SetDoorAngle(newDoorAngle);
+
+            // Set ground vertices to current ground height
             groundPlaneVertices[0].Y = groundPlaneVertices[1].Y = groundPlaneVertices[2].Y = groundPlaneVertices[3].Y = groundHeight;
-            if (isReflectionEnabled)
-            {
-                DrawReflections();
-            }
-            else
-            {
-                DrawGround();
-            }
+
+            // Draw reflections if enabled (including ground), otherwise draw the ground
+            if (isReflectionEnabled) DrawReflections();
+            else DrawGround();
+
+            // Draw walls that form the skyline
             DrawSkylineWalls();
 
+            // Draw shadows for objects
             DrawShadow();
 
+            // Render the entire scene
             DrawScene();
 
-            // Flush GL pipeline
+            // Flush OpenGL commands to ensure all operations are completed
             GL.glFlush();
 
-            // Swap buffers
+            // Swap the front and back buffers to display the rendered image
             WGL.wglSwapBuffers(m_uint_DC);
         }
 
         private void DrawScene()
         {
+            // Disable lighting for drawing the sun, as it emits its own light
             DisableLighting();
-            GL.glPushMatrix();
-            sun.Draw();
-            GL.glPopMatrix();
+            GL.glPushMatrix(); // Preserve the current matrix state
+            sun.Draw(); // Draw the sun
+            GL.glPopMatrix(); // Restore the previous matrix state
 
+            // Re-enable lighting for other elements
             EnableLighting();
-            GL.glPushMatrix();
-            train.Draw(isShadowDrawing: false);
+            GL.glPushMatrix(); // Preserve the matrix state again
+            train.Draw(isShadowDrawing: false); // Draw the train without shadow effects
             GL.glPopMatrix();
-            //DrawSuprise();
-            DrawRails();
+            DrawRails(); // Draw rails on which the train moves
         }
 
         public void DrawGround(float alpha = 0.5f)
         {
-            if (!isToDrawGround)
-                return;
+            if (!isToDrawGround) return; // Check if ground drawing is enabled
 
-            EnableLighting();
-            if (isReflectionEnabled) ColorUtil.SetColor(groundColor, alpha);
-            else ColorUtil.SetColor(groundColor);
+            EnableLighting(); // Ensure lighting is enabled for realistic effects
+            if (isReflectionEnabled) ColorUtil.SetColor(groundColor, alpha); // Set translucent ground color for reflections
+            else ColorUtil.SetColor(groundColor); // Set opaque ground color
 
-            // Make sure the normal vector is set correctly
+            // Normal vector for the ground plane is upward
             GL.glNormal3f(0.0f, 1.0f, 0.0f);
 
-            // Draw the ground plane
+            // Draw ground plane as a quadrilateral
             GL.glBegin(GL.GL_QUADS);
-            GL.glVertex3d(groundPlaneVertices[0].X, groundPlaneVertices[0].Y, groundPlaneVertices[0].Z);
-            GL.glVertex3d(groundPlaneVertices[1].X, groundPlaneVertices[1].Y, groundPlaneVertices[1].Z);
-            GL.glVertex3d(groundPlaneVertices[2].X, groundPlaneVertices[2].Y, groundPlaneVertices[2].Z);
-            GL.glVertex3d(groundPlaneVertices[3].X, groundPlaneVertices[3].Y, groundPlaneVertices[3].Z);
+            foreach (Vector3 vertex in groundPlaneVertices)
+            {
+                GL.glVertex3d(vertex.X, vertex.Y, vertex.Z);
+            }
             GL.glEnd();
 
-            GL.glDisable(GL.GL_TEXTURE_2D);
+            GL.glDisable(GL.GL_TEXTURE_2D); // Disable textures after drawing ground
         }
-
 
         private void DrawRails()
         {
-            GL.glMatrixMode(GL.GL_MODELVIEW);
+            GL.glMatrixMode(GL.GL_MODELVIEW); // Set mode to ModelView for transformations
 
-            GL.glPushMatrix();
+            GL.glPushMatrix(); // Save current matrix state
 
-            float railYOffset = -1.35f;
-            // Assuming the train is on the ground (y = 0), lower the rails slightly below.
-            // This translation moves the rails below the train and positions them to start just behind the front of the train.
-            GL.glTranslatef(0.0f, railYOffset, 0.0f); // Adjust these values as needed
+            float railYOffset = -1.35f; // Offset to position rails slightly below the train
+            GL.glTranslatef(0.0f, railYOffset, 0.0f); // Translate rails to correct position
 
             rails.Draw(); // Draw the rail model
 
-            GL.glPopMatrix();
+            GL.glPopMatrix(); // Restore previous matrix state
         }
 
         private void DrawShadow()
         {
-            if (!isShadowEnabled)
-                return;
+            if (!isShadowEnabled) return; // Skip if shadow drawing is disabled
 
-            // Shadows
-            DisableLighting();
-            GL.glDisable(GL.GL_DEPTH_TEST);
+            DisableLighting(); // Disable lighting to draw shadow without light interference
+            GL.glDisable(GL.GL_DEPTH_TEST); // Disable depth testing for shadow overlay
 
-            // floor shadow
-            GL.glPushMatrix();
-            MakeShadowMatrix(groundPlaneVertices);
-            GL.glMultMatrixf(cubeXform);
-            train.Draw(isShadowDrawing: true);
-            GL.glPopMatrix();
-            GL.glEnable(GL.GL_DEPTH_TEST);
-            EnableLighting();
+            GL.glPushMatrix(); // Save current matrix state
+            MakeShadowMatrix(groundPlaneVertices); // Create shadow transformation matrix
+            GL.glMultMatrixf(cubeXform); // Apply shadow matrix
+            train.Draw(isShadowDrawing: true); // Draw train shadow
+            GL.glPopMatrix(); // Restore matrix state
+
+            GL.glEnable(GL.GL_DEPTH_TEST); // Re-enable depth testing
+            EnableLighting(); // Re-enable lighting
         }
 
         void DrawReflections()
         {
-            if (!isReflectionEnabled)
-                return;
+            if (!isReflectionEnabled) return; // Skip if reflections are disabled
 
-            GL.glEnable(GL.GL_BLEND);
-            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+            GL.glEnable(GL.GL_BLEND); // Enable blending for transparency
+            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); // Set blend function
 
-
-            float objectsHeight = 3.3f;
-            // draw reflected scene
+            float objectsHeight = 3.3f; // Height offset for reflection
             GL.glPushMatrix();
-            GL.glTranslatef(0.0f, -objectsHeight, 0.0f);
-            GL.glScalef(1, -1, 1); //swap on Y axis
+            GL.glTranslatef(0.0f, -objectsHeight, 0.0f); // Translate for reflection
+            GL.glScalef(1, -1, 1); // Invert Y axis for reflection effect
 
-            GL.glEnable(GL.GL_CULL_FACE);
-            GL.glCullFace(GL.GL_BACK);
-            DrawScene();
-            GL.glCullFace(GL.GL_FRONT);
-            DrawScene();
-            GL.glDisable(GL.GL_CULL_FACE);
+            GL.glEnable(GL.GL_CULL_FACE); // Enable face culling
+            GL.glCullFace(GL.GL_BACK); // Cull back faces first
+            DrawScene(); // Draw reflected scene
+            GL.glCullFace(GL.GL_FRONT); // Cull front faces next
+            DrawScene(); // Draw reflected scene again
+            GL.glDisable(GL.GL_CULL_FACE); // Disable face culling
+
             GL.glPopMatrix();
 
-
-            GL.glDepthMask((byte)GL.GL_FALSE);
-            DrawGround();
-            GL.glDepthMask((byte)GL.GL_TRUE);
+            GL.glDepthMask((byte)GL.GL_FALSE); // Disable depth buffer writing
+            DrawGround(); // Draw reflective ground surface
+            GL.glDepthMask((byte)GL.GL_TRUE); // Enable depth buffer writing
         }
-
 
         private void DrawSkylineWalls()
         {
-            DisableLighting();
-            ColorUtil.SetColor(wallColor);
-            float wallHeight = 200;
+            DisableLighting();  // Turn off lighting to draw walls
+            ColorUtil.SetColor(wallColor);  // Set the color for the walls
+            float wallHeight = 200;  // Height of the skyline walls
             for (int i = 0; i < 4; i++)
             {
+                // Extend each ground vertex vertically to create the top vertices of the walls
                 wallVertexes[i] = new Vector3(groundPlaneVertices[i].X, groundPlaneVertices[i].Y + wallHeight, groundPlaneVertices[i].Z);
             }
 
-            // Define each wall with 4 vertices (2 ground vertices and 2 top vertices)
-            // Assuming we're creating quads for simplicity, though you could use triangles as well
+            // Draw each wall as a quad, using four vertices
             for (int i = 0; i < 4; i++)
             {
-                // Define vertices for wall i
                 Vector3 bottomStart = groundPlaneVertices[i];
-                Vector3 bottomEnd = groundPlaneVertices[(i + 1) % 4]; // Loop around with modulo
+                Vector3 bottomEnd = groundPlaneVertices[(i + 1) % 4]; // Loop around with modulo for seamless walls
                 Vector3 topStart = wallVertexes[i];
                 Vector3 topEnd = wallVertexes[(i + 1) % 4];
 
-                GL.glBegin(GL.GL_QUADS);
+                GL.glBegin(GL.GL_QUADS);  // Start drawing quads
                 GL.glVertex3d(bottomStart.X, bottomStart.Y, bottomStart.Z);
                 GL.glVertex3d(bottomEnd.X, bottomEnd.Y, bottomEnd.Z);
                 GL.glVertex3d(topEnd.X, topEnd.Y, topEnd.Z);
                 GL.glVertex3d(topStart.X, topStart.Y, topStart.Z);
-                GL.glEnd();
+                GL.glEnd();  // End drawing quads
             }
         }
 
         private void DrawSuprise()
         {
-            GL.glMatrixMode(GL.GL_MODELVIEW);
+            GL.glMatrixMode(GL.GL_MODELVIEW); // Set matrix mode to ModelView
 
-            MakeTransformation();
+            MakeTransformation();  // Apply transformations based on user input or other factors
 
-            ch.scaleFactor = 0.1f;
-            ch.DrawModel();
+            ch.scaleFactor = 0.1f;  // Scale down the character for drawing
+            ch.DrawModel();  // Draw the character model
 
-            // Pop the matrix off the stack, reverting to the state before we applied the translation and scaling
-            GL.glPopMatrix();
-
+            GL.glPopMatrix();  // Restore the matrix state before the transformations
         }
 
         private void MakeTransformation()
         {
-            // Apply transformation according to KeyCode
-            float delta;
+            // Apply transformations based on the current transformation operation selected
             if (intOptionC != TransformationsOperations.NONE)
             {
                 switch (intOptionC)
                 {
                     case TransformationsOperations.ROTATE_X:
                     case TransformationsOperations.ROTATE_OPPOSITE_X:
-                        GL.glRotatef(xAngle, 1, 0, 0);
+                        GL.glRotatef(xAngle, 1, 0, 0);  // Rotate about the X-axis
                         break;
                     case TransformationsOperations.ROTATE_Y:
                     case TransformationsOperations.ROTATE_OPPOSITE_Y:
-                        GL.glRotatef(yAngle, 0, 1, 0);
+                        GL.glRotatef(yAngle, 0, 1, 0);  // Rotate about the Y-axis
                         break;
                     case TransformationsOperations.ROTATE_Z:
                     case TransformationsOperations.ROTATE_OPPOSITE_Z:
-                        GL.glRotatef(zAngle, 0, 0, 1);
+                        GL.glRotatef(zAngle, 0, 0, 1);  // Rotate about the Z-axis
                         break;
                     case TransformationsOperations.SHIFT_X:
                     case TransformationsOperations.SHIFT_OPPOSITE_X:
-                        GL.glTranslatef(xShift, 0, 0);
+                        GL.glTranslatef(xShift, 0, 0);  // Translate along the X-axis
                         break;
                     case TransformationsOperations.SHIFT_Y:
                     case TransformationsOperations.SHIFT_OPPOSITE_Y:
-                        GL.glTranslatef(0, yShift, 0);
+                        GL.glTranslatef(0, yShift, 0);  // Translate along the Y-axis
                         break;
                     case TransformationsOperations.SHIFT_Z:
                     case TransformationsOperations.SHIFT_OPPOSITE_Z:
-                        GL.glTranslatef(0, 0, zShift);
-                        break;
-                    default:
-                        // No transformation
+                        GL.glTranslatef(0, 0, zShift);  // Translate along the Z-axis
                         break;
                 }
-
             }
-            // The ModelView Matrix now represents only the KeyCode transform
         }
 
         public void ApplyAndAccumulateTransformations(double[] ModelVievMatrixBeforeSpecificTransforms)
         {
+            double[] CurrentRotationTranslation = new double[16];
+            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, CurrentRotationTranslation);  // Get current ModelView matrix
 
-            double[] CurrentRotationTraslation = new double[16];
-            // Save current ModelView Matrix values after transformations
-            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, CurrentRotationTraslation);
+            GL.glLoadMatrixd(AccumulatedRotationsTraslations);  // Load the accumulated transformations matrix
 
-            // Replace the current matrix with the global matrix
-            GL.glLoadMatrixd(AccumulatedRotationsTraslations);
+            GL.glMultMatrixd(CurrentRotationTranslation);  // Apply the current transformation
 
-            // Multiply the current matrix by the transformation matrix
-            GL.glMultMatrixd(CurrentRotationTraslation);
+            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, AccumulatedRotationsTraslations);  // Save the resulting matrix to accumulated transformations
 
-            // Save the matrix product in AccumulatedRotationsTraslations
-            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, AccumulatedRotationsTraslations);
-
-            // Restore ModelView Matrix to the state before KeyCode transformations
-            GL.glLoadMatrixd(ModelVievMatrixBeforeSpecificTransforms);
-            // Multiply it by the accumulated transformations matrix
-            GL.glMultMatrixd(AccumulatedRotationsTraslations);
+            GL.glLoadMatrixd(ModelVievMatrixBeforeSpecificTransforms);  // Restore the matrix before transformations
+            GL.glMultMatrixd(AccumulatedRotationsTraslations);  // Apply accumulated transformations to it
         }
 
-        void ReduceToUnit(float[] vector)
-        {
-            float length;
-
-            // Calculate the length of the vector		
-            length = (float)Math.Sqrt((vector[0] * vector[0]) +
-                                (vector[1] * vector[1]) +
-                                (vector[2] * vector[2]));
-
-            // Keep the program from blowing up by providing an exceptable
-            // value for vectors that may calculated too close to zero.
-            if (length == 0.0f)
-                length = 1.0f;
-
-            // Dividing each element by the length will result in a
-            // unit normal vector.
-            vector[0] /= length;
-            vector[1] /= length;
-            vector[2] /= length;
-        }
 
         void MakeShadowMatrix(Vector3[] points)
         {
+            // Extract light position from configuration
             Vector3 lightPosition = new Vector3(
                 LightConfig.Instance.Position[0],
                 LightConfig.Instance.Position[1],
                 LightConfig.Instance.Position[2]
             );
-            double lightW = LightConfig.Instance.Position[3];  // Homogeneous coordinate
+            double lightW = LightConfig.Instance.Position[3]; // Homogeneous coordinate of the light
 
+            // Compute two vectors on the plane defined by three points
             Vector3 v1 = points[1] - points[0];
             Vector3 v2 = points[2] - points[0];
+
+            // Calculate the normal vector of the plane by taking the cross product of v1 and v2
             Vector3 normal = v1.CrossProduct(v2).Normalize();
 
-            // Calculate the plane coefficient D (Ax + By + Cz + D = 0)
+            // Calculate the plane coefficient D for the plane equation Ax + By + Cz + D = 0
             double planeD = -(normal.X * points[0].X + normal.Y * points[0].Y + normal.Z * points[0].Z);
 
-            // Compute dot product of plane normal and light position
+            // Compute the dot product of the plane normal and the light position plus the plane constant
             double dot = normal.X * lightPosition.X + normal.Y * lightPosition.Y + normal.Z * lightPosition.Z + planeD * lightW;
-            // Initialize shadow matrix
+
+            // Initialize the shadow matrix
             float[] shadowMatrix = new float[16];
 
-            // Fill the shadow matrix according to the shadow matrix formula
+            // Compute each element of the shadow matrix based on the dot product and plane normal
             shadowMatrix[0] = (float)(dot - lightPosition.X * normal.X);
             shadowMatrix[4] = (float)(-lightPosition.X * normal.Y);
             shadowMatrix[8] = (float)(-lightPosition.X * normal.Z);
@@ -562,23 +542,10 @@ namespace OpenGL
             shadowMatrix[11] = 0.0f;
             shadowMatrix[15] = (float)dot;
 
-            // Replace cubeXform with the calculated shadowMatrix
+            // Update the transformation matrix used to render shadows
             cubeXform = shadowMatrix;
         }
 
-
-        Vector3 calculateNormal(Vector3[] points)
-        {
-            Vector3 v1 = points[1] - points[0];
-            Vector3 v2 = points[2] - points[0];
-            Vector3 normal = v1.CrossProduct(v2);
-
-            // Ensure the normal points upwards by checking its Y component
-            if (normal.Y < 0)
-                normal = -1 * normal;
-
-            return normal.Normalize();
-        }
 
     }
 }
