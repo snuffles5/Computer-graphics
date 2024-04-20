@@ -120,6 +120,7 @@ namespace OpenGL
             pfd.iPixelType = (byte)WGL.PFD_TYPE_RGBA;  // Use RGBA pixel type
             pfd.cColorBits = 32;  // Set color depth
             pfd.cDepthBits = 32;  // Set depth buffer precision
+            pfd.cStencilBits = 32;  // Set depth buffer precision
             pfd.iLayerType = (byte)WGL.PFD_MAIN_PLANE;  // Set layer type
 
             // Choose pixel format that best matches the specified one
@@ -239,7 +240,7 @@ namespace OpenGL
                 return;
 
             // Clear color, depth, and stencil buffers to prepare for new drawing
-            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
 
             // Load the identity matrix to reset transformations
             GL.glLoadIdentity();
@@ -291,7 +292,7 @@ namespace OpenGL
 
             // Draw reflections if enabled (including ground), otherwise draw the ground
             if (isReflectionEnabled) DrawReflections();
-            else DrawGround();
+            else DrawGroundWithStencil();
 
             // Draw walls that form the skyline
             DrawSkylineWalls();
@@ -347,6 +348,23 @@ namespace OpenGL
             GL.glDisable(GL.GL_TEXTURE_2D); // Disable textures after drawing ground
         }
 
+        private void DrawGroundWithStencil()
+        {
+            GL.glEnable(GL.GL_STENCIL_TEST); // Enable the stencil test
+            GL.glStencilFunc(GL.GL_ALWAYS, 1, 0xFF); // Set the stencil buffer to always pass
+            GL.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_REPLACE); // Set stencil operation
+            GL.glStencilMask(0xFF); // Enable writing to the stencil buffer
+            GL.glDepthMask((Byte)GL.GL_FALSE); // Disable writing to the depth buffer
+            GL.glClear(GL.GL_STENCIL_BUFFER_BIT); // Clear the stencil buffer
+
+            // Draw the ground
+            DrawGround();
+
+            GL.glDepthMask((Byte)GL.GL_TRUE); // Enable writing to the depth buffer
+            GL.glStencilMask(0x00); // Disable writing to the stencil buffer
+        }
+
+
         private void DrawRails()
         {
             GL.glMatrixMode(GL.GL_MODELVIEW); // Set mode to ModelView for transformations
@@ -365,17 +383,23 @@ namespace OpenGL
         {
             if (!isShadowEnabled) return; // Skip if shadow drawing is disabled
 
-            DisableLighting(); // Disable lighting to draw shadow without light interference
-            GL.glDisable(GL.GL_DEPTH_TEST); // Disable depth testing for shadow overlay
+            GL.glEnable(GL.GL_STENCIL_TEST); // Ensure stencil test is enabled
+            GL.glStencilFunc(GL.GL_EQUAL, 1, 0xFF); // Stencil must equal the reference value
+            GL.glStencilMask(0x00); // Disable writing to the stencil buffer
 
-            GL.glPushMatrix(); // Save current matrix state
-            MakeShadowMatrix(groundPlaneVertices); // Create shadow transformation matrix
-            GL.glMultMatrixf(cubeXform); // Apply shadow matrix
-            train.Draw(isShadowDrawing: true); // Draw train shadow
-            GL.glPopMatrix(); // Restore matrix state
+            DisableLighting();
+            GL.glDisable(GL.GL_DEPTH_TEST);
 
-            GL.glEnable(GL.GL_DEPTH_TEST); // Re-enable depth testing
-            EnableLighting(); // Re-enable lighting
+            GL.glPushMatrix();
+            MakeShadowMatrix(groundPlaneVertices);
+            GL.glMultMatrixf(cubeXform);
+            train.Draw(isShadowDrawing: true);
+            GL.glPopMatrix();
+
+            GL.glEnable(GL.GL_DEPTH_TEST);
+            EnableLighting();
+
+            GL.glDisable(GL.GL_STENCIL_TEST); // Disable stencil test after drawing shadows
         }
 
         void DrawReflections()
@@ -400,7 +424,7 @@ namespace OpenGL
             GL.glPopMatrix();
 
             GL.glDepthMask((byte)GL.GL_FALSE); // Disable depth buffer writing
-            DrawGround(); // Draw reflective ground surface
+            DrawGroundWithStencil(); // Draw reflective ground surface
             GL.glDepthMask((byte)GL.GL_TRUE); // Enable depth buffer writing
         }
 
@@ -525,17 +549,17 @@ namespace OpenGL
             shadowMatrix[0] = (float)(dot - lightPosition.X * normal.X);
             shadowMatrix[4] = (float)(-lightPosition.X * normal.Y);
             shadowMatrix[8] = (float)(-lightPosition.X * normal.Z);
-            shadowMatrix[12] = (float)(-lightPosition.X * planeD);
+            shadowMatrix[12] = (float)(-lightPosition.X * (planeD + 0.01));  // Offset shadow slightly below the ground
 
             shadowMatrix[1] = (float)(-lightPosition.Y * normal.X);
             shadowMatrix[5] = (float)(dot - lightPosition.Y * normal.Y);
             shadowMatrix[9] = (float)(-lightPosition.Y * normal.Z);
-            shadowMatrix[13] = (float)(-lightPosition.Y * planeD);
+            shadowMatrix[13] = (float)(-lightPosition.Y * (planeD + 0.01));  // Same offset applied here
 
             shadowMatrix[2] = (float)(-lightPosition.Z * normal.X);
             shadowMatrix[6] = (float)(-lightPosition.Z * normal.Y);
             shadowMatrix[10] = (float)(dot - lightPosition.Z * normal.Z);
-            shadowMatrix[14] = (float)(-lightPosition.Z * planeD);
+            shadowMatrix[14] = (float)(-lightPosition.Z * (planeD + 0.01));  // And here
 
             shadowMatrix[3] = 0.0f;
             shadowMatrix[7] = 0.0f;
