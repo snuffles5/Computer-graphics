@@ -120,7 +120,7 @@ namespace OpenGL
             pfd.iPixelType = (byte)WGL.PFD_TYPE_RGBA;  // Use RGBA pixel type
             pfd.cColorBits = 32;  // Set color depth
             pfd.cDepthBits = 32;  // Set depth buffer precision
-            pfd.cStencilBits = 32;  // Set depth buffer precision
+            pfd.cStencilBits = 32;  // Set stencil buffer for shadow
             pfd.iLayerType = (byte)WGL.PFD_MAIN_PLANE;  // Set layer type
 
             // Choose pixel format that best matches the specified one
