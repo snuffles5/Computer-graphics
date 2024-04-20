@@ -122,22 +122,22 @@ namespace myOpenGL
             // 
             this.hScrollBar2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.hScrollBar2.Location = new System.Drawing.Point(16, 34);
-            this.hScrollBar2.Maximum = 200;
+            this.hScrollBar2.Maximum = 500;
             this.hScrollBar2.Name = "hScrollBar2";
             this.hScrollBar2.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar2.TabIndex = 8;
-            this.hScrollBar2.Value = 100;
+            this.hScrollBar2.Value = 150;
             this.hScrollBar2.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar3
             // 
             this.hScrollBar3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.hScrollBar3.Location = new System.Drawing.Point(16, 49);
-            this.hScrollBar3.Maximum = 200;
+            this.hScrollBar3.Maximum = 500;
             this.hScrollBar3.Name = "hScrollBar3";
             this.hScrollBar3.Size = new System.Drawing.Size(60, 15);
             this.hScrollBar3.TabIndex = 9;
-            this.hScrollBar3.Value = 200;
+            this.hScrollBar3.Value = 225;
             this.hScrollBar3.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBarScroll);
             // 
             // hScrollBar4

@@ -26,7 +26,7 @@ namespace Models
             }
             else
             {
-                Coords = new Vector3(-5, 5, -5);
+                Coords = new Vector3(DefaultConfig.LIGHT_POSITION[0], DefaultConfig.LIGHT_POSITION[1], DefaultConfig.LIGHT_POSITION[2]);
             }
             Angle = angle;
             this.radius = radius;

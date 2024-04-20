@@ -98,9 +98,8 @@ namespace myOpenGL
         private void Form1_Load(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Maximized;
-
-
         }
+
 
         private void hScrollBarScroll(object sender, ScrollEventArgs e)
         {
@@ -349,6 +348,12 @@ namespace myOpenGL
                         cGL.CameraPointOfView[1] -= CAMERA_ROTATION_STEP_ANGLE;
                         break;
                 }
+                textBox1.Text = cGL.CameraPointOfView[2].ToString();
+                int newSliderValueRightLeft = (int)cGL.CameraPointOfView[0] * 10 + 100;
+                hScrollBar1.Value = Math.Min(hScrollBar1.Maximum, Math.Max(newSliderValueRightLeft, hScrollBar1.Minimum));
+                int newSliderValueUpDown = (int)cGL.CameraPointOfView[1] * 10 + 100;
+                hScrollBar2.Value = Math.Min(hScrollBar2.Maximum, Math.Max(newSliderValueUpDown, hScrollBar2.Minimum));
+
             }
             else
             {
@@ -397,8 +402,10 @@ namespace myOpenGL
                 //cGL.zShift = -SHIFT_STEP; // Zoom out
                 //cGL.intOptionC = TransformationsOperations.SHIFT_OPPOSITE_Z; // Assuming negative intOptionC value for zoom out
                 cGL.CameraPointOfView[2] += SHIFT_STEP;
-
             }
+            textBox1.Text = cGL.CameraPointOfView[2].ToString();
+            int newSliderValue = (int)cGL.CameraPointOfView[2] * 10 + 100;
+            hScrollBar3.Value = Math.Min(hScrollBar3.Maximum, Math.Max(newSliderValue, hScrollBar3.Minimum));
             cGL.Draw();
             cGL.intOptionC = TransformationsOperations.NONE; // Reset to default after drawing
         }
@@ -449,6 +456,7 @@ namespace myOpenGL
                 slider3.Value = (int)cGL.sun.Coords.Z;
                 
                 sliderLablel4.Text = "W";
+                slider4.Value = (int)LightConfig.Instance.Position[3] * 100;
                 slider4.Minimum = 0;
                 slider4.Maximum = 100;
                 slider4.SmallChange = 51;

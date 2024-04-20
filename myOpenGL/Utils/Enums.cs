@@ -37,7 +37,7 @@ namespace Utils
 
         // Directional light to simulate the sun, positioned to come from above and slightly to the left
         // This might need adjustment based on your scene's orientation
-        public static readonly float[] LIGHT_POSITION = { -0.5f, 1.0f, 0.5f, 0.0f };
+        public static readonly float[] LIGHT_POSITION = { -6f, 4f, 4f, 0f };
 
     }
 

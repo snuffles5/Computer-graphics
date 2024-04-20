@@ -85,7 +85,7 @@ namespace OpenGL
 
             DefaultCameraPointOfView = new float[]
             {
-            0.0f, 0.0f, 10.0f,  // Camera's eye position
+            0.0f, 12.5f, 5.0f,  // Camera's eye position
             0.0f, 0.0f, 0.0f,   // Camera's target
             0.0f, 1.0f, 0.0f    // Camera's up vector
             };
