@@ -39,25 +39,15 @@ namespace Models
         {
             GL.glPushMatrix(); // Save the current state
 
-            if (isLocomotive)
+            if (!isShadowDrawing)
             {
-                if (!isShadowDrawing)
-                {
-                    mainLocomotive.Draw();
-                }
-                else
-                {
-                    shadowLocomotive.Draw();
-                }
+                mainLocomotive.Draw();
             }
             else
             {
-                DrawCoaches(isShadowDrawing);
+                shadowLocomotive.Draw();
             }
-
-            //locomotive.Draw();
-            //DrawCoaches();
-
+            //DrawCoaches(isShadowDrawing);
             GL.glPopMatrix(); // Restore the original state
         }
 
@@ -93,9 +83,6 @@ namespace Models
         private float wheelOffsetY, wheelOffsetZ;
         private float controlCabinTranslateX, controlCabinTranslateY = 0;
         private float doorAngle;
-        float doorPivotX;
-        float doorPivotY;
-        float doorPivotZ = 0.0f; // If the cabin depth and door depth are the same
 
         private const float maxDoorAngle = 90.0f; // Max angle in degrees for the door to open
 
@@ -106,11 +93,6 @@ namespace Models
         private readonly Color cabBottomColor = Color.DarkOliveGreen;
         private readonly Color WheelsColor = Color.DarkSlateGray;
         private readonly Color controlCabinDoorColor = Color.DarkGoldenrod;
-        //private readonly Color chimneyColor = Color.White;
-        //private readonly Color controlCabinColor = Color.White;
-        //private readonly Color carriageColor = Color.White;
-        //private readonly Color cabBottomColor = Color.White;
-        //private readonly Color WheelsColor = Color.White;
 
         gluNewQuadric obj;
 
@@ -257,12 +239,12 @@ namespace Models
         private void PrepareLists()
         {
             // Generate a contiguous block of list identifiers
-            locomotiveList = GL.glGenLists(6); // We request 3 lists at once
-            cabList = locomotiveList + 1; // The second list is for the cab
-            controlCabinOpenedList = locomotiveList + 2; // The second list is for the cab
-            controlCabinClosedList = locomotiveList + 3; // The second list is for the cab
-            smokeQuadDisplayList = locomotiveList + 4; // The third list is for the wheels
-            doorDisplayList = locomotiveList + 5; // The third list is for the wheels
+            locomotiveList = GL.glGenLists(6); 
+            cabList = locomotiveList + 1; 
+            controlCabinOpenedList = locomotiveList + 2; 
+            controlCabinClosedList = locomotiveList + 3; 
+            smokeQuadDisplayList = locomotiveList + 4; 
+            doorDisplayList = locomotiveList + 5; 
 
 
             // Define the cab
@@ -301,7 +283,6 @@ namespace Models
             DrawSmoke();
             DisableTexture();
             GL.glEndList();
-
         }
 
         private void DrawSmoke()
@@ -439,10 +420,6 @@ namespace Models
                     textureImage.UnlockBits(bitmapdata);
                     textureImage.Dispose();
                 }
-                else
-                {
-                    //Textures[i] = 0; // Assign 0 to indicate no texture
-                }
             }
         }
 
@@ -529,7 +506,7 @@ namespace Models
 
             // Back Coupler
             GL.glPushMatrix();
-            translateX = (cabBottomBaseWidth + cabBottomCouplerWidth / 2) * 0.9f; // halfBottomBaseWidth * 2f;
+            translateX = (cabBottomBaseWidth + cabBottomCouplerWidth / 2) * 0.9f; 
             GL.glTranslatef(translateX, translateY, 0.0f);
             DrawCuboid(cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth, cabCouplerFaceDictionary, cabBottomColor);
             GL.glPopMatrix();
@@ -623,7 +600,6 @@ namespace Models
                 {
                     GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // Rotate around the Z-axis
                 }
-                //GL.glCallList(wheelList);
                 DrawWheel(wheelRadius, wheelThickness, WheelsColor); // Adapt this call to your actual wheel drawing method
 
                 GL.glPopMatrix();

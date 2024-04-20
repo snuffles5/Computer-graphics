@@ -1,20 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using OpenGL;
-using System.Runtime.InteropServices;
-//3D model b1
-using Milkshape;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Utils;
 using Models;
 using GraphicProject.Utils.Math;
-using System.Diagnostics;
-//3D model e
 
 namespace myOpenGL
 {
@@ -34,15 +24,6 @@ namespace myOpenGL
             cGL = new cOGL(panel1, textBox1);
             previousUpdateTime = DateTime.Now; // Initialize the timestamp
 
-            //3D model b4
-            //listBox1.Items.Add("Stop");
-            //foreach (Animation anim in cGL.ch.Animations)
-            //listBox1.Items.Add(anim.Name);
-            //cGL.ch.Stop();
-            //3D model e
-
-            //apply the bars values as cGL.ScrollValue[..] properties
-            //!!!
             hScrollBarScroll(hScrollBar1, null);
             hScrollBarScroll(hScrollBar2, null);
             hScrollBarScroll(hScrollBar3, null);
@@ -62,7 +43,7 @@ namespace myOpenGL
 
             int formWidth = this.ClientSize.Width;
             int formHeight = this.ClientSize.Height;
-            formRightMargin = formRightMargin == 0 ? formWidth - panel1.Size.Width : formRightMargin;
+            formRightMargin = formRightMargin == 0 ? groupBox4.Size.Width : formRightMargin;
             panel1Ratio = panel1Ratio == 0 ? (float)panel1.Size.Width / panel1.Size.Height : panel1Ratio;
             // Calculate the available space for panel1
             int maxWidth = formWidth - formRightMargin - rightMargin;
@@ -116,6 +97,8 @@ namespace myOpenGL
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.WindowState = FormWindowState.Maximized;
+
 
         }
 
@@ -164,7 +147,6 @@ namespace myOpenGL
                             Sun sun = cGL.sun;
                             sun.Coords = new Vector3(X: slider1.Value, Y: slider2.Value, Z: slider3.Value);
                             float rotateAngle = slider4.Value > sun.Coords.Z ? sun.Angle + 15 : sun.Angle - 15;
-                            //sun.Angle = rotateAngle;
                             break;
                         default:
                             break;
@@ -305,10 +287,6 @@ namespace myOpenGL
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             string curItem = listBox1.SelectedItem.ToString();
-            //if (curItem == "Stop")
-            //    cGL.ch.Stop();
-            //else
-            //    cGL.ch.PlayAnimation(curItem);
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -541,8 +519,6 @@ namespace myOpenGL
 
             if (cGL.isDoorOpened) cb.Text = "Close";
             else cb.Text = "Open";
-
-
         }
     }
 }

@@ -379,7 +379,6 @@ namespace Utils
 
     public enum TrainObject
     {
-        //CARRIAGE,
         CARRIAGE_FRONT,
         CARRIAGE_BACK,
         CARRIAGE_LEFT,
@@ -431,6 +430,5 @@ namespace Utils
         SHIFT_OPPOSITE_Z,
         NONE,
     }
-
 
 }

@@ -80,6 +80,8 @@ namespace myOpenGL
             this.ShadowReflectionToggle = new System.Windows.Forms.CheckBox();
             this.DoorToggle = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -89,6 +91,8 @@ namespace myOpenGL
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).BeginInit();
             this.LightingMaterialChoises.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -97,7 +101,7 @@ namespace myOpenGL
             this.panel1.Location = new System.Drawing.Point(12, 16);
             this.panel1.MinimumSize = new System.Drawing.Size(515, 500);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(515, 500);
+            this.panel1.Size = new System.Drawing.Size(794, 500);
             this.panel1.TabIndex = 6;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             this.panel1.MouseEnter += new System.EventHandler(this.panel1_MouseEnter);
@@ -107,7 +111,7 @@ namespace myOpenGL
             // hScrollBar1
             // 
             this.hScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar1.Location = new System.Drawing.Point(549, 16);
+            this.hScrollBar1.Location = new System.Drawing.Point(16, 19);
             this.hScrollBar1.Maximum = 200;
             this.hScrollBar1.Name = "hScrollBar1";
             this.hScrollBar1.Size = new System.Drawing.Size(60, 15);
@@ -118,7 +122,7 @@ namespace myOpenGL
             // hScrollBar2
             // 
             this.hScrollBar2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar2.Location = new System.Drawing.Point(549, 31);
+            this.hScrollBar2.Location = new System.Drawing.Point(16, 34);
             this.hScrollBar2.Maximum = 200;
             this.hScrollBar2.Name = "hScrollBar2";
             this.hScrollBar2.Size = new System.Drawing.Size(60, 15);
@@ -129,7 +133,7 @@ namespace myOpenGL
             // hScrollBar3
             // 
             this.hScrollBar3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar3.Location = new System.Drawing.Point(549, 46);
+            this.hScrollBar3.Location = new System.Drawing.Point(16, 49);
             this.hScrollBar3.Maximum = 200;
             this.hScrollBar3.Name = "hScrollBar3";
             this.hScrollBar3.Size = new System.Drawing.Size(60, 15);
@@ -140,7 +144,7 @@ namespace myOpenGL
             // hScrollBar4
             // 
             this.hScrollBar4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar4.Location = new System.Drawing.Point(549, 61);
+            this.hScrollBar4.Location = new System.Drawing.Point(16, 64);
             this.hScrollBar4.Maximum = 200;
             this.hScrollBar4.Name = "hScrollBar4";
             this.hScrollBar4.Size = new System.Drawing.Size(60, 15);
@@ -151,7 +155,7 @@ namespace myOpenGL
             // hScrollBar5
             // 
             this.hScrollBar5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar5.Location = new System.Drawing.Point(549, 76);
+            this.hScrollBar5.Location = new System.Drawing.Point(16, 79);
             this.hScrollBar5.Maximum = 200;
             this.hScrollBar5.Name = "hScrollBar5";
             this.hScrollBar5.Size = new System.Drawing.Size(60, 15);
@@ -162,7 +166,7 @@ namespace myOpenGL
             // hScrollBar6
             // 
             this.hScrollBar6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar6.Location = new System.Drawing.Point(609, 16);
+            this.hScrollBar6.Location = new System.Drawing.Point(76, 19);
             this.hScrollBar6.Maximum = 200;
             this.hScrollBar6.Name = "hScrollBar6";
             this.hScrollBar6.Size = new System.Drawing.Size(60, 15);
@@ -173,7 +177,7 @@ namespace myOpenGL
             // hScrollBar9
             // 
             this.hScrollBar9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar9.Location = new System.Drawing.Point(609, 61);
+            this.hScrollBar9.Location = new System.Drawing.Point(76, 64);
             this.hScrollBar9.Maximum = 200;
             this.hScrollBar9.Name = "hScrollBar9";
             this.hScrollBar9.Size = new System.Drawing.Size(60, 15);
@@ -184,7 +188,7 @@ namespace myOpenGL
             // hScrollBar8
             // 
             this.hScrollBar8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar8.Location = new System.Drawing.Point(609, 46);
+            this.hScrollBar8.Location = new System.Drawing.Point(76, 49);
             this.hScrollBar8.Maximum = 200;
             this.hScrollBar8.Name = "hScrollBar8";
             this.hScrollBar8.Size = new System.Drawing.Size(60, 15);
@@ -195,7 +199,7 @@ namespace myOpenGL
             // hScrollBar7
             // 
             this.hScrollBar7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar7.Location = new System.Drawing.Point(609, 31);
+            this.hScrollBar7.Location = new System.Drawing.Point(76, 34);
             this.hScrollBar7.Maximum = 200;
             this.hScrollBar7.Name = "hScrollBar7";
             this.hScrollBar7.Size = new System.Drawing.Size(60, 15);
@@ -221,7 +225,7 @@ namespace myOpenGL
             this.groupBox1.Controls.Add(this.numericUpDown3);
             this.groupBox1.Controls.Add(this.numericUpDown2);
             this.groupBox1.Controls.Add(this.numericUpDown1);
-            this.groupBox1.Location = new System.Drawing.Point(549, 245);
+            this.groupBox1.Location = new System.Drawing.Point(16, 248);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(118, 66);
             this.groupBox1.TabIndex = 15;
@@ -318,7 +322,7 @@ namespace myOpenGL
             this.groupBox2.Controls.Add(this.numericUpDown4);
             this.groupBox2.Controls.Add(this.numericUpDown5);
             this.groupBox2.Controls.Add(this.numericUpDown6);
-            this.groupBox2.Location = new System.Drawing.Point(549, 327);
+            this.groupBox2.Location = new System.Drawing.Point(16, 330);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(118, 66);
             this.groupBox2.TabIndex = 16;
@@ -415,7 +419,7 @@ namespace myOpenGL
             // 
             this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(542, 403);
+            this.listBox1.Location = new System.Drawing.Point(9, 406);
             this.listBox1.Name = "listBox1";
             this.listBox1.ScrollAlwaysVisible = true;
             this.listBox1.Size = new System.Drawing.Size(124, 82);
@@ -425,7 +429,7 @@ namespace myOpenGL
             // textBox1
             // 
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(738, 399);
+            this.textBox1.Location = new System.Drawing.Point(194, 374);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(124, 117);
@@ -513,7 +517,7 @@ namespace myOpenGL
             this.LightingMaterialChoises.Controls.Add(this.slider2);
             this.LightingMaterialChoises.Controls.Add(this.MatAmbient);
             this.LightingMaterialChoises.Controls.Add(this.sliderLablel1);
-            this.LightingMaterialChoises.Location = new System.Drawing.Point(711, 16);
+            this.LightingMaterialChoises.Location = new System.Drawing.Point(178, 19);
             this.LightingMaterialChoises.Name = "LightingMaterialChoises";
             this.LightingMaterialChoises.Size = new System.Drawing.Size(140, 322);
             this.LightingMaterialChoises.TabIndex = 24;
@@ -613,7 +617,7 @@ namespace myOpenGL
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(546, 105);
+            this.label9.Location = new System.Drawing.Point(6, 16);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(105, 13);
             this.label9.TabIndex = 24;
@@ -623,7 +627,7 @@ namespace myOpenGL
             // 
             this.ShadowReflectionToggle.Appearance = System.Windows.Forms.Appearance.Button;
             this.ShadowReflectionToggle.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.ShadowReflectionToggle.Location = new System.Drawing.Point(549, 122);
+            this.ShadowReflectionToggle.Location = new System.Drawing.Point(9, 33);
             this.ShadowReflectionToggle.Name = "ShadowReflectionToggle";
             this.ShadowReflectionToggle.Size = new System.Drawing.Size(100, 23);
             this.ShadowReflectionToggle.TabIndex = 25;
@@ -636,7 +640,7 @@ namespace myOpenGL
             // 
             this.DoorToggle.Appearance = System.Windows.Forms.Appearance.Button;
             this.DoorToggle.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.DoorToggle.Location = new System.Drawing.Point(550, 172);
+            this.DoorToggle.Location = new System.Drawing.Point(10, 83);
             this.DoorToggle.Name = "DoorToggle";
             this.DoorToggle.Size = new System.Drawing.Size(100, 23);
             this.DoorToggle.TabIndex = 27;
@@ -648,35 +652,55 @@ namespace myOpenGL
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(583, 156);
+            this.label7.Location = new System.Drawing.Point(43, 67);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(30, 13);
             this.label7.TabIndex = 26;
             this.label7.Text = "Door";
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.DoorToggle);
+            this.groupBox3.Controls.Add(this.label9);
+            this.groupBox3.Controls.Add(this.label7);
+            this.groupBox3.Controls.Add(this.ShadowReflectionToggle);
+            this.groupBox3.Location = new System.Drawing.Point(16, 121);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(117, 109);
+            this.groupBox3.TabIndex = 28;
+            this.groupBox3.TabStop = false;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.LightingMaterialChoises);
+            this.groupBox4.Controls.Add(this.groupBox3);
+            this.groupBox4.Controls.Add(this.hScrollBar1);
+            this.groupBox4.Controls.Add(this.hScrollBar2);
+            this.groupBox4.Controls.Add(this.textBox1);
+            this.groupBox4.Controls.Add(this.hScrollBar3);
+            this.groupBox4.Controls.Add(this.listBox1);
+            this.groupBox4.Controls.Add(this.hScrollBar4);
+            this.groupBox4.Controls.Add(this.groupBox2);
+            this.groupBox4.Controls.Add(this.hScrollBar5);
+            this.groupBox4.Controls.Add(this.groupBox1);
+            this.groupBox4.Controls.Add(this.hScrollBar6);
+            this.groupBox4.Controls.Add(this.hScrollBar9);
+            this.groupBox4.Controls.Add(this.hScrollBar7);
+            this.groupBox4.Controls.Add(this.hScrollBar8);
+            this.groupBox4.Location = new System.Drawing.Point(812, 16);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(329, 504);
+            this.groupBox4.TabIndex = 29;
+            this.groupBox4.TabStop = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(863, 528);
-            this.Controls.Add(this.DoorToggle);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.ShadowReflectionToggle);
-            this.Controls.Add(this.label9);
-            this.Controls.Add(this.LightingMaterialChoises);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.listBox1);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.hScrollBar9);
-            this.Controls.Add(this.hScrollBar8);
-            this.Controls.Add(this.hScrollBar7);
-            this.Controls.Add(this.hScrollBar6);
-            this.Controls.Add(this.hScrollBar5);
-            this.Controls.Add(this.hScrollBar4);
-            this.Controls.Add(this.hScrollBar3);
-            this.Controls.Add(this.hScrollBar2);
-            this.Controls.Add(this.hScrollBar1);
+            this.ClientSize = new System.Drawing.Size(1143, 528);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.panel1);
             this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(879, 567);
@@ -698,8 +722,11 @@ namespace myOpenGL
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).EndInit();
             this.LightingMaterialChoises.ResumeLayout(false);
             this.LightingMaterialChoises.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -753,6 +780,8 @@ namespace myOpenGL
         private CheckBox ShadowReflectionToggle;
         private CheckBox DoorToggle;
         private Label label7;
+        private GroupBox groupBox3;
+        private GroupBox groupBox4;
     }
 }
 

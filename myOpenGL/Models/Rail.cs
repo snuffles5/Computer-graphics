@@ -14,7 +14,6 @@ namespace Models
     {
         private static readonly ColorName shadowColor = ColorName.LightGrey;
         private static readonly float railLength = 100.0f;
-        private static readonly float railWidth = 0.7f;
         private static readonly float railThickness = 0.05f; // Thickness of the rail
         private static readonly float railHeight = 0.05f;
         private static readonly ColorName railColor = ColorName.DimGrey;
