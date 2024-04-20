@@ -199,6 +199,7 @@ namespace myOpenGL
         public float[] oldPos = new float[7];
         private float SHIFT_STEP = 0.25f;
         private int ROTATION_STEP_ANGLE = 5;
+        private int CAMERA_ROTATION_STEP_ANGLE = 1;
 
         private void numericUpDownValueChanged(object sender, EventArgs e)
         {
@@ -224,7 +225,6 @@ namespace myOpenGL
                     {
                         cGL.yShift = SHIFT_STEP;
                         cGL.intOptionC = TransformationsOperations.SHIFT_Y;
-                        textBox1.Text = pos.ToString();
                     }
                     else
                     {
@@ -355,20 +355,24 @@ namespace myOpenGL
                 switch (e.KeyCode)
                 {
                     case Keys.Right:
-                        cGL.yAngle = ROTATION_STEP_ANGLE; // Rotate around Y-axis
-                        cGL.intOptionC = TransformationsOperations.ROTATE_Y; // Indicating a rotation around Y
+                        //cGL.yAngle = ROTATION_STEP_ANGLE; // Rotate around Y-axis
+                        //cGL.intOptionC = TransformationsOperations.ROTATE_Y; // Indicating a rotation around Y
+                        cGL.CameraPointOfView[0] += CAMERA_ROTATION_STEP_ANGLE;
                         break;
                     case Keys.Left:
-                        cGL.yAngle = -ROTATION_STEP_ANGLE; // Rotate around Y-axis
-                        cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_Y; // Indicating a rotation around Y in the opposite direction
+                        //cGL.yAngle = -ROTATION_STEP_ANGLE; // Rotate around Y-axis
+                        //cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_Y; // Indicating a rotation around Y in the opposite direction
+                        cGL.CameraPointOfView[0] -= CAMERA_ROTATION_STEP_ANGLE;
                         break;
                     case Keys.Up:
-                        cGL.xAngle = ROTATION_STEP_ANGLE; // Rotate around X-axis
-                        cGL.intOptionC = TransformationsOperations.ROTATE_X; // Indicating a rotation around X
+                        //cGL.xAngle = ROTATION_STEP_ANGLE; // Rotate around X-axis
+                        //cGL.intOptionC = TransformationsOperations.ROTATE_X; // Indicating a rotation around X
+                        cGL.CameraPointOfView[1] += CAMERA_ROTATION_STEP_ANGLE;
                         break;
                     case Keys.Down:
-                        cGL.xAngle = -ROTATION_STEP_ANGLE; // Rotate around X-axis
-                        cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_X; // Indicating a rotation around X in the opposite direction
+                        //cGL.xAngle = -ROTATION_STEP_ANGLE; // Rotate around X-axis
+                        //cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_X; // Indicating a rotation around X in the opposite direction
+                        cGL.CameraPointOfView[1] -= CAMERA_ROTATION_STEP_ANGLE;
                         break;
                 }
             }
@@ -409,13 +413,17 @@ namespace myOpenGL
         {
             if (e.Delta > 0)
             {
-                cGL.zShift = SHIFT_STEP; // Zoom in
-                cGL.intOptionC = TransformationsOperations.SHIFT_Z; // Assuming positive intOptionC value for zoom in
+                //cGL.zShift = SHIFT_STEP; // Zoom in
+                //cGL.intOptionC = TransformationsOperations.SHIFT_Z; // Assuming positive intOptionC value for zoom in
+                cGL.CameraPointOfView[2] -= SHIFT_STEP;
+
             }
             else if (e.Delta < 0)
             {
-                cGL.zShift = -SHIFT_STEP; // Zoom out
-                cGL.intOptionC = TransformationsOperations.SHIFT_OPPOSITE_Z; // Assuming negative intOptionC value for zoom out
+                //cGL.zShift = -SHIFT_STEP; // Zoom out
+                //cGL.intOptionC = TransformationsOperations.SHIFT_OPPOSITE_Z; // Assuming negative intOptionC value for zoom out
+                cGL.CameraPointOfView[2] += SHIFT_STEP;
+
             }
             cGL.Draw();
             cGL.intOptionC = TransformationsOperations.NONE; // Reset to default after drawing
