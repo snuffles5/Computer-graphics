@@ -35,8 +35,8 @@ namespace OpenGL
         public float INITIALIZED_ZOOM_VALUE = -2.0f;
         //float[,] ground = new float[3, 3];
         Vector3[] groundVertices = new Vector3[3];
-        float[] groundPlane;
-        Vector3[] shadowPlaneVertices = new Vector3[4];
+        //float[] groundPlane;
+        Vector3[] groundPlaneVertices = new Vector3[4];
         Vector3[] wallVertexes = new Vector3[4];
         float[,] wall = new float[3, 3];
         float[] planeCoeff = { 1, 1, 1, 1 };
@@ -61,6 +61,7 @@ namespace OpenGL
         public float xAngle;
         public float yAngle;
         public float zAngle;
+        public float groundHeight;
         private Rail rails;
         private Color groundColor = Color.LightGray;
         private Color wallColor = Color.SkyBlue;
@@ -96,9 +97,9 @@ namespace OpenGL
                 0.0f, 1.0f, 0.0f
             };
             // Ground and Walls 
-            groundVertices[0] = new Vector3(1.0f, 1.0f, -0.5f);
-            groundVertices[1] = new Vector3(0.0f, 1.0f, -0.5f);
-            groundVertices[2] = new Vector3(1.0f, 0.0f, -0.5f);
+            //groundVertices[0] = new Vector3(1.0f, 1.0f, -0.5f);
+            //groundVertices[1] = new Vector3(0.0f, 1.0f, -0.5f);
+            //groundVertices[2] = new Vector3(1.0f, 0.0f, -0.5f);
             //groundVertices[3] = new Vector3(-0.5f, -0.5f, -0.5f);  // Assuming a fourth vertex if needed, adjust as necessary
             //ground[0, 0] = 1;
             //ground[0, 1] = 1;
@@ -111,12 +112,13 @@ namespace OpenGL
             //ground[2, 0] = 1;
             //ground[2, 1] = 0;
             //ground[2, 2] = -0.5f;
-            shadowPlaneVertices[0] = new Vector3(-50.0f, -1.5f, -50.0f);
-            shadowPlaneVertices[1] = new Vector3(-50.0f, -1.5f, 50.0f);
-            shadowPlaneVertices[2] = new Vector3(50.0f, -1.5f, 50.0f);
-            shadowPlaneVertices[3] = new Vector3(50.0f, -1.5f, -50.0f);
+            groundHeight = -1.5f;
+            groundPlaneVertices[0] = new Vector3(-50.0f, groundHeight, -50.0f);
+            groundPlaneVertices[1] = new Vector3(-50.0f, groundHeight, 50.0f);
+            groundPlaneVertices[2] = new Vector3(50.0f,  groundHeight, 50.0f);
+            groundPlaneVertices[3] = new Vector3(50.0f, groundHeight, -50.0f);
             
-            groundPlane = new float[] { 0.0f, 1.0f, 0.0f, 0.0f };
+            //groundPlane = new float[] { 0.0f, 1.0f, 0.0f, 0.0f };
         }
 
         ~cOGL()
@@ -139,8 +141,8 @@ namespace OpenGL
             pfd.iPixelType = (byte)WGL.PFD_TYPE_RGBA;
             pfd.cColorBits = 32;
             pfd.cDepthBits = 32;
+            //pfd.cStencilBits = 32; //for Stencil support 
             pfd.iLayerType = (byte)WGL.PFD_MAIN_PLANE;
-            pfd.cStencilBits = 32; //for Stencil support 
 
             int pixelFormatIndex = WGL.ChoosePixelFormat(m_uint_DC, ref pfd);
             if (pixelFormatIndex == 0)
@@ -254,8 +256,8 @@ namespace OpenGL
             if (m_uint_DC == 0 || m_uint_RC == 0)
                 return;
 
-            // Clear color and depth buffers
-            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            // Clear color, depth and stencil buffers 
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT );
 
             // Load identity matrix
             GL.glLoadIdentity();
@@ -274,7 +276,7 @@ namespace OpenGL
                           CameraPointOfView[3], CameraPointOfView[4], CameraPointOfView[5],
                           CameraPointOfView[6], CameraPointOfView[7], CameraPointOfView[8]);  // Up vector is along Y-axis
 
-            GL.glTranslatef(0.0f, -0.2f, INITIALIZED_ZOOM_VALUE);
+            //GL.glTranslatef(0.0f, 0.0f, INITIALIZED_ZOOM_VALUE);
 
             // Save current ModelView Matrix values before specific transformations
             GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, ModelVievMatrixBeforeSpecificTransforms);
@@ -290,12 +292,22 @@ namespace OpenGL
                 LightConfig.Instance.Position[2]
             );
 
-            DrawGround();
+
+            //if (isReflectionEnabled) groundHeight = -2.5f;
+            //else groundHeight = -1.5f;
+            groundPlaneVertices[0].Y = groundPlaneVertices[1].Y = groundPlaneVertices[2].Y = groundPlaneVertices[3].Y = groundHeight;
+            if (isReflectionEnabled)
+            {
+                DrawReflections();
+            }
+            else
+            {
+                DrawGround();
+            }
             DrawWalls();
 
-            DrawDebug(-1 * lightDirection, sun.Coords, 10.0f);
+            //DrawDebug(-1 * lightDirection, sun.Coords, 10.0f);
             DrawShadow();
-            DrawReflections();
 
             DrawScene();
 
@@ -312,42 +324,52 @@ namespace OpenGL
         private void DrawScene()
         {
             DisableLighting();
+            GL.glPushMatrix();
             sun.Draw();
+            GL.glPopMatrix();
 
             EnableLighting();
             GL.glPushMatrix();
-            GL.glTranslatef(0.0f, -0.2f, 0.0f);
             train.Draw(isShadowDrawing: false);
             GL.glPopMatrix();
-            DrawSuprise();
+            //DrawSuprise();
             DrawRails();
-
         }
 
-        public void DrawGround()
+        public void DrawGround(float alpha = 0.5f)
         {
             if (!isToDrawGround)
                 return;
 
+            //GL.glPushMatrix();
+            if (isReflectionEnabled)
+            {
+                ColorUtil.SetColor(groundColor, alpha);
+
+            }
+            else
+            {
+                ColorUtil.SetColor(groundColor);
+
+            }
             // Enable lighting
             EnableLighting();
 
             // Set material properties for the ground here if needed
-            float[] matAmbient = new float[] { 0.7f, 0.7f, 0.7f, 1.0f };
-            float[] matDiffuse = new float[] { 0.8f, 0.8f, 0.8f, 1.0f };
+            //float[] matAmbient = new float[] { 0.7f, 0.7f, 0.7f, 1.0f };
+            //float[] matDiffuse = new float[] { 0.8f, 0.8f, 0.8f, 1.0f };
             //GL.glMaterialfv(GL.GL_FRONT, GL.GL_AMBIENT, matAmbient);
             //GL.glMaterialfv(GL.GL_FRONT, GL.GL_DIFFUSE, matDiffuse);
 
             // Make sure the normal vector is set correctly
-            GL.glNormal3f(0.0f, 1.0f, 0.0f); // Assuming ground plane is XZ plane
+            GL.glNormal3f(0.0f, 1.0f, 0.0f);
 
             // Draw the ground plane
-            ColorUtil.SetColor(groundColor);
             GL.glBegin(GL.GL_QUADS);
-            GL.glVertex3d(shadowPlaneVertices[0].X, shadowPlaneVertices[0].Y, shadowPlaneVertices[0].Z);
-            GL.glVertex3d(shadowPlaneVertices[1].X, shadowPlaneVertices[1].Y, shadowPlaneVertices[1].Z);
-            GL.glVertex3d(shadowPlaneVertices[2].X, shadowPlaneVertices[2].Y, shadowPlaneVertices[2].Z);
-            GL.glVertex3d(shadowPlaneVertices[3].X, shadowPlaneVertices[3].Y, shadowPlaneVertices[3].Z);
+            GL.glVertex3d(groundPlaneVertices[0].X, groundPlaneVertices[0].Y, groundPlaneVertices[0].Z);
+            GL.glVertex3d(groundPlaneVertices[1].X, groundPlaneVertices[1].Y, groundPlaneVertices[1].Z);
+            GL.glVertex3d(groundPlaneVertices[2].X, groundPlaneVertices[2].Y, groundPlaneVertices[2].Z);
+            GL.glVertex3d(groundPlaneVertices[3].X, groundPlaneVertices[3].Y, groundPlaneVertices[3].Z);
             GL.glEnd();
 
             // Disable lighting if it's not needed afterwards
@@ -363,7 +385,7 @@ namespace OpenGL
 
             // Assuming the train is on the ground (y = 0), lower the rails slightly below.
             // This translation moves the rails below the train and positions them to start just behind the front of the train.
-            GL.glTranslatef(0.0f, -0.8f, 0.0f); // Adjust these values as needed
+            GL.glTranslatef(0.0f, -1.15f, 0.0f); // Adjust these values as needed
 
             rails.Draw(); // Draw the rail model
 
@@ -390,7 +412,7 @@ namespace OpenGL
             GL.glEnd();
         }
 
-private void DrawShadow()
+        private void DrawShadow()
         {
             if (!isShadowEnabled)
                 return;
@@ -398,11 +420,10 @@ private void DrawShadow()
             // Shadows
             DisableLighting();
             GL.glDisable(GL.GL_DEPTH_TEST);
-            GL.glEnable(GL.GL_STENCIL_TEST);
 
             // floor shadow
             GL.glPushMatrix();
-            MakeShadowMatrix(shadowPlaneVertices);
+            MakeShadowMatrix(groundPlaneVertices);
             GL.glMultMatrixf(cubeXform);
             train.Draw(isShadowDrawing: true);
             GL.glPopMatrix();
@@ -410,59 +431,83 @@ private void DrawShadow()
             EnableLighting();
         }
 
-        public void DrawReflections()
+        void DrawReflections()
         {
             if (!isReflectionEnabled)
                 return;
-            // Enable stencil buffer to restrict the drawing area of the reflection
-            GL.glEnable(GL.GL_STENCIL_TEST);
-            GL.glStencilOp(GL.GL_REPLACE, GL.GL_REPLACE, GL.GL_REPLACE);
-            GL.glStencilFunc(GL.GL_ALWAYS, 1, 0xffffffff);
-            GL.glClearStencil(0);
 
-            // Clear the stencil buffer
-            GL.glClear(GL.GL_STENCIL_BUFFER_BIT);
-
-            // Disable writing to color and depth buffers
-            GL.glColorMask(0, 0, 0, 0);
-            GL.glDisable(GL.GL_DEPTH_TEST);
-
-            // Draw ground to the stencil buffer
-            DrawGround();
-
-            // Enable color and depth buffers again
-            GL.glColorMask(1, 1, 1, 1);
-            GL.glEnable(GL.GL_DEPTH_TEST);
-
-            // Make sure that the reflection only gets drawn where the stencil buffer is set to 1
-            GL.glStencilFunc(GL.GL_EQUAL, 1, 0xffffffff);
-            GL.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP);
-
-            // Set up the reflection transformation matrix
-            GL.glPushMatrix();
-            GL.glScalef(1.0f, -1.0f, 1.0f);  // Reflect along the Y-axis
-
-            // Draw the reflected objects
-            DrawScene();
-
-            // Restore the original matrix
-            GL.glPopMatrix();
-
-            // Disable stencil test to draw normally again
-            GL.glDisable(GL.GL_STENCIL_TEST);
-
-            // Enable blending to smooth out the reflection
             GL.glEnable(GL.GL_BLEND);
             GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
-            // Set a transparent color for the ground
-            ColorUtil.SetColor(groundColor, 0.5f);
+            ////only floor, draw only to STENCIL buffer
+            //GL.glEnable(GL.GL_STENCIL_TEST);
+            //GL.glStencilOp(GL.GL_REPLACE, GL.GL_REPLACE, GL.GL_REPLACE);
+            //GL.glStencilFunc(GL.GL_ALWAYS, 1, 0xFFFFFFFF); // draw floor always
+            //GL.glColorMask((byte)GL.GL_FALSE, (byte)GL.GL_FALSE, (byte)GL.GL_FALSE, (byte)GL.GL_FALSE);
+            //GL.glDisable(GL.GL_DEPTH_TEST);
 
-            // Draw the ground again to blend with the reflection
+            //DrawGround();
+
+            float objectsHeight = 3f;
+            // draw reflected scene
+            GL.glPushMatrix();
+            GL.glTranslatef(0.0f, -objectsHeight, 0.0f);
+            GL.glScalef(1, -1, 1); //swap on Y axis
+
+            GL.glEnable(GL.GL_CULL_FACE);
+            GL.glCullFace(GL.GL_BACK);
+            DrawScene();
+            GL.glCullFace(GL.GL_FRONT);
+            DrawScene();
+            GL.glDisable(GL.GL_CULL_FACE);
+            GL.glPopMatrix();
+
+
+            GL.glDepthMask((byte)GL.GL_FALSE);
             DrawGround();
+            GL.glDepthMask((byte)GL.GL_TRUE);
+            // Disable GL.GL_STENCIL_TEST to show All, else it will be cut on GL.GL_STENCIL
+            //GL.glDisable(GL.GL_STENCIL_TEST);
+            //DrawScene();
 
-            // Disable blending
-            GL.glDisable(GL.GL_BLEND);
+        }
+
+        void MakeReflectionMatrix(Vector3[] groundPlaneVertices, float[] lightPosition)
+        {
+            // Calculate plane normal.
+            Vector3 planeNormal = calculateNormal(groundPlaneVertices);
+
+            // Calculate the plane constant.
+            float planeD = -(float)(groundPlaneVertices[0].DotProduct(planeNormal));
+
+            // Calculate dot product of plane normal and light position.
+            float dot = (float)(planeNormal.DotProduct(new Vector3(lightPosition[0], lightPosition[1], lightPosition[2])) + planeD);
+
+            // Create reflection matrix using the plane equation coefficients.
+            float[] reflectionMatrix = new float[16];
+
+            reflectionMatrix[0] = (float)(dot - 2 * lightPosition[0] * planeNormal.X);
+            reflectionMatrix[1] = (float)(-2 * lightPosition[1] * planeNormal.X);
+            reflectionMatrix[2] = (float)(-2 * lightPosition[2] * planeNormal.X);
+            reflectionMatrix[3] = (float)(-2 * planeD * planeNormal.X);
+
+            reflectionMatrix[4] = (float)(-2 * lightPosition[0] * planeNormal.Y);
+            reflectionMatrix[5] = (float)(dot - 2 * lightPosition[1] * planeNormal.Y);
+            reflectionMatrix[6] = (float)(-2 * lightPosition[2] * planeNormal.Y);
+            reflectionMatrix[7] = (float)(-2 * planeD * planeNormal.Y);
+
+            reflectionMatrix[8] = (float)(-2 * lightPosition[0] * planeNormal.Z);
+            reflectionMatrix[9] = (float)(-2 * lightPosition[1] * planeNormal.Z);
+            reflectionMatrix[10] = (float)(dot - 2 * lightPosition[2] * planeNormal.Z);
+            reflectionMatrix[11] = (float)(-2 * planeD * planeNormal.Z);
+
+            reflectionMatrix[12] = 0;
+            reflectionMatrix[13] = 0;
+            reflectionMatrix[14] = 0;
+            reflectionMatrix[15] = dot;
+
+            // Apply reflection matrix.
+            GL.glMultMatrixf(reflectionMatrix);
         }
 
         private void DrawWalls()
@@ -472,7 +517,7 @@ private void DrawShadow()
             float wallHeight = 200;
             for (int i = 0; i < 4; i++)
             {
-                wallVertexes[i] = new Vector3(shadowPlaneVertices[i].X, shadowPlaneVertices[i].Y + wallHeight, shadowPlaneVertices[i].Z);
+                wallVertexes[i] = new Vector3(groundPlaneVertices[i].X, groundPlaneVertices[i].Y + wallHeight, groundPlaneVertices[i].Z);
             }
 
             // Define each wall with 4 vertices (2 ground vertices and 2 top vertices)
@@ -480,8 +525,8 @@ private void DrawShadow()
             for (int i = 0; i < 4; i++)
             {
                 // Define vertices for wall i
-                Vector3 bottomStart = shadowPlaneVertices[i];
-                Vector3 bottomEnd = shadowPlaneVertices[(i + 1) % 4]; // Loop around with modulo
+                Vector3 bottomStart = groundPlaneVertices[i];
+                Vector3 bottomEnd = groundPlaneVertices[(i + 1) % 4]; // Loop around with modulo
                 Vector3 topStart = wallVertexes[i];
                 Vector3 topEnd = wallVertexes[(i + 1) % 4];
 

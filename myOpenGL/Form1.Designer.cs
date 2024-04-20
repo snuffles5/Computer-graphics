@@ -76,6 +76,8 @@ namespace myOpenGL
             this.MatSpecular = new System.Windows.Forms.RadioButton();
             this.MatDiffuse = new System.Windows.Forms.RadioButton();
             this.MatAmbient = new System.Windows.Forms.RadioButton();
+            this.label9 = new System.Windows.Forms.Label();
+            this.ShadowReflectionToggle = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -273,7 +275,7 @@ namespace myOpenGL
             // 
             this.numericUpDown2.Location = new System.Drawing.Point(48, 21);
             this.numericUpDown2.Maximum = new decimal(new int[] {
-            10000,
+            5,
             0,
             0,
             0});
@@ -606,11 +608,35 @@ namespace myOpenGL
             this.MatAmbient.UseVisualStyleBackColor = true;
             this.MatAmbient.CheckedChanged += new System.EventHandler(this.lightOrMaterialRaddioChange);
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(546, 105);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(105, 13);
+            this.label9.TabIndex = 24;
+            this.label9.Text = "Shadow \\ Reflection";
+            // 
+            // ShadowReflectionToggle
+            // 
+            this.ShadowReflectionToggle.Appearance = System.Windows.Forms.Appearance.Button;
+            this.ShadowReflectionToggle.AutoSize = true;
+            this.ShadowReflectionToggle.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.ShadowReflectionToggle.Location = new System.Drawing.Point(549, 122);
+            this.ShadowReflectionToggle.Name = "ShadowReflectionToggle";
+            this.ShadowReflectionToggle.Size = new System.Drawing.Size(65, 23);
+            this.ShadowReflectionToggle.TabIndex = 25;
+            this.ShadowReflectionToggle.Text = "Reflection";
+            this.ShadowReflectionToggle.UseVisualStyleBackColor = true;
+            this.ShadowReflectionToggle.CheckedChanged += new System.EventHandler(this.ShadowReflectionToggle_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(863, 528);
+            this.Controls.Add(this.ShadowReflectionToggle);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.LightingMaterialChoises);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.listBox1);
@@ -697,6 +723,8 @@ namespace myOpenGL
         private RadioButton MatShininess;
         private RadioButton MatSpecular;
         private RadioButton MatDiffuse;
+        private Label label9;
+        private CheckBox ShadowReflectionToggle;
     }
 }
 

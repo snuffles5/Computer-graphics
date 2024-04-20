@@ -13,6 +13,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Utils;
 using Models;
 using GraphicProject.Utils.Math;
+using System.Diagnostics;
 //3D model e
 
 namespace myOpenGL
@@ -223,11 +224,12 @@ namespace myOpenGL
                     {
                         cGL.yShift = SHIFT_STEP;
                         cGL.intOptionC = TransformationsOperations.SHIFT_Y;
+                        textBox1.Text = pos.ToString();
                     }
                     else
                     {
                         cGL.yShift = -SHIFT_STEP;
-                        cGL.intOptionC = TransformationsOperations.ROTATE_OPPOSITE_Y;
+                        cGL.intOptionC = TransformationsOperations.SHIFT_OPPOSITE_Y;
                     }
                     break;
                 case 3:
@@ -510,6 +512,16 @@ namespace myOpenGL
             {
                 selectedLightingMaterialRadio = MaterialConfig.Instance.GetMaterialByString(radioButtonName.ToLower().Replace("mat", ""));
             }
+        }
+
+        private void ShadowReflectionToggle_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox cb = (CheckBox)sender;
+            cGL.isReflectionEnabled = ShadowReflectionToggle.Checked;
+            cGL.isShadowEnabled = !ShadowReflectionToggle.Checked;
+
+            if (cGL.isReflectionEnabled) cb.Text = "Shadow";
+            else cb.Text = "Reflection";
         }
     }
 }
