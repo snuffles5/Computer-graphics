@@ -166,7 +166,7 @@ namespace Models
             wheelOffsetX = cabBottomBaseWidth * 0.7f; // 20% of the bottom base width from the center to each side
             wheelOffsetZFront = carriageDepth * 1.10f;// * 0.8f; // 20% of the depth for front wheels
             wheelOffsetZBack = -carriageDepth * 1.10f;// * 0.8f; // 20% of the depth for back wheels
-            WheelOffsetY = -(wheelRadius + cabBottomBaseHeight) * 1.3f; // Just below the bottom base
+            WheelOffsetY = -(wheelRadius + cabBottomBaseHeight + 0.5f); // Just below the bottom base
 
             Textures = new uint[Enum.GetValues(typeof(TrainObject)).Length];
             imagesName = Enum.GetNames(typeof(TrainObject))
@@ -245,11 +245,6 @@ namespace Models
             DrawChimney();
             DisableTexture();
             GL.glEndList();
-            // Define the wheel
-            //GL.glNewList(wheelList, GL.GL_COMPILE);
-            //DrawWheel(wheelRadius, wheelThickness, WheelsColor);
-            //DisableTexture();
-            //GL.glEndList();
 
             // Combine into the locomotive
             GL.glNewList(locomotiveList, GL.GL_COMPILE);
@@ -286,8 +281,6 @@ namespace Models
             GL.glPushMatrix();
             GL.glCallList(cabList);
             GL.glPopMatrix();
-
-            //DrawWheels();
         }
 
         public void Draw()
@@ -470,7 +463,7 @@ namespace Models
         {
             // FrontCoupler
             GL.glPushMatrix();
-            float translateY = -(carriageHeight / 2 + cabBottomBaseHeight*1.7f);
+            float translateY = -(0.35f + (carriageHeight / 2 + cabBottomBaseHeight));
             float translateX = -(cabBottomBaseWidth + cabBottomCouplerWidth / 2) * 1.05f;
             GL.glTranslatef(translateX, translateY, 0.0f);
             DrawCuboid(cabBottomCouplerWidth, cabBottomCouplerHeight, cabBottomCouplerDepth, cabCouplerFaceDictionary, cabBottomColor);
@@ -487,7 +480,7 @@ namespace Models
         private void DrawCabBottomBase()
         {
             // Translate down to position the bottom base at the bottom of the cab
-            float translateY = -carriageHeight; //- (cabHeight / 2 + cabBottomBaseHeight / 2);
+            float translateY = -(carriageHeight + 0.2f); 
             float translateX = -controlCabinWidth / 2;
             GL.glTranslatef(translateX, translateY, 0.0f); // No translation on X and Z axes
             DrawCuboid(cabBottomBaseWidth, cabBottomBaseHeight, carriageDepth, cabBottomBaseFaceDictionary, cabBottomColor);
@@ -496,8 +489,8 @@ namespace Models
         private void DrawControlCabin()
         {
             // Translate for the cabin drawing
-            float cabinTranslateX = -(carriageWidth + controlCabinWidth / 2); // Move it to the left of the cab base
-            float cabinTranslateY = cabBottomBaseHeight; // Align the bottom of the cabin with the top of the cab bottom base
+            float cabinTranslateX = -(0.35f + (carriageWidth + controlCabinWidth / 2)); // Move it to the left of the cab base
+            float cabinTranslateY = cabBottomBaseHeight - 0.1f; // Align the bottom of the cabin with the top of the cab bottom base
             GL.glTranslatef(cabinTranslateX, cabinTranslateY, 0.0f);
 
             DrawCuboid(controlCabinWidth, controlCabinHeight, controlCabinDepth, controlCabinFaceDictionary, controlCabinColor); // Drawing the cabin

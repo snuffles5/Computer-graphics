@@ -620,13 +620,13 @@ namespace myOpenGL
             // ShadowReflectionToggle
             // 
             this.ShadowReflectionToggle.Appearance = System.Windows.Forms.Appearance.Button;
-            this.ShadowReflectionToggle.AutoSize = true;
             this.ShadowReflectionToggle.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.ShadowReflectionToggle.Location = new System.Drawing.Point(549, 122);
             this.ShadowReflectionToggle.Name = "ShadowReflectionToggle";
-            this.ShadowReflectionToggle.Size = new System.Drawing.Size(65, 23);
+            this.ShadowReflectionToggle.Size = new System.Drawing.Size(100, 23);
             this.ShadowReflectionToggle.TabIndex = 25;
             this.ShadowReflectionToggle.Text = "Reflection";
+            this.ShadowReflectionToggle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.ShadowReflectionToggle.UseVisualStyleBackColor = true;
             this.ShadowReflectionToggle.CheckedChanged += new System.EventHandler(this.ShadowReflectionToggle_CheckedChanged);
             // 
