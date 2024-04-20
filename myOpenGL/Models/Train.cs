@@ -139,7 +139,8 @@ namespace Models
         private float chimneyTopY;
         private float chimneyTopZ;
         private float wheelOffsetY;
-        public float WheelOffsetY { get => wheelOffsetY; set => wheelOffsetY = value; }
+        private float wheelOffsetZ;
+        public float WheelOffsetZ { get => wheelOffsetZ; set => wheelOffsetZ = value; }
 
         public Locomotive(TextBox debugTextBox,
             float shininess = DefaultConfig.MAT_SHININESS, bool isShadowDrawing = false, bool isTextureEnabled = true)
@@ -164,9 +165,10 @@ namespace Models
             chimneyHeight = 1f;
             // Constants for wheel placement
             wheelOffsetX = cabBottomBaseWidth * 0.7f; // 20% of the bottom base width from the center to each side
-            wheelOffsetZFront = carriageDepth * 1.10f;// * 0.8f; // 20% of the depth for front wheels
-            wheelOffsetZBack = -carriageDepth * 1.10f;// * 0.8f; // 20% of the depth for back wheels
-            WheelOffsetY = -(wheelRadius + cabBottomBaseHeight + 0.5f); // Just below the bottom base
+            wheelOffsetZFront = carriageDepth * 1.10f;
+            wheelOffsetZBack = -carriageDepth * 1.10f;
+            wheelOffsetZ = Math.Abs(wheelOffsetZFront);
+            wheelOffsetY = -(wheelRadius + cabBottomBaseHeight + 0.5f); // Just below the bottom base
 
             Textures = new uint[Enum.GetValues(typeof(TrainObject)).Length];
             imagesName = Enum.GetNames(typeof(TrainObject))
@@ -560,7 +562,7 @@ namespace Models
                 float posX = (i % 2 == 0) ? -wheelOffsetX : wheelOffsetX; // Alternate sides
                 float posZ = (i < 2) ? wheelOffsetZFront : wheelOffsetZBack; // Alternate front/back
                 // Apply the transformation for wheel position
-                GL.glTranslatef(posX, WheelOffsetY, posZ);
+                GL.glTranslatef(posX, wheelOffsetY, posZ);
                 if (isWheelRotation)
                 {
                     GL.glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f); // Rotate around the Z-axis

@@ -84,7 +84,7 @@ namespace Models
             {
                 GL.glPushMatrix();
                 GL.glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-                GL.glTranslatef(0, -0.3f, 0.0f); // Position the rails
+                GL.glTranslatef(0, -0.2f, 0.0f); // Position the rails
                 GL.glTranslatef(0.0f, railHeight / 2 + tieHeight / 2, z); // Position the ties
                 DrawCuboid(tieWidth, tieHeight, tieLength, TiesFaceDictionary, tieColor); 
                 GL.glPopMatrix();

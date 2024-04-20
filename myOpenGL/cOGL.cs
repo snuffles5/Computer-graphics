@@ -82,7 +82,7 @@ namespace OpenGL
             this.debugTextBox = debugTextBox;
             train = new Train(debugTextBox, 1, isTextureEnabled: true);
             sun = new Sun(debugTextBox);
-            rails = new Rail(train.MainLocomotive.WheelOffsetY);
+            rails = new Rail(trainWheelGauge: train.MainLocomotive.WheelOffsetZ);
             sunCoords = new Vector3();
             debugTextBox.Text = Width + "w, " + Height + "h\n";
             isLightingEnabled = true;
@@ -112,7 +112,7 @@ namespace OpenGL
             //ground[2, 0] = 1;
             //ground[2, 1] = 0;
             //ground[2, 2] = -0.5f;
-            groundHeight = -1.5f;
+            groundHeight = -2.0f;
             groundPlaneVertices[0] = new Vector3(-50.0f, groundHeight, -50.0f);
             groundPlaneVertices[1] = new Vector3(-50.0f, groundHeight, 50.0f);
             groundPlaneVertices[2] = new Vector3(50.0f,  groundHeight, 50.0f);
@@ -383,9 +383,10 @@ namespace OpenGL
 
             GL.glPushMatrix();
 
+            float railYOffset = -1.35f;
             // Assuming the train is on the ground (y = 0), lower the rails slightly below.
             // This translation moves the rails below the train and positions them to start just behind the front of the train.
-            GL.glTranslatef(0.0f, -1.15f, 0.0f); // Adjust these values as needed
+            GL.glTranslatef(0.0f, railYOffset, 0.0f); // Adjust these values as needed
 
             rails.Draw(); // Draw the rail model
 
@@ -448,7 +449,7 @@ namespace OpenGL
 
             //DrawGround();
 
-            float objectsHeight = 3f;
+            float objectsHeight = 3.3f;
             // draw reflected scene
             GL.glPushMatrix();
             GL.glTranslatef(0.0f, -objectsHeight, 0.0f);
