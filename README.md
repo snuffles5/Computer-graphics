@@ -1,4 +1,4 @@
-# Train Locomotive Simulation Project
+# Train Simulation Project
 
 ## Overview
 This project simulates a 3D train locomotive with multiple coaches, implementing advanced 3D transformation, modeling, animation, texturing, shading, and lighting techniques. The application is developed in C# using OpenGL and is part of the computer graphics course curriculum for the third year BSc at Holon Institute of Technology (HIT).
