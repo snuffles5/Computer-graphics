@@ -424,6 +424,7 @@ namespace myOpenGL
             // textBox1
             // 
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.Enabled = false;
             this.textBox1.Location = new System.Drawing.Point(194, 374);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
@@ -708,6 +709,7 @@ namespace myOpenGL
             // 
             // btnStop
             // 
+            this.btnStop.Enabled = false;
             this.btnStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.btnStop.Location = new System.Drawing.Point(75, 452);
             this.btnStop.Name = "btnStop";
@@ -719,6 +721,7 @@ namespace myOpenGL
             // 
             // btnBackward
             // 
+            this.btnBackward.Enabled = false;
             this.btnBackward.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.btnBackward.Location = new System.Drawing.Point(10, 452);
             this.btnBackward.Name = "btnBackward";
