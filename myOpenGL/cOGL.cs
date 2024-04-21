@@ -323,10 +323,19 @@ namespace OpenGL
             // Re-enable lighting for other elements
             EnableLighting();
             GL.glPushMatrix(); // Preserve the matrix state again
-            train.Draw(isShadowDrawing: false); // Draw the train without shadow effects
+            DrawTrain(isShadowDrawing: false); // Draw the train without shadow effects
             GL.glPopMatrix();
             DrawRails(); // Draw rails on which the train moves
         }
+
+        public void DrawTrain(bool isShadowDrawing)
+        {
+            GL.glPushMatrix(); // Save the current transformation state
+            GL.glTranslatef(this.train.PositionX, 0.0f, 0.0f); // Apply the train's current position
+            train.Draw(isShadowDrawing: isShadowDrawing); // Draw the train
+            GL.glPopMatrix(); // Restore the previous transformation state
+        }
+
 
         public void DrawGround(float alpha = 0.5f)
         {
@@ -395,7 +404,7 @@ namespace OpenGL
             GL.glPushMatrix();
             MakeShadowMatrix(groundPlaneVertices);
             GL.glMultMatrixf(cubeXform);
-            train.Draw(isShadowDrawing: true);
+            DrawTrain(isShadowDrawing: true);
             GL.glPopMatrix();
 
             GL.glEnable(GL.GL_DEPTH_TEST);
@@ -572,6 +581,11 @@ namespace OpenGL
             cubeXform = shadowMatrix;
         }
 
+        internal void Update(float deltaTime)
+        {
+            this.train.Update(deltaTime);
+            Draw();
+        }
 
     }
 }

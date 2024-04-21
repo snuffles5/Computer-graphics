@@ -81,8 +81,12 @@ namespace myOpenGL
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.numberOfCoaches = new System.Windows.Forms.NumericUpDown();
+            this.btnForward = new System.Windows.Forms.Button();
+            this.btnStop = new System.Windows.Forms.Button();
+            this.btnBackward = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.numberOfCoaches = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -665,7 +669,11 @@ namespace myOpenGL
             // groupBox4
             // 
             this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.btnForward);
+            this.groupBox4.Controls.Add(this.btnStop);
+            this.groupBox4.Controls.Add(this.btnBackward);
             this.groupBox4.Controls.Add(this.textBox2);
+            this.groupBox4.Controls.Add(this.label8);
             this.groupBox4.Controls.Add(this.numberOfCoaches);
             this.groupBox4.Controls.Add(this.LightingMaterialChoises);
             this.groupBox4.Controls.Add(this.groupBox3);
@@ -687,6 +695,59 @@ namespace myOpenGL
             this.groupBox4.TabIndex = 29;
             this.groupBox4.TabStop = false;
             // 
+            // btnForward
+            // 
+            this.btnForward.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.btnForward.Location = new System.Drawing.Point(120, 452);
+            this.btnForward.Name = "btnForward";
+            this.btnForward.Size = new System.Drawing.Size(65, 23);
+            this.btnForward.TabIndex = 31;
+            this.btnForward.Text = "Forward";
+            this.btnForward.UseVisualStyleBackColor = true;
+            this.btnForward.Click += new System.EventHandler(this.TrainMovingChangeState);
+            // 
+            // btnStop
+            // 
+            this.btnStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.btnStop.Location = new System.Drawing.Point(75, 452);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(45, 23);
+            this.btnStop.TabIndex = 31;
+            this.btnStop.Text = "Stop";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.TrainMovingChangeState);
+            // 
+            // btnBackward
+            // 
+            this.btnBackward.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.btnBackward.Location = new System.Drawing.Point(10, 452);
+            this.btnBackward.Name = "btnBackward";
+            this.btnBackward.Size = new System.Drawing.Size(65, 23);
+            this.btnBackward.TabIndex = 31;
+            this.btnBackward.Text = "Backward";
+            this.btnBackward.UseVisualStyleBackColor = true;
+            this.btnBackward.Click += new System.EventHandler(this.TrainMovingChangeState);
+            // 
+            // textBox2
+            // 
+            this.textBox2.BackColor = System.Drawing.SystemColors.Control;
+            this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox2.Location = new System.Drawing.Point(16, 409);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(100, 13);
+            this.textBox2.TabIndex = 30;
+            this.textBox2.Text = "Number of coaches";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.CausesValidation = false;
+            this.label8.Location = new System.Drawing.Point(13, 435);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(84, 13);
+            this.label8.TabIndex = 28;
+            this.label8.Text = "Train Movement";
+            // 
             // numberOfCoaches
             // 
             this.numberOfCoaches.Location = new System.Drawing.Point(122, 407);
@@ -705,16 +766,6 @@ namespace myOpenGL
             0,
             0});
             this.numberOfCoaches.ValueChanged += new System.EventHandler(this.numberOfCoaches_ValueChanged);
-            // 
-            // textBox2
-            // 
-            this.textBox2.BackColor = System.Drawing.SystemColors.Control;
-            this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox2.Location = new System.Drawing.Point(16, 409);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(100, 13);
-            this.textBox2.TabIndex = 30;
-            this.textBox2.Text = "Number of coaches";
             // 
             // Form1
             // 
@@ -805,6 +856,10 @@ namespace myOpenGL
         private GroupBox groupBox4;
         private NumericUpDown numberOfCoaches;
         private TextBox textBox2;
+        private Label label8;
+        private Button btnForward;
+        private Button btnStop;
+        private Button btnBackward;
     }
 }
 

@@ -20,11 +20,21 @@ namespace Models
         private Coach[] shadowCoaches;
         public TextBox debugTextBox;
         private readonly int MAX_NUMBER_OF_COACHES = 10;
+        private readonly float minPositionX = -20;
+        private readonly float maxPositionX = 0;
+        private TrainState state = TrainState.Stopped;
 
         public Locomotive MainLocomotive { get => mainLocomotive; set => mainLocomotive = value; }
+        // Position of the train in the scene (assuming movement along the X-axis)
+        public float PositionX { get; private set; }
+
+        // Speed of the train in units per second
+        public float Speed { get; set; } = 1.5f;  // Default speed
+        public TrainState State { get => state; set => state = value; }
 
         public Train(TextBox debugTextBox, int numberOfCoaches, bool isTextureEnabled = true)
         {
+            PositionX = 0.0f;  // Initial position of the train
             this.debugTextBox = debugTextBox;
             this.isTextureEnabled = isTextureEnabled;
             this.mainLocomotive = new Locomotive(debugTextBox, isShadowDrawing: false, isTextureEnabled: isTextureEnabled);
@@ -63,6 +73,11 @@ namespace Models
 
         public void Update(float deltaTime)
         {
+            float newPositionX = PositionX;
+            if (State == TrainState.MovingForward) newPositionX = PositionX - Speed * deltaTime;
+            else if (State == TrainState.MovingBackward) newPositionX = PositionX + Speed * deltaTime;
+            PositionX = Math.Max(minPositionX, Math.Min(newPositionX, maxPositionX));
+            if (PositionX == maxPositionX || PositionX == minPositionX) State = TrainState.Stopped;
             mainLocomotive.Update(deltaTime);
             shadowLocomotive.Update(deltaTime);
             UpdateCoaches(deltaTime);
@@ -70,21 +85,10 @@ namespace Models
 
         public void DrawCoaches(bool isShadowDrawing)
         {
-            float posX = 0.0f, posY = 0.0f, posZ = 0.0f;
             for (int i = 0; i < mainCoaches.Length; i++)
             {
-                if (i == 0)
-                {
-                    posX = MainLocomotive.LocomotiveWidth / 2;
-                    GL.glTranslatef(9, posY, posZ);
-                }
-                else
-                {
-                    posX = mainCoaches[i - 1].CoachWidth / 2;
-                    GL.glTranslatef(8.55f, posY, posZ);
-                }
-                
-                //GL.glTranslatef(9, posY, posZ);
+                if (i == 0) GL.glTranslatef(9, 0.0f, 0.0f);
+                else GL.glTranslatef(8.55f, 0.0f, 0.0f);
                 
                 if (isShadowDrawing) shadowCoaches[i].Draw();
                 else mainCoaches[i].Draw();
@@ -246,9 +250,6 @@ namespace Models
             {
                 wheelRotation += deltaTime * 200.0f; // Adjust the speed as necessary
             }
-
-            Draw();
-            // Update particle system
         }
 
         private void CreateCoachList()
@@ -1454,8 +1455,6 @@ namespace Models
             {
                 wheelRotation += deltaTime * 200.0f; // Adjust the speed as necessary
             }
-
-            Draw();
             // Update particle system
             UpdateParticles(deltaTime);
         }

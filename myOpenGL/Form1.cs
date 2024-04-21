@@ -267,19 +267,26 @@ namespace myOpenGL
             cGL.intOptionC = TransformationsOperations.NONE;
         }
 
-        private void OnTick(object sender, EventArgs e)
+        private void Update()
         {
             DateTime currentTime = DateTime.Now;
             float deltaTime = (float)(currentTime - previousUpdateTime).TotalSeconds;
             previousUpdateTime = currentTime;
-            this.cGL.Draw(); // Proceed to draw your scene
 
             float doorAngle = this.cGL.train.MainLocomotive.DoorAngle;
             this.cGL.newDoorAngle = cGL.isDoorOpened ? doorAngle + ROTATION_STEP_ANGLE : doorAngle - ROTATION_STEP_ANGLE;
             // Use deltaTime for updates
-            this.cGL.train.Update(deltaTime); // Update your train (and other objects as needed) with deltaTime
+            this.cGL.Update(deltaTime);
+            if (this.cGL.train.State == TrainState.Stopped)
+            {
+                btnStop.Enabled = false;
+                btnForward.Enabled = btnBackward.Enabled = true;
+            }
+        }
 
-
+        private void OnTick(object sender, EventArgs e)
+        {
+            Update();
         }
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -526,6 +533,34 @@ namespace myOpenGL
         {
             NumericUpDown nud = (NumericUpDown)sender;
             this.cGL.train.UpdateNumberOfCoaches((int)nud.Value);
+        }
+
+        private void TrainMovingChangeState(object sender, EventArgs e)
+        {
+            // Enable all buttons first
+            btnForward.Enabled = true;
+            btnBackward.Enabled = true;
+            btnStop.Enabled = true;
+            Train train = this.cGL.train;
+
+            Button clickedButton = sender as Button;
+            if (clickedButton != null)
+            {
+                clickedButton.Enabled = false; // Disable the button to prevent further clicks
+                if (clickedButton == btnForward)
+                {
+                    train.State = TrainState.MovingForward;
+                }
+                else if (clickedButton == btnBackward)
+                {
+                    train.State = TrainState.MovingBackward;
+                }
+                else if (clickedButton == btnStop)
+                {
+                    train.State = TrainState.Stopped;
+                }
+                Update();
+            }
         }
     }
 }

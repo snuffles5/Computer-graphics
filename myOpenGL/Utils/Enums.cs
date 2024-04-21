@@ -443,5 +443,11 @@ namespace Utils
         SHIFT_OPPOSITE_Z,
         NONE,
     }
+    public enum TrainState
+    {
+        Stopped,
+        MovingForward,
+        MovingBackward
+    }
 
 }
