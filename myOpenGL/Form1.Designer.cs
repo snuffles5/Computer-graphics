@@ -81,6 +81,8 @@ namespace myOpenGL
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.numberOfCoaches = new System.Windows.Forms.NumericUpDown();
+            this.textBox2 = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -92,6 +94,7 @@ namespace myOpenGL
             this.LightingMaterialChoises.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfCoaches)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -662,6 +665,8 @@ namespace myOpenGL
             // groupBox4
             // 
             this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.textBox2);
+            this.groupBox4.Controls.Add(this.numberOfCoaches);
             this.groupBox4.Controls.Add(this.LightingMaterialChoises);
             this.groupBox4.Controls.Add(this.groupBox3);
             this.groupBox4.Controls.Add(this.hScrollBar1);
@@ -681,6 +686,35 @@ namespace myOpenGL
             this.groupBox4.Size = new System.Drawing.Size(329, 504);
             this.groupBox4.TabIndex = 29;
             this.groupBox4.TabStop = false;
+            // 
+            // numberOfCoaches
+            // 
+            this.numberOfCoaches.Location = new System.Drawing.Point(122, 407);
+            this.numberOfCoaches.Maximum = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            this.numberOfCoaches.Name = "numberOfCoaches";
+            this.numberOfCoaches.Size = new System.Drawing.Size(60, 20);
+            this.numberOfCoaches.TabIndex = 29;
+            this.numberOfCoaches.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.numberOfCoaches.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numberOfCoaches.ValueChanged += new System.EventHandler(this.numberOfCoaches_ValueChanged);
+            // 
+            // textBox2
+            // 
+            this.textBox2.BackColor = System.Drawing.SystemColors.Control;
+            this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox2.Location = new System.Drawing.Point(16, 409);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(100, 13);
+            this.textBox2.TabIndex = 30;
+            this.textBox2.Text = "Number of coaches";
             // 
             // Form1
             // 
@@ -713,6 +747,7 @@ namespace myOpenGL
             this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfCoaches)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -768,6 +803,8 @@ namespace myOpenGL
         private Label label7;
         private GroupBox groupBox3;
         private GroupBox groupBox4;
+        private NumericUpDown numberOfCoaches;
+        private TextBox textBox2;
     }
 }
 

@@ -377,6 +377,19 @@ namespace Utils
         public float[] NewValues { get; set; }
     }
 
+    public enum CoachObject
+    {
+        CARRIAGE_FRONT,
+        CARRIAGE_BACK,
+        CARRIAGE_LEFT,
+        CARRIAGE_RIGHT,
+        CARRIAGE_TOP,
+        CARRIAGE_BOTTOM,
+        CAB_BOTTOM_BASE,
+        CAB_COUPLER,
+        WHEEL_FRONT_BACK,
+        WHEEL_TOP_BOTTOM,
+    }
     public enum TrainObject
     {
         CARRIAGE_FRONT,

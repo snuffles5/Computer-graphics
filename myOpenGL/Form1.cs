@@ -21,7 +21,7 @@ namespace myOpenGL
         {
             InitializeComponent();
 
-            cGL = new cOGL(panel1, textBox1);
+            cGL = new cOGL(panel1, textBox1, numberOfCoaches: (int)numberOfCoaches.Value);
             previousUpdateTime = DateTime.Now; // Initialize the timestamp
 
             hScrollBarScroll(hScrollBar1, null);
@@ -33,7 +33,6 @@ namespace myOpenGL
             hScrollBarScroll(hScrollBar7, null);
             hScrollBarScroll(hScrollBar8, null);
             hScrollBarScroll(hScrollBar9, null);
-
         }
 
         private int[] calculateNewSize()
@@ -521,6 +520,12 @@ namespace myOpenGL
 
             if (cGL.isDoorOpened) cb.Text = "Close";
             else cb.Text = "Open";
+        }
+
+        private void numberOfCoaches_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown nud = (NumericUpDown)sender;
+            this.cGL.train.UpdateNumberOfCoaches((int)nud.Value);
         }
     }
 }

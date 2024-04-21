@@ -52,6 +52,7 @@ namespace OpenGL
         public float yAngle;
         public float zAngle;
         public float groundHeight;
+        public int numberOfCoaches;
         private Rail rails;
         private Color groundColor = Color.DimGray;
         private Color wallColor = Color.SkyBlue;
@@ -62,7 +63,7 @@ namespace OpenGL
         public LightPropertyUpdateKeyAndValue LightPropertyUpdatedValue { get; internal set; }
 
         // Constructor initializes OpenGL context and objects
-        public cOGL(Control pb, TextBox debugTextBox)
+        public cOGL(Control pb, TextBox debugTextBox, int numberOfCoaches)
         {
             p = pb;
             Width = p.Width;
@@ -73,7 +74,8 @@ namespace OpenGL
             Vector3WithAngle characterRotationOffset = new Vector3WithAngle(0.0f, 1.0f, 0.0f, 360);
             ch = new Character("ninja.ms3d", characterShiftOffset, characterRotationOffset);
             this.debugTextBox = debugTextBox;
-            train = new Train(debugTextBox, 1, isTextureEnabled: true);
+            this.numberOfCoaches = numberOfCoaches;
+            train = new Train(debugTextBox, numberOfCoaches: numberOfCoaches, isTextureEnabled: true);
             sun = new Sun(debugTextBox);
             rails = new Rail(train.MainLocomotive.WheelOffsetZ);
             sunCoords = new Vector3();
